@@ -26,6 +26,8 @@ A responsive Angular web application for formatting, validating, and manipulatin
    cd json-beauty
    ```
 
+   Note: The repository will be cloned into a folder named `json-beauty`. This is the main project folder, not a parent folder.
+
 3. Install dependencies:
    ```
    npm install
