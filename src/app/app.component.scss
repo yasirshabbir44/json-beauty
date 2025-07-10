@@ -8,21 +8,11 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
   padding: 0;
-  background: linear-gradient(135deg, #1976d2, #2196f3);
-  height: 70px;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to right, #ff4081, #7c4dff, #2196f3);
-    z-index: 1010;
-  }
+  background: #fff;
+  height: 64px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .toolbar-container {
@@ -43,23 +33,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    padding: 8px;
     margin-right: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
 
     &:hover {
       transform: rotate(20deg);
-      background: rgba(255, 255, 255, 0.25);
     }
   }
 
   .logo-icon {
-    font-size: 28px;
-    height: 28px;
-    width: 28px;
+    font-size: 24px;
+    height: 24px;
+    width: 24px;
+    color: #4285F4; // Google blue
   }
 
   .title-container {
@@ -68,20 +54,18 @@
   }
 
   .logo-text {
-    font-size: 22px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0;
     line-height: 1.2;
-    background: linear-gradient(to right, #ffffff, #e0e0e0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #5f6368; // Google gray text
   }
 
   .logo-subtitle {
     font-size: 12px;
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: 0;
+    color: #5f6368; // Google gray text
     opacity: 0.8;
     margin-top: 2px;
   }
@@ -93,17 +77,16 @@
   gap: 8px;
 
   .theme-toggle-btn, .help-btn {
-    background: rgba(255, 255, 255, 0.1);
+    color: #5f6368; // Google gray
     border-radius: 50%;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: rgba(0, 0, 0, 0.04);
     }
 
     mat-icon {
-      transition: transform 0.3s ease;
+      transition: transform 0.2s ease;
     }
 
     &:hover mat-icon {
@@ -114,14 +97,13 @@
   .github-link {
     margin: 0 8px;
     font-weight: 500;
-    border-radius: 20px;
+    border-radius: 4px;
     padding: 0 16px;
-    background: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
+    color: #5f6368; // Google gray
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
+      background: rgba(0, 0, 0, 0.04);
     }
 
     mat-icon {
@@ -148,9 +130,9 @@
 }
 
 .app-footer {
-  padding: 24px 0;
-  background-color: #f5f5f5;
-  border-top: 1px solid #e0e0e0;
+  padding: 20px 0;
+  background-color: #f8f9fa; // Google's light gray background
+  border-top: 1px solid #dadce0; // Google's border color
 
   .footer-content {
     display: flex;
@@ -165,8 +147,8 @@
 
   .copyright {
     margin: 0;
-    color: #666;
-    font-size: 14px;
+    color: #5f6368; // Google gray text
+    font-size: 12px;
     text-align: center;
 
     @media (min-width: 768px) {
@@ -186,15 +168,15 @@
   }
 
   .footer-link {
-    color: #666;
+    color: #5f6368; // Google gray text
     text-decoration: none;
-    margin: 0 8px;
-    font-size: 14px;
+    margin: 0 16px 0 0; // Google-style spacing
+    font-size: 12px;
     transition: color 0.2s ease;
 
     &:hover {
-      color: #2196f3; // Primary color
-      text-decoration: underline;
+      color: #4285F4; // Google blue
+      text-decoration: none;
     }
   }
 }
@@ -263,48 +245,61 @@
 /* Dark theme styles */
 :host-context(.dark-theme) {
   .app-header {
-    background: linear-gradient(135deg, #0d47a1, #1565c0);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-
-    &::before {
-      background: linear-gradient(to right, #c2185b, #512da8, #0d47a1);
-    }
+    background: #202124; // Google's dark theme background
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #3c4043; // Google's dark theme border
   }
 
   .logo-container {
-    .logo-animation {
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    .logo-icon {
+      color: #4285F4; // Google blue
     }
 
     .logo-text {
-      background: linear-gradient(to right, #ffffff, #bbdefb);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #e8eaed; // Google's dark theme text color
     }
 
     .logo-subtitle {
-      opacity: 0.7;
+      color: #9aa0a6; // Google's dark theme secondary text color
+      opacity: 1;
+    }
+  }
+
+  .header-actions {
+    .theme-toggle-btn, .help-btn {
+      color: #e8eaed; // Google's dark theme text color
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08); // Google's dark theme hover
+      }
+    }
+
+    .github-link {
+      color: #e8eaed; // Google's dark theme text color
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08); // Google's dark theme hover
+      }
     }
   }
 
   .main-content {
-    background-color: #121212;
+    background-color: #202124; // Google's dark theme background
   }
 
   .app-footer {
-    background-color: #1e1e1e;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #202124; // Google's dark theme background
+    border-top: 1px solid #3c4043; // Google's dark theme border
 
     .copyright {
-      color: rgba(255, 255, 255, 0.7);
+      color: #9aa0a6; // Google's dark theme secondary text color
     }
 
     .footer-link {
-      color: rgba(255, 255, 255, 0.7);
+      color: #9aa0a6; // Google's dark theme secondary text color
 
       &:hover {
-        color: #64b5f6;
+        color: #4285F4; // Google blue
       }
     }
   }

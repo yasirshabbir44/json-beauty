@@ -12,26 +12,22 @@
 }
 
 .editor-card {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   overflow: hidden;
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  background: linear-gradient(145deg, #ffffff, #f8f9fa);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 
-              0 1px 5px rgba(0, 0, 0, 0.05), 
-              0 2px 2px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  border: none;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 
-                0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
   }
 
   mat-card-header {
-    background: rgba(33, 150, 243, 0.05);
+    background: #ffffff;
     padding: 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #dadce0; // Google's border color
   }
 }
 
@@ -82,7 +78,6 @@
 }
 
 .header-icon {
-  background-color: rgba(33, 150, 243, 0.1); // Light primary color
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,6 +85,7 @@
 
   mat-icon {
     margin: 8px;
+    color: #4285F4; // Google blue
   }
 }
 

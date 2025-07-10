@@ -119,26 +119,31 @@ $json-beauty-theme: mat.define-light-theme((
 }
 
 .mat-card-title {
-  font-size: 1.5rem !important;
-  font-weight: 500 !important;
-  color: mat.get-color-from-palette($json-beauty-primary-palette, 800);
+  font-size: 1.375rem !important;
+  font-weight: 400 !important;
+  color: #202124 !important; // Google's text color
+  letter-spacing: 0 !important;
 }
 
 .mat-card-subtitle {
-  font-size: 1rem !important;
-  color: rgba(0, 0, 0, 0.6) !important;
+  font-size: 0.875rem !important;
+  color: #5f6368 !important; // Google's secondary text color
+  letter-spacing: 0 !important;
+  margin-top: 4px !important;
 }
 
 .mat-raised-button {
   font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-transform: none;
+  letter-spacing: 0.25px;
   border-radius: 4px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  padding: 0 24px;
+  height: 36px;
+  line-height: 36px;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
   }
 }
 
@@ -182,65 +187,91 @@ $json-beauty-theme: mat.define-light-theme((
   @include mat.all-component-colors($dark-theme);
 
   // Custom dark theme styles
-  background-color: #121212;
-  color: rgba(255, 255, 255, 0.87);
+  background-color: #202124; // Google's dark theme background
+  color: #e8eaed; // Google's dark theme text color
 
   .app-header {
-    background-color: #1e1e1e !important;
+    background-color: #202124 !important; // Google's dark theme background
+    border-bottom: 1px solid #3c4043 !important; // Google's dark theme border
   }
 
   .main-content {
-    background-color: #121212;
+    background-color: #202124; // Google's dark theme background
   }
 
   .app-footer {
-    background-color: #1e1e1e;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #202124; // Google's dark theme background
+    border-top: 1px solid #3c4043; // Google's dark theme border
 
     .copyright {
-      color: rgba(255, 255, 255, 0.7);
+      color: #9aa0a6; // Google's dark theme secondary text color
     }
 
     .footer-link {
-      color: rgba(255, 255, 255, 0.7);
+      color: #9aa0a6; // Google's dark theme secondary text color
 
       &:hover {
-        color: mat.get-color-from-palette($dark-primary, 500);
+        color: #4285F4; // Google blue
       }
     }
   }
 
-  .editor-card, .features-card {
-    background-color: #1e1e1e;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-
-    &:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
-    }
+  .mat-card-title {
+    color: #e8eaed !important; // Google's dark theme text color
   }
 
   .mat-card-subtitle {
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: #9aa0a6 !important; // Google's dark theme secondary text color
   }
 
+  .editor-card, .features-card {
+    background-color: #2d2d2d; // Google's dark theme card background
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #3c4043; // Google's dark theme border
+
+    &:hover {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    mat-card-header {
+      background: #2d2d2d; // Google's dark theme card background
+      border-bottom: 1px solid #3c4043; // Google's dark theme border
+    }
+  }
+
+
   .actions-section {
-    background-color: #2d2d2d;
+    background-color: #2d2d2d; // Google's dark theme card background
+    border: 1px solid #3c4043; // Google's dark theme border
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+
+    &::before {
+      background: #4285F4; // Google blue
+    }
   }
 
   .editor-section h3 {
-    color: mat.get-color-from-palette($dark-primary, 300);
+    color: #4285F4; // Google blue
 
     &:after {
-      background-color: mat.get-color-from-palette($dark-primary, 300);
+      background-color: #4285F4; // Google blue
+    }
+
+    .section-icon {
+      color: #4285F4; // Google blue
     }
   }
 
   .feature-tip {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-left: 4px solid mat.get-color-from-palette($dark-primary, 300);
+    background-color: rgba(66, 133, 244, 0.08); // Light Google blue background
+    border-left: 4px solid #4285F4; // Google blue
 
     span {
-      color: rgba(255, 255, 255, 0.7);
+      color: #9aa0a6; // Google's dark theme secondary text color
+    }
+
+    mat-icon {
+      color: #4285F4; // Google blue
     }
   }
 
