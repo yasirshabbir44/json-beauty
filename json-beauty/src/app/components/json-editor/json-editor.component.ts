@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 
 @Component({
@@ -13,18 +14,81 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 })
 export class JsonEditorComponent implements OnInit {
   @ViewChild('editor', { static: true }) editorElement!: ElementRef;
-  
+
   editor: any;
   jsonInput = new FormControl('');
   jsonOutput = new FormControl('');
   isValidJson = true;
   errorMessage = '';
-  
-  constructor(private snackBar: MatSnackBar) {}
+  showKeyboardShortcuts = false;
+  showFeatures = false;
+
+  // Keyboard shortcuts
+  keyboardShortcuts = [
+    { key: 'Ctrl + B', action: 'Beautify JSON' },
+    { key: 'Ctrl + M', action: 'Minify JSON' },
+    { key: 'Ctrl + L', action: 'Lint & Fix JSON' },
+    { key: 'Ctrl + C', action: 'Copy to Clipboard' },
+    { key: 'Ctrl + S', action: 'Download JSON' },
+    { key: 'Ctrl + D', action: 'Clear Editor' },
+    { key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts' }
+  ];
+
+  constructor(private snackBar: MatSnackBar) {
+    // Listen for dark mode changes
+    document.body.addEventListener('DOMSubtreeModified', () => {
+      this.updateEditorTheme();
+    });
+  }
+
+  // Listen for keyboard shortcuts
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    // Only process if Ctrl key is pressed
+    if (event.ctrlKey) {
+      switch (event.key.toLowerCase()) {
+        case 'b':
+          event.preventDefault();
+          this.beautifyJson();
+          break;
+        case 'm':
+          event.preventDefault();
+          this.minifyJson();
+          break;
+        case 'l':
+          event.preventDefault();
+          this.lintJson();
+          break;
+        case 'c':
+          // Only handle if we're not in the editor (let browser handle copy in editor)
+          if (document.activeElement !== this.editorElement.nativeElement) {
+            event.preventDefault();
+            this.copyToClipboard();
+          }
+          break;
+        case 's':
+          event.preventDefault();
+          this.downloadJson();
+          break;
+        case 'd':
+          event.preventDefault();
+          this.clearEditor();
+          break;
+        case 'k':
+          event.preventDefault();
+          this.toggleKeyboardShortcuts();
+          break;
+      }
+    }
+  }
+
+  toggleKeyboardShortcuts(): void {
+    this.showKeyboardShortcuts = !this.showKeyboardShortcuts;
+  }
 
   ngOnInit(): void {
     this.initializeEditor();
-    
+
     // Set some sample JSON to help users get started
     const sampleJson = {
       "name": "JSON Beauty",
@@ -41,47 +105,92 @@ export class JsonEditorComponent implements OnInit {
       "isAwesome": true,
       "numberOfUsers": 1000
     };
-    
+
     this.jsonInput.setValue(JSON.stringify(sampleJson, null, 2));
     this.updateOutput();
   }
 
   initializeEditor(): void {
     ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
-    
+
     this.editor = ace.edit(this.editorElement.nativeElement);
-    this.editor.setTheme('ace/theme/github');
+    this.updateEditorTheme();
     this.editor.session.setMode('ace/mode/json');
     this.editor.setOptions({
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
       showLineNumbers: true,
-      tabSize: 2
+      tabSize: 2,
+      fontSize: '15px',
+      printMarginColumn: 120
     });
-    
+
     this.editor.on('change', () => {
       this.jsonInput.setValue(this.editor.getValue());
       this.validateJson();
     });
   }
 
+  updateEditorTheme(): void {
+    if (this.editor) {
+      const isDarkMode = document.body.classList.contains('dark-theme');
+      this.editor.setTheme(isDarkMode ? 'ace/theme/dracula' : 'ace/theme/github');
+    }
+  }
+
   validateJson(): void {
     const jsonString = this.jsonInput.value;
-    
+
     if (!jsonString) {
       this.isValidJson = false;
-      this.errorMessage = 'JSON is empty';
+      this.errorMessage = 'JSON is empty. Please enter some JSON data.';
       return;
     }
-    
+
     try {
       JSON.parse(jsonString);
       this.isValidJson = true;
       this.errorMessage = '';
     } catch (e: any) {
       this.isValidJson = false;
-      this.errorMessage = e.message;
+
+      // Enhance error message with more helpful information
+      let enhancedMessage = e.message;
+
+      // Extract position information if available
+      const positionMatch = e.message.match(/position (\d+)/);
+      if (positionMatch && positionMatch[1]) {
+        const position = parseInt(positionMatch[1]);
+        const errorContext = this.getErrorContext(jsonString, position);
+        enhancedMessage = `${e.message}\n\nError near: ${errorContext}`;
+      }
+
+      // Add common error suggestions
+      if (e.message.includes('Unexpected token')) {
+        enhancedMessage += '\n\nCommon causes: missing comma, extra comma, or unquoted property name.';
+      } else if (e.message.includes('Unexpected end of JSON')) {
+        enhancedMessage += '\n\nCheck for missing closing brackets or braces.';
+      }
+
+      this.errorMessage = enhancedMessage;
     }
+  }
+
+  /**
+   * Get the context around the error position to help identify the issue
+   */
+  private getErrorContext(jsonString: string, position: number): string {
+    const start = Math.max(0, position - 10);
+    const end = Math.min(jsonString.length, position + 10);
+    let context = jsonString.substring(start, end);
+
+    // Highlight the error position with a marker
+    if (position >= start && position < end) {
+      const relativePos = position - start;
+      context = context.substring(0, relativePos) + '👉' + context.substring(relativePos);
+    }
+
+    return context;
   }
 
   beautifyJson(): void {
@@ -89,7 +198,7 @@ export class JsonEditorComponent implements OnInit {
       this.showError('Cannot beautify invalid JSON');
       return;
     }
-    
+
     try {
       const jsonObj = JSON.parse(this.jsonInput.value || '{}');
       const beautified = JSON.stringify(jsonObj, null, 2);
@@ -106,7 +215,7 @@ export class JsonEditorComponent implements OnInit {
       this.showError('Cannot minify invalid JSON');
       return;
     }
-    
+
     try {
       const jsonObj = JSON.parse(this.jsonInput.value || '{}');
       const minified = JSON.stringify(jsonObj);
@@ -122,14 +231,14 @@ export class JsonEditorComponent implements OnInit {
       this.showError('Cannot lint invalid JSON');
       return;
     }
-    
+
     try {
       // Basic linting: parse and re-stringify with formatting
       const jsonObj = JSON.parse(this.jsonInput.value || '{}');
-      
+
       // Sort keys alphabetically for consistent output
       const sortedObj = this.sortObjectKeys(jsonObj);
-      
+
       const linted = JSON.stringify(sortedObj, null, 2);
       this.editor.setValue(linted, -1);
       this.jsonOutput.setValue(linted);
@@ -144,13 +253,13 @@ export class JsonEditorComponent implements OnInit {
     if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
       return obj;
     }
-    
+
     // Create a new object with sorted keys
     const sortedObj: any = {};
     Object.keys(obj).sort().forEach(key => {
       sortedObj[key] = this.sortObjectKeys(obj[key]);
     });
-    
+
     return sortedObj;
   }
 
@@ -164,12 +273,12 @@ export class JsonEditorComponent implements OnInit {
 
   copyToClipboard(): void {
     const textToCopy = this.jsonOutput.value;
-    
+
     if (!textToCopy) {
       this.showError('Nothing to copy');
       return;
     }
-    
+
     navigator.clipboard.writeText(textToCopy)
       .then(() => this.showSuccess('Copied to clipboard'))
       .catch(err => this.showError('Failed to copy: ' + err));
@@ -180,7 +289,7 @@ export class JsonEditorComponent implements OnInit {
       this.showError('Nothing to download');
       return;
     }
-    
+
     const blob = new Blob([this.jsonOutput.value], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -190,7 +299,7 @@ export class JsonEditorComponent implements OnInit {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    
+
     this.showSuccess('JSON downloaded successfully');
   }
 

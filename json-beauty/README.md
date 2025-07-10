@@ -18,7 +18,7 @@ A responsive Angular web application for formatting, validating, and manipulatin
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/json-beauty.git
+   git clone https://github.com/yasirshabbir44/json-beauty.git
    ```
 
 2. Navigate to the project directory:

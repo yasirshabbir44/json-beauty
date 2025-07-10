@@ -28,32 +28,66 @@
         <!-- Actions Section -->
         <div class="actions-section slide-up">
           <div class="action-buttons">
-            <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Format JSON with proper indentation">
-              <mat-icon>format_align_left</mat-icon> Beautify
+            <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" 
+              matTooltip="Format JSON with proper indentation (Ctrl+B)" 
+              aria-label="Beautify JSON - Format with proper indentation">
+              <mat-icon aria-hidden="true">format_align_left</mat-icon> Beautify
             </button>
 
-            <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" matTooltip="Remove all whitespace">
-              <mat-icon>compress</mat-icon> Minify
+            <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" 
+              matTooltip="Remove all whitespace (Ctrl+M)" 
+              aria-label="Minify JSON - Remove all whitespace">
+              <mat-icon aria-hidden="true">compress</mat-icon> Minify
             </button>
 
-            <button mat-raised-button color="warn" (click)="lintJson()" [disabled]="!isValidJson" matTooltip="Fix common issues and sort keys">
-              <mat-icon>build</mat-icon> Lint & Fix
+            <button mat-raised-button color="warn" (click)="lintJson()" [disabled]="!isValidJson" 
+              matTooltip="Fix common issues and sort keys (Ctrl+L)" 
+              aria-label="Lint and Fix JSON - Fix common issues and sort keys">
+              <mat-icon aria-hidden="true">build</mat-icon> Lint & Fix
             </button>
 
-            <button mat-stroked-button (click)="clearEditor()" matTooltip="Clear all content">
-              <mat-icon>delete_outline</mat-icon> Clear
+            <button mat-stroked-button (click)="clearEditor()" 
+              matTooltip="Clear all content (Ctrl+D)" 
+              aria-label="Clear editor - Remove all content">
+              <mat-icon aria-hidden="true">delete_outline</mat-icon> Clear
             </button>
+
+            <button mat-stroked-button (click)="toggleKeyboardShortcuts()" 
+              matTooltip="Show/Hide Keyboard Shortcuts (Ctrl+K)" 
+              aria-label="Toggle keyboard shortcuts panel">
+              <mat-icon aria-hidden="true">keyboard</mat-icon> Shortcuts
+            </button>
+          </div>
+
+          <!-- Keyboard Shortcuts Dialog -->
+          <div *ngIf="showKeyboardShortcuts" class="keyboard-shortcuts-panel">
+            <div class="shortcuts-header">
+              <h4>Keyboard Shortcuts</h4>
+              <button mat-icon-button (click)="toggleKeyboardShortcuts()" aria-label="Close shortcuts panel">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="shortcuts-content">
+              <div class="shortcut-item" *ngFor="let shortcut of keyboardShortcuts">
+                <span class="shortcut-key">{{ shortcut.key }}</span>
+                <span class="shortcut-action">{{ shortcut.action }}</span>
+              </div>
+            </div>
           </div>
 
           <mat-divider></mat-divider>
 
           <div class="export-buttons">
-            <button mat-raised-button color="primary" (click)="copyToClipboard()" [disabled]="!jsonOutput.value" matTooltip="Copy to clipboard">
-              <mat-icon>content_copy</mat-icon> Copy
+            <button mat-raised-button color="primary" (click)="copyToClipboard()" [disabled]="!jsonOutput.value" 
+              matTooltip="Copy to clipboard (Ctrl+C)" 
+              aria-label="Copy JSON to clipboard">
+              <mat-icon aria-hidden="true">content_copy</mat-icon> Copy
             </button>
 
-            <button mat-raised-button color="accent" (click)="downloadJson()" [disabled]="!jsonOutput.value" matTooltip="Download as JSON file">
-              <mat-icon>download</mat-icon> Download
+            <button mat-raised-button color="accent" (click)="downloadJson()" [disabled]="!jsonOutput.value" 
+              matTooltip="Download as JSON file (Ctrl+S)" 
+              aria-label="Download JSON as a file">
+              <mat-icon aria-hidden="true">download</mat-icon> Download
             </button>
           </div>
         </div>
@@ -73,8 +107,16 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Features Section -->
-  <mat-card class="features-card mt-4 slide-up">
+  <!-- Features Section Toggle Button -->
+  <div class="features-toggle mt-4">
+    <button mat-stroked-button (click)="showFeatures = !showFeatures" class="full-width" aria-label="Toggle features section">
+      <mat-icon aria-hidden="true">{{ showFeatures ? 'expand_less' : 'expand_more' }}</mat-icon>
+      {{ showFeatures ? 'Hide Features' : 'Show Features' }}
+    </button>
+  </div>
+
+  <!-- Features Section (Lazy Loaded) -->
+  <mat-card *ngIf="showFeatures" class="features-card mt-4 slide-up">
     <mat-card-header>
       <div mat-card-avatar class="header-icon">
         <mat-icon color="primary">stars</mat-icon>
@@ -86,56 +128,56 @@
       <mat-tab-group animationDuration="300ms">
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">format_align_left</mat-icon>
+            <mat-icon class="tab-icon" aria-hidden="true">format_align_left</mat-icon>
             <span>Beautify</span>
           </ng-template>
           <div class="tab-content">
             <p>Format your JSON with proper indentation to make it more readable.</p>
             <p>The beautify function adds consistent spacing and line breaks to your JSON structure.</p>
             <p class="feature-tip">
-              <mat-icon color="primary">lightbulb</mat-icon>
+              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
               <span>Tip: Use beautify when you need to read and understand complex JSON structures.</span>
             </p>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">compress</mat-icon>
+            <mat-icon class="tab-icon" aria-hidden="true">compress</mat-icon>
             <span>Minify</span>
           </ng-template>
           <div class="tab-content">
             <p>Remove all unnecessary whitespace to reduce the size of your JSON.</p>
             <p>Minified JSON is ideal for production environments and API responses.</p>
             <p class="feature-tip">
-              <mat-icon color="primary">lightbulb</mat-icon>
+              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
               <span>Tip: Minifying can significantly reduce file size for large JSON documents.</span>
             </p>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">check_circle</mat-icon>
+            <mat-icon class="tab-icon" aria-hidden="true">check_circle</mat-icon>
             <span>Validate</span>
           </ng-template>
           <div class="tab-content">
             <p>Automatically validates your JSON as you type.</p>
             <p>Detailed error messages help you identify and fix syntax issues.</p>
             <p class="feature-tip">
-              <mat-icon color="primary">lightbulb</mat-icon>
+              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
               <span>Tip: Look for the error message at the bottom of the editor when validation fails.</span>
             </p>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">build</mat-icon>
+            <mat-icon class="tab-icon" aria-hidden="true">build</mat-icon>
             <span>Lint & Fix</span>
           </ng-template>
           <div class="tab-content">
             <p>Automatically fix common JSON issues and sort object keys alphabetically.</p>
             <p>Linting helps maintain consistent JSON formatting across your projects.</p>
             <p class="feature-tip">
-              <mat-icon color="primary">lightbulb</mat-icon>
+              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
               <span>Tip: Use this feature to standardize JSON files from different sources.</span>
             </p>
           </div>

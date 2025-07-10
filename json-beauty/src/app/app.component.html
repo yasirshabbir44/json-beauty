@@ -7,7 +7,10 @@
       </div>
       <span class="spacer"></span>
       <div class="header-actions">
-        <a mat-button href="https://github.com/yourusername/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
+        <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle Theme">
+          <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+        <a mat-button href="https://github.com/yasirshabbir44/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
           <mat-icon>code</mat-icon> GitHub
         </a>
         <button mat-icon-button aria-label="Help" matTooltip="Help">

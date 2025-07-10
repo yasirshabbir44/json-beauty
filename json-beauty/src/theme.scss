@@ -108,7 +108,7 @@ $json-beauty-theme: mat.define-light-theme((
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
   border-radius: 8px !important;
   transition: box-shadow 0.3s ease;
-  
+
   &:hover {
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
   }
@@ -135,7 +135,7 @@ $json-beauty-theme: mat.define-light-theme((
   letter-spacing: 0.5px;
   border-radius: 4px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -146,12 +146,12 @@ $json-beauty-theme: mat.define-light-theme((
   .mat-tab-label {
     font-weight: 500;
     opacity: 0.8;
-    
+
     &.mat-tab-label-active {
       opacity: 1;
     }
   }
-  
+
   .mat-tab-body-content {
     padding: 16px 0;
   }
@@ -165,7 +165,7 @@ $json-beauty-theme: mat.define-light-theme((
   color: mat.get-color-from-palette($json-beauty-primary-palette, 500);
 }
 
-// Dark mode support (optional)
+// Dark mode support
 .dark-theme {
   $dark-primary: mat.define-palette($json-beauty-primary, 300);
   $dark-accent: mat.define-palette($json-beauty-accent, 300);
@@ -180,4 +180,95 @@ $json-beauty-theme: mat.define-light-theme((
   ));
 
   @include mat.all-component-colors($dark-theme);
+
+  // Custom dark theme styles
+  background-color: #121212;
+  color: rgba(255, 255, 255, 0.87);
+
+  .app-header {
+    background-color: #1e1e1e !important;
+  }
+
+  .main-content {
+    background-color: #121212;
+  }
+
+  .app-footer {
+    background-color: #1e1e1e;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .copyright {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+
+      &:hover {
+        color: mat.get-color-from-palette($dark-primary, 500);
+      }
+    }
+  }
+
+  .editor-card, .features-card {
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+
+    &:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+    }
+  }
+
+  .mat-card-subtitle {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .actions-section {
+    background-color: #2d2d2d;
+  }
+
+  .editor-section h3 {
+    color: mat.get-color-from-palette($dark-primary, 300);
+
+    &:after {
+      background-color: mat.get-color-from-palette($dark-primary, 300);
+    }
+  }
+
+  .feature-tip {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid mat.get-color-from-palette($dark-primary, 300);
+
+    span {
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+  .mat-tab-group {
+    .mat-tab-header {
+      background-color: #2d2d2d;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-content {
+      background-color: #1e1e1e;
+
+      p {
+        color: rgba(255, 255, 255, 0.7);
+      }
+    }
+  }
+
+  // Custom scrollbar for dark mode
+  ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #555;
+
+    &:hover {
+      background: #777;
+    }
+  }
 }
