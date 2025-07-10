@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import Ajv from 'ajv';
 import * as jsondiffpatch from 'jsondiffpatch';
+import * as JSON5 from 'json5';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,10 @@ import * as jsondiffpatch from 'jsondiffpatch';
 export class JsonService {
   private ajv = new Ajv({ allErrors: true });
   private diffPatcher = jsondiffpatch.create();
+
+  // Default indentation settings
+  private indentSize = 2;
+  private indentChar = ' ';
 
   constructor() {}
 
@@ -179,14 +184,77 @@ export class JsonService {
   }
 
   /**
+   * Sets custom indentation settings
+   * @param size The number of characters to use for indentation
+   * @param char The character to use for indentation (space or tab)
+   */
+  setIndentation(size: number, char: ' ' | '\t'): void {
+    this.indentSize = size;
+    this.indentChar = char;
+  }
+
+  /**
+   * Enforces strict double quotes in JSON keys and string values
+   * @param jsonString The JSON string to process
+   * @returns The JSON string with strict double quotes
+   */
+  enforceStrictDoubleQuotes(jsonString: string): string {
+    try {
+      // First try to parse the JSON to see if it's valid
+      const jsonObj = JSON.parse(jsonString || '{}');
+
+      // Use JSON.stringify to ensure all keys and string values use double quotes
+      return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+    } catch (e) {
+      // If parsing fails, try to fix common issues with quotes
+      // This is a simple approach and may not handle all cases
+      let fixedJson = jsonString
+        // Replace single quotes around keys with double quotes
+        .replace(/'([^']+)':/g, '"$1":')
+        // Replace single quotes around string values with double quotes
+        .replace(/:\s*'([^']*)'/g, ': "$1"');
+
+      try {
+        // Try to parse the fixed JSON
+        const jsonObj = JSON.parse(fixedJson);
+        return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+      } catch (e) {
+        const errorMessage = e instanceof Error ? e.message : String(e);
+        throw new Error(`Error enforcing strict double quotes: ${errorMessage}`);
+      }
+    }
+  }
+
+  /**
+   * Fixes inconsistent indentation in arrays and objects
+   * @param jsonString The JSON string to fix
+   * @returns The JSON string with consistent indentation
+   */
+  fixInconsistentIndentation(jsonString: string): string {
+    try {
+      // Parse the JSON to get the object structure
+      const jsonObj = JSON.parse(jsonString || '{}');
+
+      // Use JSON.stringify with a custom replacer to ensure consistent indentation
+      return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error fixing indentation: ${errorMessage}`);
+    }
+  }
+
+  /**
    * Beautifies a JSON string
    * @param jsonString The JSON string to beautify
    * @returns The beautified JSON string
    */
   beautifyJson(jsonString: string): string {
     try {
-      const jsonObj = JSON.parse(jsonString || '{}');
-      return JSON.stringify(jsonObj, null, 2);
+      // First enforce strict double quotes
+      const strictJson = this.enforceStrictDoubleQuotes(jsonString);
+
+      // Then fix inconsistent indentation
+      return this.fixInconsistentIndentation(strictJson);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       throw new Error(`Error beautifying JSON: ${errorMessage}`);
@@ -200,7 +268,13 @@ export class JsonService {
    */
   minifyJson(jsonString: string): string {
     try {
-      const jsonObj = JSON.parse(jsonString || '{}');
+      // First enforce strict double quotes
+      const strictJson = this.enforceStrictDoubleQuotes(jsonString);
+
+      // Parse the JSON to get the object structure
+      const jsonObj = JSON.parse(strictJson);
+
+      // Use JSON.stringify without indentation to minify
       return JSON.stringify(jsonObj);
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
@@ -215,9 +289,17 @@ export class JsonService {
    */
   lintJson(jsonString: string): string {
     try {
-      const jsonObj = JSON.parse(jsonString || '{}');
+      // First enforce strict double quotes
+      const strictJson = this.enforceStrictDoubleQuotes(jsonString);
+
+      // Parse the JSON to get the object structure
+      const jsonObj = JSON.parse(strictJson);
+
+      // Sort object keys
       const sortedObj = this.sortObjectKeys(jsonObj);
-      return JSON.stringify(sortedObj, null, 2);
+
+      // Use JSON.stringify with indentation to format
+      return JSON.stringify(sortedObj, null, this.indentChar.repeat(this.indentSize));
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       throw new Error(`Error linting JSON: ${errorMessage}`);
@@ -326,6 +408,59 @@ export class JsonService {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Error comparing JSON: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Parses JSON5 (relaxed JSON) and converts it to standard JSON
+   * @param json5String The JSON5 string to parse
+   * @returns The parsed object as a standard JSON string
+   */
+  parseJSON5(json5String: string): string {
+    try {
+      // Parse the JSON5 string
+      const parsedObj = JSON5.parse(json5String || '{}');
+
+      // Convert back to standard JSON
+      return JSON.stringify(parsedObj, null, this.indentChar.repeat(this.indentSize));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error parsing JSON5: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Validates a JSON5 string
+   * @param json5String The JSON5 string to validate
+   * @returns An object with validation result and error message if any
+   */
+  validateJSON5(json5String: string): { isValid: boolean; errorMessage: string } {
+    if (!json5String) {
+      return {
+        isValid: false,
+        errorMessage: 'JSON5 is empty. Please enter some JSON5 data.'
+      };
+    }
+
+    try {
+      JSON5.parse(json5String);
+      return {
+        isValid: true,
+        errorMessage: ''
+      };
+    } catch (e) {
+      // Ensure e is an Error object with a message property
+      if (!(e instanceof Error)) {
+        return {
+          isValid: false,
+          errorMessage: String(e)
+        };
+      }
+
+      return {
+        isValid: false,
+        errorMessage: e.message
+      };
     }
   }
 }

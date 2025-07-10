@@ -16,14 +16,23 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 })
 export class JsonEditorComponent implements OnInit {
   @ViewChild('editor', { static: true }) editorElement!: ElementRef;
+  @ViewChild('outputEditor', { static: true }) outputEditorElement!: ElementRef;
 
   editor: any;
+  outputEditor: any;
   jsonInput = new FormControl('');
   jsonOutput = new FormControl('');
   isValidJson = true;
   errorMessage = '';
   showKeyboardShortcuts = false;
   showFeatures = false;
+  isDarkTheme = false;
+  showTreeView = false;
+  jsonTreeData: any = null;
+  expandedNodes: Set<string> = new Set();
+  showFormattingOptions = false;
+  indentSize = 2;
+  indentChar = ' ';
 
   // Keyboard shortcuts
   keyboardShortcuts = [
@@ -57,6 +66,7 @@ export class JsonEditorComponent implements OnInit {
     // Listen for dark mode changes
     document.body.addEventListener('DOMSubtreeModified', () => {
       this.updateEditorTheme();
+      this.updateOutputEditorTheme();
     });
   }
 
@@ -105,10 +115,46 @@ export class JsonEditorComponent implements OnInit {
     this.showKeyboardShortcuts = !this.showKeyboardShortcuts;
   }
 
+  toggleTheme(): void {
+    this.isDarkTheme = !this.isDarkTheme;
+    document.body.classList.toggle('dark-theme', this.isDarkTheme);
+    this.updateEditorTheme();
+    this.updateOutputEditorTheme();
+    // Store theme preference in localStorage
+    localStorage.setItem('jsonBeautyTheme', this.isDarkTheme ? 'dark' : 'light');
+  }
+
+  /**
+   * Toggles between text and tree views
+   */
+  toggleTreeView(): void {
+    this.showTreeView = !this.showTreeView;
+
+    if (this.showTreeView && this.isValidJson) {
+      try {
+        // Parse the JSON to create the tree data
+        this.jsonTreeData = JSON.parse(this.jsonOutput.value || '{}');
+      } catch (error) {
+        this.showError('Error parsing JSON for tree view');
+        this.showTreeView = false;
+      }
+    }
+  }
+
   ngOnInit(): void {
+    // Load theme preference from localStorage
+    const savedTheme = localStorage.getItem('jsonBeautyTheme');
+    if (savedTheme === 'dark') {
+      this.isDarkTheme = true;
+      document.body.classList.add('dark-theme');
+    }
+
     this.initializeEditor();
 
-    // Set some sample JSON to help users get started
+    // Check for JSON data in URL (for shared links)
+    this.loadJsonFromUrl();
+
+    // Set some sample JSON to help users get started if no JSON in URL
     const sampleJson = {
       "name": "JSON Beauty",
       "version": "1.0.0",
@@ -132,6 +178,7 @@ export class JsonEditorComponent implements OnInit {
   initializeEditor(): void {
     ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
 
+    // Initialize input editor
     this.editor = ace.edit(this.editorElement.nativeElement);
     this.updateEditorTheme();
     this.editor.session.setMode('ace/mode/json');
@@ -139,21 +186,58 @@ export class JsonEditorComponent implements OnInit {
       enableBasicAutocompletion: true,
       enableLiveAutocompletion: true,
       showLineNumbers: true,
+      showGutter: true,
+      highlightActiveLine: true,
       tabSize: 2,
       fontSize: '15px',
-      printMarginColumn: 120
+      printMarginColumn: 120,
+      showPrintMargin: false,
+      fadeFoldWidgets: true,
+      highlightSelectedWord: true,
+      displayIndentGuides: true
     });
+
+    // Enable real-time syntax error highlighting
+    this.editor.getSession().setUseWorker(true);
 
     this.editor.on('change', () => {
       this.jsonInput.setValue(this.editor.getValue());
       this.validateJson();
     });
+
+    // Initialize output editor
+    this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
+    this.updateOutputEditorTheme();
+    this.outputEditor.session.setMode('ace/mode/json');
+    this.outputEditor.setOptions({
+      readOnly: true,
+      showLineNumbers: true,
+      showGutter: true,
+      highlightActiveLine: false,
+      tabSize: 2,
+      fontSize: '15px',
+      printMarginColumn: 120,
+      showPrintMargin: false,
+      fadeFoldWidgets: true,
+      highlightSelectedWord: true,
+      displayIndentGuides: true
+    });
+
+    // Disable syntax error highlighting for output editor
+    this.outputEditor.getSession().setUseWorker(false);
   }
 
   updateEditorTheme(): void {
     if (this.editor) {
       const isDarkMode = document.body.classList.contains('dark-theme');
       this.editor.setTheme(isDarkMode ? 'ace/theme/dracula' : 'ace/theme/github');
+    }
+  }
+
+  updateOutputEditorTheme(): void {
+    if (this.outputEditor) {
+      const isDarkMode = document.body.classList.contains('dark-theme');
+      this.outputEditor.setTheme(isDarkMode ? 'ace/theme/dracula' : 'ace/theme/github');
     }
   }
 
@@ -246,6 +330,12 @@ export class JsonEditorComponent implements OnInit {
       const beautified = JSON.stringify(jsonObj, null, 2);
       this.editor.setValue(beautified, -1);
       this.jsonOutput.setValue(beautified);
+
+      // Update the output editor
+      if (this.outputEditor) {
+        this.outputEditor.setValue(beautified, -1);
+      }
+
       this.showSuccess('JSON beautified successfully');
     } catch (e: any) {
       this.showError('Error beautifying JSON: ' + e.message);
@@ -262,6 +352,12 @@ export class JsonEditorComponent implements OnInit {
       const jsonObj = JSON.parse(this.jsonInput.value || '{}');
       const minified = JSON.stringify(jsonObj);
       this.jsonOutput.setValue(minified);
+
+      // Update the output editor
+      if (this.outputEditor) {
+        this.outputEditor.setValue(minified, -1);
+      }
+
       this.showSuccess('JSON minified successfully');
     } catch (e: any) {
       this.showError('Error minifying JSON: ' + e.message);
@@ -284,6 +380,12 @@ export class JsonEditorComponent implements OnInit {
       const linted = JSON.stringify(sortedObj, null, 2);
       this.editor.setValue(linted, -1);
       this.jsonOutput.setValue(linted);
+
+      // Update the output editor
+      if (this.outputEditor) {
+        this.outputEditor.setValue(linted, -1);
+      }
+
       this.showSuccess('JSON linted successfully');
     } catch (e: any) {
       this.showError('Error linting JSON: ' + e.message);
@@ -307,13 +409,37 @@ export class JsonEditorComponent implements OnInit {
 
   updateOutput(): void {
     if (this.isValidJson) {
-      this.jsonOutput.setValue(this.jsonInput.value || '');
+      const jsonString = this.jsonInput.value || '';
+      this.jsonOutput.setValue(jsonString);
+
+      // Update the output editor with the formatted JSON
+      if (this.outputEditor) {
+        this.outputEditor.setValue(jsonString, -1);
+        // Fold all arrays and objects for better readability
+        this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
+      }
+
+      // Update tree view data if tree view is active
+      if (this.showTreeView) {
+        try {
+          this.jsonTreeData = JSON.parse(jsonString);
+          // Reset expanded nodes when JSON changes
+          this.expandedNodes.clear();
+        } catch (error) {
+          this.jsonTreeData = null;
+        }
+      }
+
       this.updateJsonPaths();
       this.updateYamlOutput();
     } else {
       this.jsonOutput.setValue('');
+      if (this.outputEditor) {
+        this.outputEditor.setValue('', -1);
+      }
       this.yamlOutput.setValue('');
       this.jsonPaths = [];
+      this.jsonTreeData = null;
     }
   }
 
@@ -394,6 +520,106 @@ export class JsonEditorComponent implements OnInit {
   }
 
   /**
+   * Imports JSON from a file
+   * @param event The file input change event
+   */
+  importFile(event: any): void {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+
+        // Try to parse the file content to validate it's JSON
+        JSON.parse(content);
+
+        // Set the editor value
+        this.editor.setValue(content, -1);
+        this.jsonInput.setValue(content);
+        this.validateJson();
+        this.updateOutput();
+
+        this.showSuccess(`File "${file.name}" imported successfully`);
+      } catch (error) {
+        this.showError(`Error importing file: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      // Reset the file input so the same file can be selected again
+      event.target.value = '';
+    };
+
+    reader.onerror = () => {
+      this.showError('Error reading file');
+      event.target.value = '';
+    };
+
+    reader.readAsText(file);
+  }
+
+  /**
+   * Searches for text in the JSON output
+   * @param searchText The text to search for
+   */
+  searchInJson(searchText: string): void {
+    if (!searchText) {
+      this.clearSearch();
+      return;
+    }
+
+    if (this.outputEditor) {
+      // Use Ace editor's search functionality
+      const search = ace.require('ace/search').Search;
+      const searchInstance = new search();
+
+      searchInstance.set({
+        needle: searchText,
+        caseSensitive: false,
+        wholeWord: false,
+        regExp: false,
+        range: null,
+        wrap: true,
+        preventScroll: false
+      });
+
+      const range = searchInstance.find(this.outputEditor.getSession());
+      if (range) {
+        this.outputEditor.focus();
+      } else {
+        this.showError(`No matches found for "${searchText}"`);
+      }
+    }
+  }
+
+  /**
+   * Finds the next occurrence of the search text
+   */
+  findNext(): void {
+    if (this.outputEditor) {
+      this.outputEditor.findNext();
+    }
+  }
+
+  /**
+   * Finds the previous occurrence of the search text
+   */
+  findPrevious(): void {
+    if (this.outputEditor) {
+      this.outputEditor.findPrevious();
+    }
+  }
+
+  /**
+   * Clears the search highlighting
+   */
+  clearSearch(): void {
+    if (this.outputEditor) {
+      this.outputEditor.execCommand('clearSelection');
+    }
+  }
+
+  /**
    * Toggles the schema editor visibility
    */
   toggleSchemaEditor(): void {
@@ -467,5 +693,200 @@ export class JsonEditorComponent implements OnInit {
       duration: 5000,
       panelClass: 'error-snackbar'
     });
+  }
+
+  /**
+   * Tree View Helper Methods
+   */
+
+  /**
+   * Gets the keys of an object
+   * @param obj The object to get keys from
+   * @returns Array of keys
+   */
+  getObjectKeys(obj: any): string[] {
+    if (!obj || typeof obj !== 'object') return [];
+    return Object.keys(obj);
+  }
+
+  /**
+   * Checks if a value is expandable (object or array)
+   * @param value The value to check
+   * @returns True if the value is expandable
+   */
+  isExpandable(value: any): boolean {
+    return (this.isObject(value) || this.isArray(value)) && 
+           (this.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
+  }
+
+  /**
+   * Toggles a node's expanded state
+   * @param nodeId The ID of the node to toggle
+   */
+  toggleNode(nodeId: string): void {
+    if (this.expandedNodes.has(nodeId)) {
+      this.expandedNodes.delete(nodeId);
+    } else {
+      this.expandedNodes.add(nodeId);
+    }
+  }
+
+  /**
+   * Checks if a node is expanded
+   * @param nodeId The ID of the node to check
+   * @returns True if the node is expanded
+   */
+  isNodeExpanded(nodeId: string): boolean {
+    return this.expandedNodes.has(nodeId);
+  }
+
+  /**
+   * Checks if a value is a string
+   * @param value The value to check
+   * @returns True if the value is a string
+   */
+  isString(value: any): boolean {
+    return typeof value === 'string';
+  }
+
+  /**
+   * Checks if a value is a number
+   * @param value The value to check
+   * @returns True if the value is a number
+   */
+  isNumber(value: any): boolean {
+    return typeof value === 'number';
+  }
+
+  /**
+   * Checks if a value is a boolean
+   * @param value The value to check
+   * @returns True if the value is a boolean
+   */
+  isBoolean(value: any): boolean {
+    return typeof value === 'boolean';
+  }
+
+  /**
+   * Checks if a value is an array
+   * @param value The value to check
+   * @returns True if the value is an array
+   */
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
+
+  /**
+   * Checks if a value is an object
+   * @param value The value to check
+   * @returns True if the value is an object
+   */
+  isObject(value: any): boolean {
+    return value !== null && typeof value === 'object';
+  }
+
+  /**
+   * Formats a value for display in the tree view
+   * @param value The value to format
+   * @returns The formatted value
+   */
+  formatValue(value: any): string {
+    if (value === null) return 'null';
+    if (value === undefined) return 'undefined';
+    if (this.isString(value)) return `"${value}"`;
+    return String(value);
+  }
+
+  /**
+   * Generates a shareable URL with the current JSON data
+   */
+  shareJson(): void {
+    if (!this.isValidJson) {
+      this.showError('Cannot share invalid JSON');
+      return;
+    }
+
+    try {
+      // Compress the JSON to make the URL shorter
+      const jsonString = this.jsonService.minifyJson(this.jsonInput.value || '{}');
+
+      // Encode the JSON for the URL
+      const encodedJson = encodeURIComponent(jsonString);
+
+      // Create the URL with the JSON data as a query parameter
+      const baseUrl = window.location.href.split('?')[0];
+      const shareableUrl = `${baseUrl}?json=${encodedJson}`;
+
+      // Copy the URL to the clipboard
+      navigator.clipboard.writeText(shareableUrl)
+        .then(() => {
+          this.showSuccess('Shareable URL copied to clipboard');
+        })
+        .catch(err => {
+          this.showError('Failed to copy URL: ' + err);
+        });
+    } catch (error) {
+      this.showError(`Error generating shareable URL: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Loads JSON data from the URL query parameter
+   */
+  loadJsonFromUrl(): void {
+    try {
+      // Get the URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const jsonParam = urlParams.get('json');
+
+      if (jsonParam) {
+        // Decode the JSON data
+        const decodedJson = decodeURIComponent(jsonParam);
+
+        // Try to parse the JSON to validate it
+        JSON.parse(decodedJson);
+
+        // Set the editor value
+        this.editor.setValue(decodedJson, -1);
+        this.jsonInput.setValue(decodedJson);
+
+        // Beautify the JSON for better readability
+        this.beautifyJson();
+
+        this.showSuccess('JSON loaded from shared URL');
+      }
+    } catch (error) {
+      this.showError(`Error loading JSON from URL: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Applies the current formatting options to the JSON
+   */
+  applyFormatting(): void {
+    if (!this.isValidJson) {
+      return;
+    }
+
+    try {
+      // Update the JSON service with the new indentation settings
+      this.jsonService.setIndentation(this.indentSize, this.indentChar as ' ' | '\t');
+
+      // Re-beautify the JSON with the new settings
+      const jsonObj = JSON.parse(this.jsonInput.value || '{}');
+      const formatted = JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+
+      // Update the output
+      this.jsonOutput.setValue(formatted);
+
+      // Update the output editor
+      if (this.outputEditor) {
+        this.outputEditor.setValue(formatted, -1);
+      }
+
+      this.showSuccess('Formatting options applied');
+    } catch (error) {
+      this.showError(`Error applying formatting: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }

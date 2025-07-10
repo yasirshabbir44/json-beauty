@@ -6,19 +6,32 @@
       </div>
       <mat-card-title class="text-xl font-medium text-primary-900">JSON Beauty</mat-card-title>
       <mat-card-subtitle class="text-sm text-primary-700">Format, validate, and manipulate your JSON data</mat-card-subtitle>
+      <div class="ml-auto">
+        <button mat-icon-button (click)="toggleTheme()" matTooltip="Toggle Dark/Light Theme" aria-label="Toggle theme">
+          <mat-icon>{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
     </mat-card-header>
 
     <mat-card-content class="p-4">
       <div class="editor-layout">
         <!-- Top Action Buttons -->
         <div class="top-actions-section bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl shadow-md">
-          <div class="action-buttons-row p-4">
+          <div class="action-buttons-row p-4 flex flex-wrap gap-2 justify-center">
             <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" 
               class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Format JSON with proper indentation (Ctrl+B)" 
               aria-label="Beautify JSON - Format with proper indentation">
               <mat-icon aria-hidden="true">format_align_left</mat-icon> Beautify
             </button>
+
+            <button mat-raised-button color="primary" (click)="fileInput.click()" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
+              matTooltip="Import JSON from file" 
+              aria-label="Import JSON from file">
+              <mat-icon aria-hidden="true">upload_file</mat-icon> Import
+            </button>
+            <input type="file" #fileInput style="display: none" accept=".json,.txt" (change)="importFile($event)">
 
             <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" 
               class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
@@ -93,7 +106,7 @@
           </div>
         </div>
 
-        <div class="editor-columns mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="editor-columns mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Input Section -->
           <div class="editor-section slide-up bg-white rounded-xl shadow-md overflow-hidden border border-neutral-200 hover:shadow-lg transition-shadow duration-300">
             <h3 class="flex items-center p-3 bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
@@ -114,13 +127,129 @@
             <h3 class="flex items-center p-3 bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
               <mat-icon class="section-icon mr-2 text-primary-600">output</mat-icon>
               <span class="text-primary-800 font-medium">Output</span>
+              <div class="ml-auto">
+                <button mat-icon-button (click)="toggleTreeView()" matTooltip="{{ showTreeView ? 'Switch to Text View' : 'Switch to Tree View' }}">
+                  <mat-icon>{{ showTreeView ? 'code' : 'account_tree' }}</mat-icon>
+                </button>
+                <button mat-icon-button (click)="showFormattingOptions = !showFormattingOptions" matTooltip="Formatting Options">
+                  <mat-icon>settings</mat-icon>
+                </button>
+              </div>
             </h3>
-            <div class="p-3">
-              <mat-form-field appearance="outline" class="full-width output-field">
-                <mat-label>Formatted JSON</mat-label>
-                <textarea matInput [formControl]="jsonOutput" readonly rows="25" placeholder="Formatted JSON will appear here" 
-                  class="font-mono text-sm"></textarea>
-              </mat-form-field>
+            <div class="editor-wrapper rounded-b-xl overflow-hidden">
+              <!-- Formatting Options Panel -->
+              <div *ngIf="showFormattingOptions" class="formatting-options p-3 bg-primary-50 border-b border-primary-200">
+                <h4 class="text-primary-800 font-medium mb-2">Formatting Options</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Indentation Size</mat-label>
+                      <mat-select [(ngModel)]="indentSize" (selectionChange)="applyFormatting()">
+                        <mat-option [value]="2">2 spaces</mat-option>
+                        <mat-option [value]="4">4 spaces</mat-option>
+                        <mat-option [value]="8">8 spaces</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div>
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Indentation Character</mat-label>
+                      <mat-select [(ngModel)]="indentChar" (selectionChange)="applyFormatting()">
+                        <mat-option [value]="' '">Space</mat-option>
+                        <mat-option [value]="'\t'">Tab</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="!showTreeView" class="search-bar p-2 bg-neutral-100 border-b border-neutral-200 flex flex-wrap items-center gap-2">
+                <mat-form-field appearance="outline" class="search-input flex-grow mr-2">
+                  <mat-label>Search in JSON</mat-label>
+                  <input matInput #searchInput (keyup.enter)="searchInJson(searchInput.value)">
+                  <button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchInput.value=''; clearSearch()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+                <button mat-icon-button color="primary" (click)="searchInJson(searchInput.value)" matTooltip="Search">
+                  <mat-icon>search</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="findNext()" matTooltip="Find next">
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="findPrevious()" matTooltip="Find previous">
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+              </div>
+
+              <!-- Text View (Ace Editor) -->
+              <div *ngIf="!showTreeView" #outputEditor class="ace-editor output-editor"></div>
+
+              <!-- Tree View -->
+              <div *ngIf="showTreeView" class="json-tree-view p-4 overflow-auto" style="max-height: 500px;">
+                <div *ngIf="!jsonTreeData" class="text-center p-4 text-neutral-500">
+                  No valid JSON data to display
+                </div>
+                <ng-container *ngIf="jsonTreeData">
+                  <div class="tree-node" *ngFor="let key of getObjectKeys(jsonTreeData); let i = index">
+                    <div class="tree-node-content p-2 hover:bg-neutral-100 rounded flex items-start">
+                      <button mat-icon-button class="tree-toggle mr-1" (click)="toggleNode('root_' + i)" *ngIf="isExpandable(jsonTreeData[key])">
+                        <mat-icon>{{ isNodeExpanded('root_' + i) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                      </button>
+                      <span class="tree-key font-medium text-primary-700">{{ key }}</span>
+                      <span class="mx-2">:</span>
+                      <span class="tree-value" [ngClass]="{
+                        'text-green-600': isString(jsonTreeData[key]),
+                        'text-blue-600': isNumber(jsonTreeData[key]),
+                        'text-amber-600': isBoolean(jsonTreeData[key]),
+                        'text-red-600': jsonTreeData[key] === null
+                      }">
+                        {{ isExpandable(jsonTreeData[key]) ? '' : formatValue(jsonTreeData[key]) }}
+                      </span>
+                    </div>
+                    <div class="tree-children ml-8" *ngIf="isNodeExpanded('root_' + i) && isExpandable(jsonTreeData[key])">
+                      <div *ngIf="isArray(jsonTreeData[key])">
+                        <div class="tree-node" *ngFor="let item of jsonTreeData[key]; let j = index">
+                          <div class="tree-node-content p-2 hover:bg-neutral-100 rounded flex items-start">
+                            <button mat-icon-button class="tree-toggle mr-1" (click)="toggleNode('root_' + i + '_' + j)" *ngIf="isExpandable(item)">
+                              <mat-icon>{{ isNodeExpanded('root_' + i + '_' + j) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                            </button>
+                            <span class="tree-key font-medium text-neutral-500">[{{ j }}]</span>
+                            <span class="mx-2">:</span>
+                            <span class="tree-value" [ngClass]="{
+                              'text-green-600': isString(item),
+                              'text-blue-600': isNumber(item),
+                              'text-amber-600': isBoolean(item),
+                              'text-red-600': item === null
+                            }">
+                              {{ isExpandable(item) ? '' : formatValue(item) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="isObject(jsonTreeData[key]) && !isArray(jsonTreeData[key])">
+                        <div class="tree-node" *ngFor="let subKey of getObjectKeys(jsonTreeData[key]); let j = index">
+                          <div class="tree-node-content p-2 hover:bg-neutral-100 rounded flex items-start">
+                            <button mat-icon-button class="tree-toggle mr-1" (click)="toggleNode('root_' + i + '_' + j)" *ngIf="isExpandable(jsonTreeData[key][subKey])">
+                              <mat-icon>{{ isNodeExpanded('root_' + i + '_' + j) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                            </button>
+                            <span class="tree-key font-medium text-primary-700">{{ subKey }}</span>
+                            <span class="mx-2">:</span>
+                            <span class="tree-value" [ngClass]="{
+                              'text-green-600': isString(jsonTreeData[key][subKey]),
+                              'text-blue-600': isNumber(jsonTreeData[key][subKey]),
+                              'text-amber-600': isBoolean(jsonTreeData[key][subKey]),
+                              'text-red-600': jsonTreeData[key][subKey] === null
+                            }">
+                              {{ isExpandable(jsonTreeData[key][subKey]) ? '' : formatValue(jsonTreeData[key][subKey]) }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
             </div>
           </div>
         </div>
@@ -142,6 +271,14 @@
               matTooltip="Download as file (Ctrl+S)" 
               aria-label="Download as a file">
               <mat-icon aria-hidden="true">download</mat-icon> Download {{ selectedOutputFormat.toUpperCase() }}
+            </button>
+
+            <button mat-raised-button color="primary" (click)="shareJson()" 
+              [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md min-w-[200px]"
+              matTooltip="Generate shareable URL" 
+              aria-label="Share JSON">
+              <mat-icon aria-hidden="true">share</mat-icon> Share JSON
             </button>
           </div>
         </div>
