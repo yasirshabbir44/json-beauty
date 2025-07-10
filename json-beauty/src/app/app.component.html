@@ -1,0 +1,21 @@
+<div class="app-container">
+  <mat-toolbar color="primary" class="app-header">
+    <span>{{ title }}</span>
+    <span class="spacer"></span>
+    <a mat-button href="https://github.com/yourusername/json-beauty" target="_blank" aria-label="GitHub Repository">
+      <mat-icon>code</mat-icon> GitHub
+    </a>
+  </mat-toolbar>
+
+  <div class="container">
+    <router-outlet></router-outlet>
+  </div>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p class="text-center">
+        &copy; {{ currentYear }} JSON Beauty - A powerful JSON formatter, validator, and beautifier
+      </p>
+    </div>
+  </footer>
+</div>

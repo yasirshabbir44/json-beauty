@@ -1,0 +1,100 @@
+<div class="editor-container">
+  <mat-card class="editor-card">
+    <mat-card-header>
+      <mat-card-title>JSON Beauty</mat-card-title>
+      <mat-card-subtitle>Format, validate, and manipulate your JSON data</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="editor-layout">
+        <!-- Input Section -->
+        <div class="editor-section">
+          <h3>Input JSON</h3>
+          <div class="editor-wrapper">
+            <div #editor class="ace-editor"></div>
+            <div *ngIf="!isValidJson" class="error-message">
+              <mat-icon color="warn">error</mat-icon>
+              <span>{{ errorMessage }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="actions-section">
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Format JSON with proper indentation">
+              <mat-icon>format_align_left</mat-icon> Beautify
+            </button>
+            
+            <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" matTooltip="Remove all whitespace">
+              <mat-icon>compress</mat-icon> Minify
+            </button>
+            
+            <button mat-raised-button color="warn" (click)="lintJson()" [disabled]="!isValidJson" matTooltip="Fix common issues and sort keys">
+              <mat-icon>build</mat-icon> Lint & Fix
+            </button>
+            
+            <button mat-raised-button (click)="clearEditor()" matTooltip="Clear all content">
+              <mat-icon>delete</mat-icon> Clear
+            </button>
+          </div>
+          
+          <mat-divider></mat-divider>
+          
+          <div class="export-buttons">
+            <button mat-raised-button color="primary" (click)="copyToClipboard()" [disabled]="!jsonOutput.value" matTooltip="Copy to clipboard">
+              <mat-icon>content_copy</mat-icon> Copy
+            </button>
+            
+            <button mat-raised-button color="accent" (click)="downloadJson()" [disabled]="!jsonOutput.value" matTooltip="Download as JSON file">
+              <mat-icon>download</mat-icon> Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="editor-section">
+          <h3>Output</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <textarea matInput [formControl]="jsonOutput" readonly rows="15" placeholder="Formatted JSON will appear here"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Features Section -->
+  <mat-card class="features-card mt-3">
+    <mat-card-header>
+      <mat-card-title>Features</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-tab-group>
+        <mat-tab label="Beautify">
+          <div class="tab-content">
+            <p>Format your JSON with proper indentation to make it more readable.</p>
+            <p>The beautify function adds consistent spacing and line breaks to your JSON structure.</p>
+          </div>
+        </mat-tab>
+        <mat-tab label="Minify">
+          <div class="tab-content">
+            <p>Remove all unnecessary whitespace to reduce the size of your JSON.</p>
+            <p>Minified JSON is ideal for production environments and API responses.</p>
+          </div>
+        </mat-tab>
+        <mat-tab label="Validate">
+          <div class="tab-content">
+            <p>Automatically validates your JSON as you type.</p>
+            <p>Detailed error messages help you identify and fix syntax issues.</p>
+          </div>
+        </mat-tab>
+        <mat-tab label="Lint & Fix">
+          <div class="tab-content">
+            <p>Automatically fix common JSON issues and sort object keys alphabetically.</p>
+            <p>Linting helps maintain consistent JSON formatting across your projects.</p>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>

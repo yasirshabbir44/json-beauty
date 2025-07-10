@@ -1,0 +1,8 @@
+This is a placeholder for the favicon.ico file.
+
+To create a proper favicon:
+1. Use an online favicon generator like https://favicon.io/ or https://realfavicongenerator.net/
+2. Generate a favicon with a JSON-related icon or the letters "JB" for JSON Beauty
+3. Replace this placeholder with the generated favicon.ico file
+
+For development purposes, you can use any small icon file and rename it to favicon.ico.
