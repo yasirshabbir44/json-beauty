@@ -121,12 +121,52 @@
 }
 
 .editor-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.top-actions-section {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.action-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+
+  button {
+    flex: 0 0 auto;
+    min-width: 120px;
+  }
+}
+
+.editor-columns {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 32px;
+  gap: 24px;
 
   @media (min-width: 992px) {
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.bottom-actions-section {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.export-buttons-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+
+  button {
+    flex: 0 0 auto;
+    min-width: 180px;
   }
 }
 
@@ -180,7 +220,7 @@
 
 .editor-wrapper {
   position: relative;
-  height: 400px;
+  height: 500px; /* Increased height for better usability */
   border: none;
   border-radius: 8px;
   overflow: hidden;
@@ -189,6 +229,26 @@
 
   &:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Full width and output field styles */
+.full-width {
+  width: 100%;
+}
+
+.output-field {
+  height: 500px;
+
+  ::ng-deep .mat-form-field-flex {
+    height: 100%;
+  }
+
+  ::ng-deep textarea {
+    height: calc(100% - 20px);
+    resize: none;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
   }
 }
 
@@ -217,12 +277,9 @@
   }
 }
 
-.actions-section {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 24px;
-  padding: 24px;
+/* Base styles for action sections */
+.top-actions-section, .bottom-actions-section {
+  padding: 16px;
   background: linear-gradient(145deg, #f8f9fa, #f1f3f5);
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 
@@ -240,36 +297,26 @@
     height: 4px;
     background: linear-gradient(to right, #2196f3, #64b5f6);
   }
-
-  @media (min-width: 992px) {
-    padding: 28px 20px;
-  }
 }
 
-.action-buttons, .export-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Button styles for action and export buttons */
+.action-buttons-row button, .export-buttons-row button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
 
-  button {
-    width: 100%;
-    padding: 8px 16px;
-    border-radius: 6px;
-    transition: all 0.3s ease;
+  &:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 
-    &:not([disabled]):hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
+  &[disabled] {
+    opacity: 0.7;
+  }
 
-    &[disabled] {
-      opacity: 0.7;
-    }
-
-    mat-icon {
-      margin-right: 10px;
-      font-size: 20px;
-    }
+  mat-icon {
+    margin-right: 10px;
+    font-size: 20px;
   }
 }
 
