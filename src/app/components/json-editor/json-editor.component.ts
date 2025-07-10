@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { JsonService } from '../../services/json.service';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
@@ -34,7 +35,14 @@ export class JsonEditorComponent implements OnInit {
     { key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts' }
   ];
 
-  constructor(private snackBar: MatSnackBar) {
+  // Properties for new features
+  yamlOutput = new FormControl('');
+  jsonPaths: string[] = [];
+  showJsonPaths = false;
+  showYamlOutput = false;
+  selectedOutputFormat: 'json' | 'yaml' = 'json';
+
+  constructor(private snackBar: MatSnackBar, private jsonService: JsonService) {
     // Listen for dark mode changes
     document.body.addEventListener('DOMSubtreeModified', () => {
       this.updateEditorTheme();
@@ -139,40 +147,63 @@ export class JsonEditorComponent implements OnInit {
   }
 
   validateJson(): void {
-    const jsonString = this.jsonInput.value;
+    const jsonString = this.jsonInput.value || '';
+    const result = this.jsonService.validateJson(jsonString);
 
-    if (!jsonString) {
-      this.isValidJson = false;
-      this.errorMessage = 'JSON is empty. Please enter some JSON data.';
-      return;
+    this.isValidJson = result.isValid;
+    this.errorMessage = result.errorMessage;
+
+    if (this.isValidJson) {
+      // If JSON is valid, update paths and YAML output
+      this.updateJsonPaths();
+      this.updateYamlOutput();
     }
+  }
+
+  /**
+   * Updates the JSON paths list
+   */
+  updateJsonPaths(): void {
+    if (!this.isValidJson) return;
 
     try {
-      JSON.parse(jsonString);
-      this.isValidJson = true;
-      this.errorMessage = '';
+      this.jsonPaths = this.jsonService.findJsonPaths(this.jsonInput.value || '');
     } catch (e: any) {
-      this.isValidJson = false;
+      console.error('Error finding JSON paths:', e);
+    }
+  }
 
-      // Enhance error message with more helpful information
-      let enhancedMessage = e.message;
+  /**
+   * Updates the YAML output
+   */
+  updateYamlOutput(): void {
+    if (!this.isValidJson) return;
 
-      // Extract position information if available
-      const positionMatch = e.message.match(/position (\d+)/);
-      if (positionMatch && positionMatch[1]) {
-        const position = parseInt(positionMatch[1]);
-        const errorContext = this.getErrorContext(jsonString, position);
-        enhancedMessage = `${e.message}\n\nError near: ${errorContext}`;
-      }
+    try {
+      const yamlString = this.jsonService.jsonToYaml(this.jsonInput.value || '');
+      this.yamlOutput.setValue(yamlString);
+    } catch (e: any) {
+      console.error('Error converting to YAML:', e);
+    }
+  }
 
-      // Add common error suggestions
-      if (e.message.includes('Unexpected token')) {
-        enhancedMessage += '\n\nCommon causes: missing comma, extra comma, or unquoted property name.';
-      } else if (e.message.includes('Unexpected end of JSON')) {
-        enhancedMessage += '\n\nCheck for missing closing brackets or braces.';
-      }
+  /**
+   * Toggles the JSON paths display
+   */
+  toggleJsonPaths(): void {
+    this.showJsonPaths = !this.showJsonPaths;
+    if (this.showJsonPaths && this.jsonPaths.length === 0) {
+      this.updateJsonPaths();
+    }
+  }
 
-      this.errorMessage = enhancedMessage;
+  /**
+   * Toggles the output format between JSON and YAML
+   */
+  toggleOutputFormat(): void {
+    this.selectedOutputFormat = this.selectedOutputFormat === 'json' ? 'yaml' : 'json';
+    if (this.selectedOutputFormat === 'yaml' && !this.yamlOutput.value) {
+      this.updateYamlOutput();
     }
   }
 
@@ -266,13 +297,52 @@ export class JsonEditorComponent implements OnInit {
   updateOutput(): void {
     if (this.isValidJson) {
       this.jsonOutput.setValue(this.jsonInput.value || '');
+      this.updateJsonPaths();
+      this.updateYamlOutput();
     } else {
       this.jsonOutput.setValue('');
+      this.yamlOutput.setValue('');
+      this.jsonPaths = [];
     }
   }
 
+  /**
+   * Downloads the output in the selected format
+   */
+  downloadOutput(): void {
+    if (this.selectedOutputFormat === 'json') {
+      this.downloadJson();
+    } else {
+      this.downloadYaml();
+    }
+  }
+
+  /**
+   * Downloads the YAML output
+   */
+  downloadYaml(): void {
+    if (!this.yamlOutput.value) {
+      this.showError('Nothing to download');
+      return;
+    }
+
+    const blob = new Blob([this.yamlOutput.value], { type: 'application/yaml' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'formatted-yaml.yaml';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    this.showSuccess('YAML downloaded successfully');
+  }
+
   copyToClipboard(): void {
-    const textToCopy = this.jsonOutput.value;
+    const textToCopy = this.selectedOutputFormat === 'json' 
+      ? this.jsonOutput.value 
+      : this.yamlOutput.value;
 
     if (!textToCopy) {
       this.showError('Nothing to copy');
@@ -280,7 +350,7 @@ export class JsonEditorComponent implements OnInit {
     }
 
     navigator.clipboard.writeText(textToCopy)
-      .then(() => this.showSuccess('Copied to clipboard'))
+      .then(() => this.showSuccess(`${this.selectedOutputFormat.toUpperCase()} copied to clipboard`))
       .catch(err => this.showError('Failed to copy: ' + err));
   }
 

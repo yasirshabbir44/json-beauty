@@ -46,6 +46,19 @@
               <mat-icon aria-hidden="true">build</mat-icon> Lint & Fix
             </button>
 
+            <button mat-raised-button color="primary" (click)="toggleJsonPaths()" [disabled]="!isValidJson" 
+              matTooltip="Show/Hide JSON Paths" 
+              aria-label="Toggle JSON Paths">
+              <mat-icon aria-hidden="true">account_tree</mat-icon> JSON Paths
+            </button>
+
+            <button mat-raised-button color="accent" (click)="toggleOutputFormat()" [disabled]="!isValidJson" 
+              matTooltip="Toggle between JSON and YAML output" 
+              aria-label="Toggle output format">
+              <mat-icon aria-hidden="true">swap_horiz</mat-icon> 
+              {{ selectedOutputFormat === 'json' ? 'Switch to YAML' : 'Switch to JSON' }}
+            </button>
+
             <button mat-stroked-button (click)="clearEditor()" 
               matTooltip="Clear all content (Ctrl+D)" 
               aria-label="Clear editor - Remove all content">
@@ -78,16 +91,18 @@
           <mat-divider></mat-divider>
 
           <div class="export-buttons">
-            <button mat-raised-button color="primary" (click)="copyToClipboard()" [disabled]="!jsonOutput.value" 
+            <button mat-raised-button color="primary" (click)="copyToClipboard()" 
+              [disabled]="selectedOutputFormat === 'json' ? !jsonOutput.value : !yamlOutput.value" 
               matTooltip="Copy to clipboard (Ctrl+C)" 
-              aria-label="Copy JSON to clipboard">
-              <mat-icon aria-hidden="true">content_copy</mat-icon> Copy
+              aria-label="Copy to clipboard">
+              <mat-icon aria-hidden="true">content_copy</mat-icon> Copy {{ selectedOutputFormat.toUpperCase() }}
             </button>
 
-            <button mat-raised-button color="accent" (click)="downloadJson()" [disabled]="!jsonOutput.value" 
-              matTooltip="Download as JSON file (Ctrl+S)" 
-              aria-label="Download JSON as a file">
-              <mat-icon aria-hidden="true">download</mat-icon> Download
+            <button mat-raised-button color="accent" (click)="downloadOutput()" 
+              [disabled]="selectedOutputFormat === 'json' ? !jsonOutput.value : !yamlOutput.value" 
+              matTooltip="Download as file (Ctrl+S)" 
+              aria-label="Download as a file">
+              <mat-icon aria-hidden="true">download</mat-icon> Download {{ selectedOutputFormat.toUpperCase() }}
             </button>
           </div>
         </div>

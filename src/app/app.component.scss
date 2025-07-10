@@ -8,8 +8,21 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   padding: 0;
+  background: linear-gradient(135deg, #1976d2, #2196f3);
+  height: 70px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #ff4081, #7c4dff, #2196f3);
+    z-index: 1010;
+  }
 }
 
 .toolbar-container {
@@ -18,37 +31,101 @@
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 24px;
+  height: 100%;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
 
+  .logo-animation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    padding: 8px;
+    margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: rotate(20deg);
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+
   .logo-icon {
     font-size: 28px;
     height: 28px;
     width: 28px;
-    margin-right: 12px;
+  }
+
+  .title-container {
+    display: flex;
+    flex-direction: column;
   }
 
   .logo-text {
-    font-size: 20px;
-    font-weight: 500;
+    font-size: 22px;
+    font-weight: 600;
     letter-spacing: 0.5px;
+    line-height: 1.2;
+    background: linear-gradient(to right, #ffffff, #e0e0e0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .logo-subtitle {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-top: 2px;
   }
 }
 
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 8px;
 
-  .github-link {
-    margin-right: 8px;
-    font-weight: 500;
+  .theme-toggle-btn, .help-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
 
     mat-icon {
-      margin-right: 4px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover mat-icon {
+      transform: rotate(15deg);
+    }
+  }
+
+  .github-link {
+    margin: 0 8px;
+    font-weight: 500;
+    border-radius: 20px;
+    padding: 0 16px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    mat-icon {
+      margin-right: 6px;
     }
   }
 }
@@ -178,6 +255,56 @@
 
       .footer-link {
         margin: 4px 0;
+      }
+    }
+  }
+}
+
+/* Dark theme styles */
+:host-context(.dark-theme) {
+  .app-header {
+    background: linear-gradient(135deg, #0d47a1, #1565c0);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+
+    &::before {
+      background: linear-gradient(to right, #c2185b, #512da8, #0d47a1);
+    }
+  }
+
+  .logo-container {
+    .logo-animation {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-text {
+      background: linear-gradient(to right, #ffffff, #bbdefb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-subtitle {
+      opacity: 0.7;
+    }
+  }
+
+  .main-content {
+    background-color: #121212;
+  }
+
+  .app-footer {
+    background-color: #1e1e1e;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .copyright {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+
+      &:hover {
+        color: #64b5f6;
       }
     }
   }
