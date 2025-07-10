@@ -1,6 +1,9 @@
-<div class="editor-container">
+<div class="editor-container fade-in">
   <mat-card class="editor-card">
     <mat-card-header>
+      <div mat-card-avatar class="header-icon">
+        <mat-icon color="primary">code</mat-icon>
+      </div>
       <mat-card-title>JSON Beauty</mat-card-title>
       <mat-card-subtitle>Format, validate, and manipulate your JSON data</mat-card-subtitle>
     </mat-card-header>
@@ -8,44 +11,47 @@
     <mat-card-content>
       <div class="editor-layout">
         <!-- Input Section -->
-        <div class="editor-section">
-          <h3>Input JSON</h3>
+        <div class="editor-section slide-up">
+          <h3>
+            <mat-icon class="section-icon">input</mat-icon>
+            Input JSON
+          </h3>
           <div class="editor-wrapper">
             <div #editor class="ace-editor"></div>
             <div *ngIf="!isValidJson" class="error-message">
-              <mat-icon color="warn">error</mat-icon>
+              <mat-icon color="warn">error_outline</mat-icon>
               <span>{{ errorMessage }}</span>
             </div>
           </div>
         </div>
 
         <!-- Actions Section -->
-        <div class="actions-section">
+        <div class="actions-section slide-up">
           <div class="action-buttons">
             <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Format JSON with proper indentation">
               <mat-icon>format_align_left</mat-icon> Beautify
             </button>
-            
+
             <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" matTooltip="Remove all whitespace">
               <mat-icon>compress</mat-icon> Minify
             </button>
-            
+
             <button mat-raised-button color="warn" (click)="lintJson()" [disabled]="!isValidJson" matTooltip="Fix common issues and sort keys">
               <mat-icon>build</mat-icon> Lint & Fix
             </button>
-            
-            <button mat-raised-button (click)="clearEditor()" matTooltip="Clear all content">
-              <mat-icon>delete</mat-icon> Clear
+
+            <button mat-stroked-button (click)="clearEditor()" matTooltip="Clear all content">
+              <mat-icon>delete_outline</mat-icon> Clear
             </button>
           </div>
-          
+
           <mat-divider></mat-divider>
-          
+
           <div class="export-buttons">
             <button mat-raised-button color="primary" (click)="copyToClipboard()" [disabled]="!jsonOutput.value" matTooltip="Copy to clipboard">
               <mat-icon>content_copy</mat-icon> Copy
             </button>
-            
+
             <button mat-raised-button color="accent" (click)="downloadJson()" [disabled]="!jsonOutput.value" matTooltip="Download as JSON file">
               <mat-icon>download</mat-icon> Download
             </button>
@@ -53,9 +59,13 @@
         </div>
 
         <!-- Output Section -->
-        <div class="editor-section">
-          <h3>Output</h3>
+        <div class="editor-section slide-up">
+          <h3>
+            <mat-icon class="section-icon">output</mat-icon>
+            Output
+          </h3>
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Formatted JSON</mat-label>
             <textarea matInput [formControl]="jsonOutput" readonly rows="15" placeholder="Formatted JSON will appear here"></textarea>
           </mat-form-field>
         </div>
@@ -64,34 +74,70 @@
   </mat-card>
 
   <!-- Features Section -->
-  <mat-card class="features-card mt-3">
+  <mat-card class="features-card mt-4 slide-up">
     <mat-card-header>
+      <div mat-card-avatar class="header-icon">
+        <mat-icon color="primary">stars</mat-icon>
+      </div>
       <mat-card-title>Features</mat-card-title>
+      <mat-card-subtitle>Explore the powerful features of JSON Beauty</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <mat-tab-group>
-        <mat-tab label="Beautify">
+      <mat-tab-group animationDuration="300ms">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">format_align_left</mat-icon>
+            <span>Beautify</span>
+          </ng-template>
           <div class="tab-content">
             <p>Format your JSON with proper indentation to make it more readable.</p>
             <p>The beautify function adds consistent spacing and line breaks to your JSON structure.</p>
+            <p class="feature-tip">
+              <mat-icon color="primary">lightbulb</mat-icon>
+              <span>Tip: Use beautify when you need to read and understand complex JSON structures.</span>
+            </p>
           </div>
         </mat-tab>
-        <mat-tab label="Minify">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">compress</mat-icon>
+            <span>Minify</span>
+          </ng-template>
           <div class="tab-content">
             <p>Remove all unnecessary whitespace to reduce the size of your JSON.</p>
             <p>Minified JSON is ideal for production environments and API responses.</p>
+            <p class="feature-tip">
+              <mat-icon color="primary">lightbulb</mat-icon>
+              <span>Tip: Minifying can significantly reduce file size for large JSON documents.</span>
+            </p>
           </div>
         </mat-tab>
-        <mat-tab label="Validate">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">check_circle</mat-icon>
+            <span>Validate</span>
+          </ng-template>
           <div class="tab-content">
             <p>Automatically validates your JSON as you type.</p>
             <p>Detailed error messages help you identify and fix syntax issues.</p>
+            <p class="feature-tip">
+              <mat-icon color="primary">lightbulb</mat-icon>
+              <span>Tip: Look for the error message at the bottom of the editor when validation fails.</span>
+            </p>
           </div>
         </mat-tab>
-        <mat-tab label="Lint & Fix">
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">build</mat-icon>
+            <span>Lint & Fix</span>
+          </ng-template>
           <div class="tab-content">
             <p>Automatically fix common JSON issues and sort object keys alphabetically.</p>
             <p>Linting helps maintain consistent JSON formatting across your projects.</p>
+            <p class="feature-tip">
+              <mat-icon color="primary">lightbulb</mat-icon>
+              <span>Tip: Use this feature to standardize JSON files from different sources.</span>
+            </p>
           </div>
         </mat-tab>
       </mat-tab-group>

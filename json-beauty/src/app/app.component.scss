@@ -8,42 +8,177 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  padding: 0;
+}
+
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+
+  .logo-icon {
+    font-size: 28px;
+    height: 28px;
+    width: 28px;
+    margin-right: 12px;
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+
+  .github-link {
+    margin-right: 8px;
+    font-weight: 500;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
-.container {
+.main-content {
   flex: 1;
+  padding: 24px 0;
+  background-color: #f8f9fa;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
 .app-footer {
-  padding: 16px 0;
+  padding: 24px 0;
   background-color: #f5f5f5;
   border-top: 1px solid #e0e0e0;
-  margin-top: 24px;
-  
-  p {
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .copyright {
     margin: 0;
     color: #666;
     font-size: 14px;
+    text-align: center;
+
+    @media (min-width: 768px) {
+      text-align: left;
+    }
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 12px;
+
+    @media (min-width: 768px) {
+      margin-top: 0;
+    }
+  }
+
+  .footer-link {
+    color: #666;
+    text-decoration: none;
+    margin: 0 8px;
+    font-size: 14px;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #2196f3; // Primary color
+      text-decoration: underline;
+    }
   }
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .app-header {
+    .logo-container {
+      .logo-icon {
+        font-size: 24px;
+        height: 24px;
+        width: 24px;
+        margin-right: 8px;
+      }
+
+      .logo-text {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .main-content {
+    padding: 16px 0;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 599px) {
+  .toolbar-container {
     padding: 0 8px;
   }
-  
-  .app-footer {
+
+  .header-actions {
+    .github-link {
+      span {
+        display: none;
+      }
+
+      mat-icon {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .main-content {
     padding: 12px 0;
-    margin-top: 16px;
-    
-    p {
-      font-size: 12px;
+  }
+
+  .app-footer {
+    padding: 16px 0;
+
+    .footer-links {
+      flex-direction: column;
+      align-items: center;
+
+      .footer-link {
+        margin: 4px 0;
+      }
     }
   }
 }

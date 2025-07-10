@@ -1,0 +1,183 @@
+/* Custom Angular Material Theme */
+@use '@angular/material' as mat;
+@include mat.core();
+
+// Define a custom primary palette
+$json-beauty-primary: (
+  50: #e3f2fd,
+  100: #bbdefb,
+  200: #90caf9,
+  300: #64b5f6,
+  400: #42a5f5,
+  500: #2196f3,  // Primary color
+  600: #1e88e5,
+  700: #1976d2,
+  800: #1565c0,
+  900: #0d47a1,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+  )
+);
+
+// Define a custom accent palette
+$json-beauty-accent: (
+  50: #fce4ec,
+  100: #f8bbd0,
+  200: #f48fb1,
+  300: #f06292,
+  400: #ec407a,
+  500: #e91e63,  // Accent color
+  600: #d81b60,
+  700: #c2185b,
+  800: #ad1457,
+  900: #880e4f,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+  )
+);
+
+// Define a custom warn palette
+$json-beauty-warn: (
+  50: #ffebee,
+  100: #ffcdd2,
+  200: #ef9a9a,
+  300: #e57373,
+  400: #ef5350,
+  500: #f44336,  // Warn color
+  600: #e53935,
+  700: #d32f2f,
+  800: #c62828,
+  900: #b71c1c,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+  )
+);
+
+// Create the palettes
+$json-beauty-primary-palette: mat.define-palette($json-beauty-primary, 500);
+$json-beauty-accent-palette: mat.define-palette($json-beauty-accent, 500);
+$json-beauty-warn-palette: mat.define-palette($json-beauty-warn, 500);
+
+// Create the theme
+$json-beauty-theme: mat.define-light-theme((
+  color: (
+    primary: $json-beauty-primary-palette,
+    accent: $json-beauty-accent-palette,
+    warn: $json-beauty-warn-palette,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+// Apply the theme
+@include mat.all-component-themes($json-beauty-theme);
+
+// Additional custom styles
+.mat-toolbar.mat-primary {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mat-card {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  transition: box-shadow 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+.mat-card-header {
+  margin-bottom: 16px;
+}
+
+.mat-card-title {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+  color: mat.get-color-from-palette($json-beauty-primary-palette, 800);
+}
+
+.mat-card-subtitle {
+  font-size: 1rem !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.mat-raised-button {
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.mat-tab-group {
+  .mat-tab-label {
+    font-weight: 500;
+    opacity: 0.8;
+    
+    &.mat-tab-label-active {
+      opacity: 1;
+    }
+  }
+  
+  .mat-tab-body-content {
+    padding: 16px 0;
+  }
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: rgba(0, 0, 0, 0.12);
+}
+
+.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  color: mat.get-color-from-palette($json-beauty-primary-palette, 500);
+}
+
+// Dark mode support (optional)
+.dark-theme {
+  $dark-primary: mat.define-palette($json-beauty-primary, 300);
+  $dark-accent: mat.define-palette($json-beauty-accent, 300);
+  $dark-warn: mat.define-palette($json-beauty-warn, 300);
+
+  $dark-theme: mat.define-dark-theme((
+    color: (
+      primary: $dark-primary,
+      accent: $dark-accent,
+      warn: $dark-warn,
+    ),
+  ));
+
+  @include mat.all-component-colors($dark-theme);
+}

@@ -1,21 +1,40 @@
 <div class="app-container">
   <mat-toolbar color="primary" class="app-header">
-    <span>{{ title }}</span>
-    <span class="spacer"></span>
-    <a mat-button href="https://github.com/yourusername/json-beauty" target="_blank" aria-label="GitHub Repository">
-      <mat-icon>code</mat-icon> GitHub
-    </a>
+    <div class="container toolbar-container">
+      <div class="logo-container">
+        <mat-icon class="logo-icon">code</mat-icon>
+        <span class="logo-text">{{ title }}</span>
+      </div>
+      <span class="spacer"></span>
+      <div class="header-actions">
+        <a mat-button href="https://github.com/yourusername/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
+          <mat-icon>code</mat-icon> GitHub
+        </a>
+        <button mat-icon-button aria-label="Help" matTooltip="Help">
+          <mat-icon>help_outline</mat-icon>
+        </button>
+      </div>
+    </div>
   </mat-toolbar>
 
-  <div class="container">
-    <router-outlet></router-outlet>
+  <div class="main-content">
+    <div class="container">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 
   <footer class="app-footer">
     <div class="container">
-      <p class="text-center">
-        &copy; {{ currentYear }} JSON Beauty - A powerful JSON formatter, validator, and beautifier
-      </p>
+      <div class="footer-content">
+        <p class="copyright">
+          &copy; {{ currentYear }} JSON Beauty - A powerful JSON formatter, validator, and beautifier
+        </p>
+        <div class="footer-links">
+          <a href="#" class="footer-link">Privacy Policy</a>
+          <a href="#" class="footer-link">Terms of Service</a>
+          <a href="#" class="footer-link">Contact</a>
+        </div>
+      </div>
     </div>
   </footer>
 </div>
