@@ -19,9 +19,9 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
   height: 100%;
 }
 
@@ -118,19 +118,19 @@
 
 .main-content {
   flex: 1;
-  padding: 24px 0;
+  padding: 0;
   background-color: #f8f9fa;
 }
 
 .container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .app-footer {
-  padding: 20px 0;
+  padding: 0;
   background-color: #f8f9fa; // Google's light gray background
   border-top: 1px solid #dadce0; // Google's border color
 
@@ -199,17 +199,17 @@
   }
 
   .main-content {
-    padding: 16px 0;
+    padding: 0;
   }
 
   .container {
-    padding: 0 12px;
+    padding: 0;
   }
 }
 
 @media (max-width: 599px) {
   .toolbar-container {
-    padding: 0 8px;
+    padding: 0;
   }
 
   .header-actions {
@@ -225,11 +225,11 @@
   }
 
   .main-content {
-    padding: 12px 0;
+    padding: 0;
   }
 
   .app-footer {
-    padding: 16px 0;
+    padding: 0;
 
     .footer-links {
       flex-direction: column;

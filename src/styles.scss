@@ -54,21 +54,14 @@ a {
 .container {
   width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-}
-
-/* For screens larger than 1920px, limit the width to 90% for better readability */
-@media (min-width: 1921px) {
-  .container {
-    width: 90%;
-  }
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 0;
   }
 
   body {
@@ -85,7 +78,7 @@ a {
 
 @media (max-width: 576px) {
   .container {
-    padding: 12px;
+    padding: 0;
   }
 
   body {
