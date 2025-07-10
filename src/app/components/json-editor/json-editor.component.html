@@ -1,43 +1,48 @@
 <div class="editor-container fade-in">
-  <mat-card class="editor-card">
-    <mat-card-header>
-      <div mat-card-avatar class="header-icon">
+  <mat-card class="editor-card shadow-lg hover:shadow-xl transition-all duration-300">
+    <mat-card-header class="bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
+      <div mat-card-avatar class="header-icon bg-white shadow-sm">
         <mat-icon color="primary">code</mat-icon>
       </div>
-      <mat-card-title>JSON Beauty</mat-card-title>
-      <mat-card-subtitle>Format, validate, and manipulate your JSON data</mat-card-subtitle>
+      <mat-card-title class="text-xl font-medium text-primary-900">JSON Beauty</mat-card-title>
+      <mat-card-subtitle class="text-sm text-primary-700">Format, validate, and manipulate your JSON data</mat-card-subtitle>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content class="p-4">
       <div class="editor-layout">
         <!-- Top Action Buttons -->
-        <div class="top-actions-section">
-          <div class="action-buttons-row">
+        <div class="top-actions-section bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl shadow-md">
+          <div class="action-buttons-row p-4">
             <button mat-raised-button color="primary" (click)="beautifyJson()" [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Format JSON with proper indentation (Ctrl+B)" 
               aria-label="Beautify JSON - Format with proper indentation">
               <mat-icon aria-hidden="true">format_align_left</mat-icon> Beautify
             </button>
 
             <button mat-raised-button color="accent" (click)="minifyJson()" [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Remove all whitespace (Ctrl+M)" 
               aria-label="Minify JSON - Remove all whitespace">
               <mat-icon aria-hidden="true">compress</mat-icon> Minify
             </button>
 
             <button mat-raised-button color="warn" (click)="lintJson()" [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Fix common issues and sort keys (Ctrl+L)" 
               aria-label="Lint and Fix JSON - Fix common issues and sort keys">
               <mat-icon aria-hidden="true">build</mat-icon> Lint & Fix
             </button>
 
             <button mat-raised-button color="primary" (click)="toggleJsonPaths()" [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Show/Hide JSON Paths" 
               aria-label="Toggle JSON Paths">
               <mat-icon aria-hidden="true">account_tree</mat-icon> JSON Paths
             </button>
 
             <button mat-raised-button color="accent" (click)="toggleOutputFormat()" [disabled]="!isValidJson" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Toggle between JSON and YAML output" 
               aria-label="Toggle output format">
               <mat-icon aria-hidden="true">swap_horiz</mat-icon> 
@@ -45,18 +50,21 @@
             </button>
 
             <button mat-raised-button color="primary" (click)="toggleSchemaEditor()" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md"
               matTooltip="Validate JSON against a schema" 
               aria-label="Toggle schema validation">
               <mat-icon aria-hidden="true">rule</mat-icon> Schema Validation
             </button>
 
             <button mat-stroked-button (click)="clearEditor()" 
+              class="border border-neutral-300 hover:bg-neutral-100 transition-colors duration-200"
               matTooltip="Clear all content (Ctrl+D)" 
               aria-label="Clear editor - Remove all content">
               <mat-icon aria-hidden="true">delete_outline</mat-icon> Clear
             </button>
 
             <button mat-stroked-button (click)="toggleKeyboardShortcuts()" 
+              class="border border-neutral-300 hover:bg-neutral-100 transition-colors duration-200"
               matTooltip="Show/Hide Keyboard Shortcuts (Ctrl+K)" 
               aria-label="Toggle keyboard shortcuts panel">
               <mat-icon aria-hidden="true">keyboard</mat-icon> Shortcuts
@@ -64,56 +72,65 @@
           </div>
 
           <!-- Keyboard Shortcuts Dialog -->
-          <div *ngIf="showKeyboardShortcuts" class="keyboard-shortcuts-panel">
-            <div class="shortcuts-header">
-              <h4>Keyboard Shortcuts</h4>
-              <button mat-icon-button (click)="toggleKeyboardShortcuts()" aria-label="Close shortcuts panel">
+          <div *ngIf="showKeyboardShortcuts" class="keyboard-shortcuts-panel mt-4 bg-white rounded-lg shadow-lg border border-neutral-200 overflow-hidden animate-fade-in">
+            <div class="shortcuts-header bg-primary-50 border-b border-primary-100 flex justify-between items-center p-3">
+              <h4 class="text-primary-900 font-medium m-0 flex items-center">
+                <mat-icon class="mr-2 text-primary-500">keyboard</mat-icon>
+                Keyboard Shortcuts
+              </h4>
+              <button mat-icon-button (click)="toggleKeyboardShortcuts()" aria-label="Close shortcuts panel"
+                class="hover:bg-primary-100 transition-colors duration-200">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
-            <div class="shortcuts-content">
-              <div class="shortcut-item" *ngFor="let shortcut of keyboardShortcuts">
-                <span class="shortcut-key">{{ shortcut.key }}</span>
-                <span class="shortcut-action">{{ shortcut.action }}</span>
+            <div class="shortcuts-content p-3 max-h-64 overflow-y-auto">
+              <div class="shortcut-item flex justify-between items-center py-2 border-b border-neutral-100 last:border-0" 
+                *ngFor="let shortcut of keyboardShortcuts">
+                <span class="shortcut-key bg-neutral-100 px-2 py-1 rounded text-sm font-mono font-medium">{{ shortcut.key }}</span>
+                <span class="shortcut-action text-neutral-700">{{ shortcut.action }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="editor-columns">
+        <div class="editor-columns mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Input Section -->
-          <div class="editor-section slide-up">
-            <h3>
-              <mat-icon class="section-icon">input</mat-icon>
-              Input JSON
+          <div class="editor-section slide-up bg-white rounded-xl shadow-md overflow-hidden border border-neutral-200 hover:shadow-lg transition-shadow duration-300">
+            <h3 class="flex items-center p-3 bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
+              <mat-icon class="section-icon mr-2 text-primary-600">input</mat-icon>
+              <span class="text-primary-800 font-medium">Input JSON</span>
             </h3>
-            <div class="editor-wrapper">
+            <div class="editor-wrapper rounded-b-xl overflow-hidden">
               <div #editor class="ace-editor"></div>
-              <div *ngIf="!isValidJson" class="error-message">
-                <mat-icon color="warn">error_outline</mat-icon>
+              <div *ngIf="!isValidJson" class="error-message bg-warn-50 border-t border-warn-200 p-3 flex items-center text-warn-800">
+                <mat-icon color="warn" class="mr-2">error_outline</mat-icon>
                 <span>{{ errorMessage }}</span>
               </div>
             </div>
           </div>
 
           <!-- Output Section -->
-          <div class="editor-section slide-up">
-            <h3>
-              <mat-icon class="section-icon">output</mat-icon>
-              Output
+          <div class="editor-section slide-up bg-white rounded-xl shadow-md overflow-hidden border border-neutral-200 hover:shadow-lg transition-shadow duration-300">
+            <h3 class="flex items-center p-3 bg-gradient-to-r from-primary-50 to-primary-100 border-b border-primary-200">
+              <mat-icon class="section-icon mr-2 text-primary-600">output</mat-icon>
+              <span class="text-primary-800 font-medium">Output</span>
             </h3>
-            <mat-form-field appearance="outline" class="full-width output-field">
-              <mat-label>Formatted JSON</mat-label>
-              <textarea matInput [formControl]="jsonOutput" readonly rows="25" placeholder="Formatted JSON will appear here"></textarea>
-            </mat-form-field>
+            <div class="p-3">
+              <mat-form-field appearance="outline" class="full-width output-field">
+                <mat-label>Formatted JSON</mat-label>
+                <textarea matInput [formControl]="jsonOutput" readonly rows="25" placeholder="Formatted JSON will appear here" 
+                  class="font-mono text-sm"></textarea>
+              </mat-form-field>
+            </div>
           </div>
         </div>
 
         <!-- Bottom Action Buttons -->
-        <div class="bottom-actions-section">
-          <div class="export-buttons-row">
+        <div class="bottom-actions-section mt-6 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl shadow-md">
+          <div class="export-buttons-row p-4 flex flex-wrap justify-center gap-4">
             <button mat-raised-button color="primary" (click)="copyToClipboard()" 
               [disabled]="selectedOutputFormat === 'json' ? !jsonOutput.value : !yamlOutput.value" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md min-w-[200px]"
               matTooltip="Copy to clipboard (Ctrl+C)" 
               aria-label="Copy to clipboard">
               <mat-icon aria-hidden="true">content_copy</mat-icon> Copy {{ selectedOutputFormat.toUpperCase() }}
@@ -121,6 +138,7 @@
 
             <button mat-raised-button color="accent" (click)="downloadOutput()" 
               [disabled]="selectedOutputFormat === 'json' ? !jsonOutput.value : !yamlOutput.value" 
+              class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md min-w-[200px]"
               matTooltip="Download as file (Ctrl+S)" 
               aria-label="Download as a file">
               <mat-icon aria-hidden="true">download</mat-icon> Download {{ selectedOutputFormat.toUpperCase() }}
@@ -129,36 +147,43 @@
         </div>
 
         <!-- Schema Validation Section -->
-        <div *ngIf="showSchemaEditor" class="editor-section schema-section slide-up">
-          <h3>
-            <mat-icon class="section-icon">rule</mat-icon>
-            JSON Schema Validation
+        <div *ngIf="showSchemaEditor" class="editor-section schema-section slide-up mt-6 bg-primary-50 rounded-xl shadow-md overflow-hidden border border-primary-200">
+          <h3 class="flex items-center p-3 bg-gradient-to-r from-primary-100 to-primary-200 border-b border-primary-300">
+            <mat-icon class="section-icon mr-2 text-primary-700">rule</mat-icon>
+            <span class="text-primary-900 font-medium">JSON Schema Validation</span>
           </h3>
 
-          <div class="schema-editor-container">
+          <div class="schema-editor-container p-4 space-y-4">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>JSON Schema</mat-label>
-              <textarea matInput [formControl]="schemaInput" rows="10" placeholder="Enter JSON schema here"></textarea>
+              <textarea matInput [formControl]="schemaInput" rows="10" placeholder="Enter JSON schema here"
+                class="font-mono text-sm"></textarea>
             </mat-form-field>
 
-            <div class="schema-actions">
-              <button mat-raised-button color="primary" (click)="validateJsonSchema()" [disabled]="!isValidJson || !schemaInput.value">
+            <div class="schema-actions flex justify-end">
+              <button mat-raised-button color="primary" (click)="validateJsonSchema()" 
+                [disabled]="!isValidJson || !schemaInput.value"
+                class="transform hover:-translate-y-1 transition-transform duration-200 shadow hover:shadow-md">
                 <mat-icon>check_circle</mat-icon> Validate Against Schema
               </button>
             </div>
 
             <!-- Schema Validation Results -->
-            <div *ngIf="schemaValidationResult" class="schema-validation-results">
-              <div class="validation-status" [ngClass]="{'valid': schemaValidationResult.isValid, 'invalid': !schemaValidationResult.isValid}">
-                <mat-icon>{{ schemaValidationResult.isValid ? 'check_circle' : 'error' }}</mat-icon>
-                <span>{{ schemaValidationResult.isValid ? 'JSON is valid against the schema' : 'JSON does not match the schema' }}</span>
+            <div *ngIf="schemaValidationResult" 
+              class="schema-validation-results rounded-lg overflow-hidden border mt-4">
+              <div class="validation-status p-3 flex items-center" 
+                [ngClass]="{'valid bg-green-50 border-green-200 text-green-800': schemaValidationResult.isValid, 
+                           'invalid bg-warn-50 border-warn-200 text-warn-800': !schemaValidationResult.isValid}">
+                <mat-icon class="mr-2">{{ schemaValidationResult.isValid ? 'check_circle' : 'error' }}</mat-icon>
+                <span class="font-medium">{{ schemaValidationResult.isValid ? 'JSON is valid against the schema' : 'JSON does not match the schema' }}</span>
               </div>
 
-              <div *ngIf="!schemaValidationResult.isValid && schemaValidationResult.errors.length > 0" class="validation-errors">
-                <h4>Validation Errors:</h4>
-                <ul>
-                  <li *ngFor="let error of schemaValidationResult.errors">
-                    <strong>{{ error.instancePath || 'root' }}:</strong> {{ error.message }}
+              <div *ngIf="!schemaValidationResult.isValid && schemaValidationResult.errors.length > 0" 
+                class="validation-errors p-4 bg-white border-t border-warn-200">
+                <h4 class="text-warn-700 font-medium mb-2 text-base">Validation Errors:</h4>
+                <ul class="list-disc pl-5 space-y-2">
+                  <li *ngFor="let error of schemaValidationResult.errors" class="text-neutral-700">
+                    <strong class="text-warn-700">{{ error.instancePath || 'root' }}:</strong> {{ error.message }}
                   </li>
                 </ul>
               </div>
@@ -170,78 +195,80 @@
   </mat-card>
 
   <!-- Features Section Toggle Button -->
-  <div class="features-toggle mt-4">
-    <button mat-stroked-button (click)="showFeatures = !showFeatures" class="full-width" aria-label="Toggle features section">
-      <mat-icon aria-hidden="true">{{ showFeatures ? 'expand_less' : 'expand_more' }}</mat-icon>
-      {{ showFeatures ? 'Hide Features' : 'Show Features' }}
+  <div class="features-toggle mt-8">
+    <button mat-stroked-button (click)="showFeatures = !showFeatures" 
+      class="full-width border border-neutral-300 hover:bg-neutral-100 transition-colors duration-200 py-3 rounded-lg shadow-sm" 
+      aria-label="Toggle features section">
+      <mat-icon aria-hidden="true" class="mr-2 text-primary-500">{{ showFeatures ? 'expand_less' : 'expand_more' }}</mat-icon>
+      <span class="font-medium">{{ showFeatures ? 'Hide Features' : 'Show Features' }}</span>
     </button>
   </div>
 
   <!-- Features Section (Lazy Loaded) -->
-  <mat-card *ngIf="showFeatures" class="features-card mt-4 slide-up">
-    <mat-card-header>
-      <div mat-card-avatar class="header-icon">
-        <mat-icon color="primary">stars</mat-icon>
+  <mat-card *ngIf="showFeatures" class="features-card mt-6 slide-up shadow-lg hover:shadow-xl transition-all duration-300">
+    <mat-card-header class="bg-gradient-to-r from-accent-50 to-accent-100 border-b border-accent-200">
+      <div mat-card-avatar class="header-icon bg-white shadow-sm">
+        <mat-icon color="accent">stars</mat-icon>
       </div>
-      <mat-card-title>Features</mat-card-title>
-      <mat-card-subtitle>Explore the powerful features of JSON Beauty</mat-card-subtitle>
+      <mat-card-title class="text-xl font-medium text-accent-900">Features</mat-card-title>
+      <mat-card-subtitle class="text-sm text-accent-700">Explore the powerful features of JSON Beauty</mat-card-subtitle>
     </mat-card-header>
-    <mat-card-content>
-      <mat-tab-group animationDuration="300ms">
+    <mat-card-content class="p-0">
+      <mat-tab-group animationDuration="300ms" class="features-tabs">
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon" aria-hidden="true">format_align_left</mat-icon>
-            <span>Beautify</span>
+            <mat-icon class="tab-icon mr-2 text-primary-600" aria-hidden="true">format_align_left</mat-icon>
+            <span class="font-medium">Beautify</span>
           </ng-template>
-          <div class="tab-content">
-            <p>Format your JSON with proper indentation to make it more readable.</p>
-            <p>The beautify function adds consistent spacing and line breaks to your JSON structure.</p>
-            <p class="feature-tip">
-              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
-              <span>Tip: Use beautify when you need to read and understand complex JSON structures.</span>
-            </p>
+          <div class="tab-content p-6 bg-white">
+            <p class="text-neutral-800 mb-3 leading-relaxed">Format your JSON with proper indentation to make it more readable.</p>
+            <p class="text-neutral-800 mb-4 leading-relaxed">The beautify function adds consistent spacing and line breaks to your JSON structure.</p>
+            <div class="feature-tip bg-primary-50 p-4 rounded-lg border-l-4 border-primary-500 flex items-start">
+              <mat-icon color="primary" aria-hidden="true" class="mr-3 flex-shrink-0">lightbulb</mat-icon>
+              <span class="text-neutral-700 text-sm">Tip: Use beautify when you need to read and understand complex JSON structures.</span>
+            </div>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon" aria-hidden="true">compress</mat-icon>
-            <span>Minify</span>
+            <mat-icon class="tab-icon mr-2 text-accent-600" aria-hidden="true">compress</mat-icon>
+            <span class="font-medium">Minify</span>
           </ng-template>
-          <div class="tab-content">
-            <p>Remove all unnecessary whitespace to reduce the size of your JSON.</p>
-            <p>Minified JSON is ideal for production environments and API responses.</p>
-            <p class="feature-tip">
-              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
-              <span>Tip: Minifying can significantly reduce file size for large JSON documents.</span>
-            </p>
+          <div class="tab-content p-6 bg-white">
+            <p class="text-neutral-800 mb-3 leading-relaxed">Remove all unnecessary whitespace to reduce the size of your JSON.</p>
+            <p class="text-neutral-800 mb-4 leading-relaxed">Minified JSON is ideal for production environments and API responses.</p>
+            <div class="feature-tip bg-accent-50 p-4 rounded-lg border-l-4 border-accent-500 flex items-start">
+              <mat-icon color="accent" aria-hidden="true" class="mr-3 flex-shrink-0">lightbulb</mat-icon>
+              <span class="text-neutral-700 text-sm">Tip: Minifying can significantly reduce file size for large JSON documents.</span>
+            </div>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon" aria-hidden="true">check_circle</mat-icon>
-            <span>Validate</span>
+            <mat-icon class="tab-icon mr-2 text-green-600" aria-hidden="true">check_circle</mat-icon>
+            <span class="font-medium">Validate</span>
           </ng-template>
-          <div class="tab-content">
-            <p>Automatically validates your JSON as you type.</p>
-            <p>Detailed error messages help you identify and fix syntax issues.</p>
-            <p class="feature-tip">
-              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
-              <span>Tip: Look for the error message at the bottom of the editor when validation fails.</span>
-            </p>
+          <div class="tab-content p-6 bg-white">
+            <p class="text-neutral-800 mb-3 leading-relaxed">Automatically validates your JSON as you type.</p>
+            <p class="text-neutral-800 mb-4 leading-relaxed">Detailed error messages help you identify and fix syntax issues.</p>
+            <div class="feature-tip bg-green-50 p-4 rounded-lg border-l-4 border-green-500 flex items-start">
+              <mat-icon class="mr-3 flex-shrink-0 text-green-600" aria-hidden="true">lightbulb</mat-icon>
+              <span class="text-neutral-700 text-sm">Tip: Look for the error message at the bottom of the editor when validation fails.</span>
+            </div>
           </div>
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon class="tab-icon" aria-hidden="true">build</mat-icon>
-            <span>Lint & Fix</span>
+            <mat-icon class="tab-icon mr-2 text-warn-600" aria-hidden="true">build</mat-icon>
+            <span class="font-medium">Lint & Fix</span>
           </ng-template>
-          <div class="tab-content">
-            <p>Automatically fix common JSON issues and sort object keys alphabetically.</p>
-            <p>Linting helps maintain consistent JSON formatting across your projects.</p>
-            <p class="feature-tip">
-              <mat-icon color="primary" aria-hidden="true">lightbulb</mat-icon>
-              <span>Tip: Use this feature to standardize JSON files from different sources.</span>
-            </p>
+          <div class="tab-content p-6 bg-white">
+            <p class="text-neutral-800 mb-3 leading-relaxed">Automatically fix common JSON issues and sort object keys alphabetically.</p>
+            <p class="text-neutral-800 mb-4 leading-relaxed">Linting helps maintain consistent JSON formatting across your projects.</p>
+            <div class="feature-tip bg-warn-50 p-4 rounded-lg border-l-4 border-warn-500 flex items-start">
+              <mat-icon class="mr-3 flex-shrink-0 text-warn-600" aria-hidden="true">lightbulb</mat-icon>
+              <span class="text-neutral-700 text-sm">Tip: Use this feature to standardize JSON files from different sources.</span>
+            </div>
           </div>
         </mat-tab>
       </mat-tab-group>
