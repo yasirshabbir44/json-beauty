@@ -11,6 +11,95 @@
   }
 }
 
+/* Schema validation styles */
+.schema-section {
+  margin-top: 24px;
+  padding: 20px;
+  background-color: rgba(33, 150, 243, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(33, 150, 243, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+  h3 {
+    color: #1976d2;
+  }
+}
+
+.schema-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.schema-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
+}
+
+.schema-validation-results {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  .validation-status {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    margin-bottom: 12px;
+
+    mat-icon {
+      margin-right: 8px;
+    }
+
+    &.valid {
+      color: #4caf50;
+
+      mat-icon {
+        color: #4caf50;
+      }
+    }
+
+    &.invalid {
+      color: #f44336;
+
+      mat-icon {
+        color: #f44336;
+      }
+    }
+  }
+
+  .validation-errors {
+    h4 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #f44336;
+      font-size: 16px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 24px;
+
+      li {
+        margin-bottom: 8px;
+        color: rgba(0, 0, 0, 0.7);
+
+        strong {
+          color: #f44336;
+        }
+      }
+    }
+  }
+}
+
 .editor-card {
   margin-bottom: 24px;
   overflow: hidden;
@@ -266,6 +355,36 @@
 
     mat-card-subtitle {
       color: rgba(255, 255, 255, 0.7) !important;
+    }
+  }
+
+  // Dark mode for schema validation
+  .schema-section {
+    background-color: rgba(33, 150, 243, 0.1);
+    border: 1px solid rgba(33, 150, 243, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    h3 {
+      color: #64b5f6;
+    }
+  }
+
+  .schema-validation-results {
+    background-color: #2d2d2d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    .validation-errors {
+      h4 {
+        color: #ef5350;
+      }
+
+      ul li {
+        color: rgba(255, 255, 255, 0.7);
+
+        strong {
+          color: #ef5350;
+        }
+      }
     }
   }
 

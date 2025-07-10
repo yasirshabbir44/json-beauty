@@ -1,9 +1,14 @@
 import { Injectable } from '@angular/core';
+import Ajv from 'ajv';
+import * as jsondiffpatch from 'jsondiffpatch';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JsonService {
+  private ajv = new Ajv({ allErrors: true });
+  private diffPatcher = jsondiffpatch.create();
+
   constructor() {}
 
   /**
@@ -16,7 +21,8 @@ export class JsonService {
       const jsonObj = JSON.parse(jsonString || '{}');
       return this.convertToYaml(jsonObj);
     } catch (e) {
-      throw new Error(`Error converting JSON to YAML: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error converting JSON to YAML: ${errorMessage}`);
     }
   }
 
@@ -80,7 +86,8 @@ export class JsonService {
       this.collectPaths(obj, '$', paths);
       return paths;
     } catch (e) {
-      throw new Error(`Error finding JSON paths: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error finding JSON paths: ${errorMessage}`);
     }
   }
 
@@ -137,7 +144,15 @@ export class JsonService {
         isValid: true,
         errorMessage: ''
       };
-    } catch (e: any) {
+    } catch (e) {
+      // Ensure e is an Error object with a message property
+      if (!(e instanceof Error)) {
+        return {
+          isValid: false,
+          errorMessage: String(e)
+        };
+      }
+
       // Enhance error message with more helpful information
       let enhancedMessage = e.message;
 
@@ -173,7 +188,8 @@ export class JsonService {
       const jsonObj = JSON.parse(jsonString || '{}');
       return JSON.stringify(jsonObj, null, 2);
     } catch (e) {
-      throw new Error(`Error beautifying JSON: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error beautifying JSON: ${errorMessage}`);
     }
   }
 
@@ -187,7 +203,8 @@ export class JsonService {
       const jsonObj = JSON.parse(jsonString || '{}');
       return JSON.stringify(jsonObj);
     } catch (e) {
-      throw new Error(`Error minifying JSON: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error minifying JSON: ${errorMessage}`);
     }
   }
 
@@ -202,7 +219,8 @@ export class JsonService {
       const sortedObj = this.sortObjectKeys(jsonObj);
       return JSON.stringify(sortedObj, null, 2);
     } catch (e) {
-      throw new Error(`Error linting JSON: ${e}`);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error linting JSON: ${errorMessage}`);
     }
   }
 
@@ -244,5 +262,70 @@ export class JsonService {
     }
 
     return context;
+  }
+
+  /**
+   * Validates JSON against a schema
+   * @param jsonString The JSON string to validate
+   * @param schemaString The JSON schema string
+   * @returns An object with validation result and errors if any
+   */
+  validateJsonSchema(jsonString: string, schemaString: string): { isValid: boolean, errors: any[] } {
+    try {
+      // Parse the JSON and schema
+      const json = JSON.parse(jsonString);
+      const schema = JSON.parse(schemaString);
+
+      // Validate the JSON against the schema
+      const validate = this.ajv.compile(schema);
+      const isValid = validate(json);
+
+      // Return the validation result
+      return {
+        isValid,
+        errors: validate.errors || []
+      };
+    } catch (error) {
+      // If there's an error parsing the JSON or schema, return an error
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return {
+        isValid: false,
+        errors: [{ message: errorMessage }]
+      };
+    }
+  }
+
+  /**
+   * Compare two JSON objects and return the differences
+   * @param leftJsonString The first JSON string
+   * @param rightJsonString The second JSON string
+   * @returns An object with the comparison result and HTML representation
+   */
+  compareJson(leftJsonString: string, rightJsonString: string): { 
+    delta: any, 
+    htmlDiff: string,
+    hasChanges: boolean
+  } {
+    try {
+      // Parse the JSON strings
+      const leftJson = JSON.parse(leftJsonString);
+      const rightJson = JSON.parse(rightJsonString);
+
+      // Calculate the delta between the two objects
+      const delta = this.diffPatcher.diff(leftJson, rightJson);
+
+      // Generate HTML visualization of the differences
+      // Handle the case where delta might be undefined
+      const htmlDiff = delta ? jsondiffpatch.formatters.html.format(delta, leftJson) : '';
+
+      return {
+        delta,
+        htmlDiff,
+        hasChanges: !!delta
+      };
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error comparing JSON: ${errorMessage}`);
+    }
   }
 }

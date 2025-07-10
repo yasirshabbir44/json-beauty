@@ -7,6 +7,7 @@ import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-searchbox';
 
 @Component({
   selector: 'app-json-editor',
@@ -41,6 +42,16 @@ export class JsonEditorComponent implements OnInit {
   showJsonPaths = false;
   showYamlOutput = false;
   selectedOutputFormat: 'json' | 'yaml' = 'json';
+
+  // Schema validation properties
+  schemaInput = new FormControl('');
+  showSchemaEditor = false;
+  schemaValidationResult: { isValid: boolean, errors: any[] } | null = null;
+
+  // JSON diff comparison properties
+  compareJsonInput = new FormControl('');
+  showJsonCompare = false;
+  jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
 
   constructor(private snackBar: MatSnackBar, private jsonService: JsonService) {
     // Listen for dark mode changes
@@ -379,6 +390,69 @@ export class JsonEditorComponent implements OnInit {
     this.jsonOutput.setValue('');
     this.isValidJson = false;
     this.errorMessage = 'JSON is empty';
+    this.schemaValidationResult = null;
+  }
+
+  /**
+   * Toggles the schema editor visibility
+   */
+  toggleSchemaEditor(): void {
+    this.showSchemaEditor = !this.showSchemaEditor;
+
+    // If showing the schema editor and it's empty, add a sample schema
+    if (this.showSchemaEditor && !this.schemaInput.value) {
+      const sampleSchema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "description": { "type": "string" },
+          "features": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "isAwesome": { "type": "boolean" },
+          "numberOfUsers": { "type": "number" }
+        },
+        "required": ["name", "version"]
+      };
+      this.schemaInput.setValue(JSON.stringify(sampleSchema, null, 2));
+    }
+  }
+
+  /**
+   * Validates JSON against the provided schema
+   */
+  validateJsonSchema(): void {
+    if (!this.isValidJson) {
+      this.showError('Cannot validate invalid JSON');
+      return;
+    }
+
+    if (!this.schemaInput.value) {
+      this.showError('Schema is empty');
+      return;
+    }
+
+    try {
+      this.schemaValidationResult = this.jsonService.validateJsonSchema(
+        this.jsonInput.value || '{}',
+        this.schemaInput.value
+      );
+
+      if (this.schemaValidationResult.isValid) {
+        this.showSuccess('JSON is valid against the schema');
+      } else {
+        this.showError('JSON does not match the schema');
+      }
+    } catch (e: any) {
+      this.showError('Error validating against schema: ' + e.message);
+      this.schemaValidationResult = {
+        isValid: false,
+        errors: [{ message: e.message }]
+      };
+    }
   }
 
   private showSuccess(message: string): void {

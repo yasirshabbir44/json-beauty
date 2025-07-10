@@ -21,7 +21,13 @@
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
-              "zone.js"
+              "zone.js",
+              "src/polyfills.ts"
+            ],
+            "allowedCommonJsDependencies": [
+              "ace-builds",
+              "jsondiffpatch",
+              "jsonlint-mod"
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -30,7 +36,7 @@
               "src/assets"
             ],
             "styles": [
-hyse7uio9876tr              "src/theme.scss",
+              "src/theme.scss",
               "src/styles.scss"
             ],
             "scripts": []
@@ -85,7 +91,8 @@ hyse7uio9876tr              "src/theme.scss",
           "options": {
             "polyfills": [
               "zone.js",
-              "zone.js/testing"
+              "zone.js/testing",
+              "src/polyfills.ts"
             ],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",

@@ -59,6 +59,12 @@
               {{ selectedOutputFormat === 'json' ? 'Switch to YAML' : 'Switch to JSON' }}
             </button>
 
+            <button mat-raised-button color="primary" (click)="toggleSchemaEditor()" 
+              matTooltip="Validate JSON against a schema" 
+              aria-label="Toggle schema validation">
+              <mat-icon aria-hidden="true">rule</mat-icon> Schema Validation
+            </button>
+
             <button mat-stroked-button (click)="clearEditor()" 
               matTooltip="Clear all content (Ctrl+D)" 
               aria-label="Clear editor - Remove all content">
@@ -117,6 +123,44 @@
             <mat-label>Formatted JSON</mat-label>
             <textarea matInput [formControl]="jsonOutput" readonly rows="15" placeholder="Formatted JSON will appear here"></textarea>
           </mat-form-field>
+        </div>
+
+        <!-- Schema Validation Section -->
+        <div *ngIf="showSchemaEditor" class="editor-section schema-section slide-up">
+          <h3>
+            <mat-icon class="section-icon">rule</mat-icon>
+            JSON Schema Validation
+          </h3>
+
+          <div class="schema-editor-container">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>JSON Schema</mat-label>
+              <textarea matInput [formControl]="schemaInput" rows="10" placeholder="Enter JSON schema here"></textarea>
+            </mat-form-field>
+
+            <div class="schema-actions">
+              <button mat-raised-button color="primary" (click)="validateJsonSchema()" [disabled]="!isValidJson || !schemaInput.value">
+                <mat-icon>check_circle</mat-icon> Validate Against Schema
+              </button>
+            </div>
+
+            <!-- Schema Validation Results -->
+            <div *ngIf="schemaValidationResult" class="schema-validation-results">
+              <div class="validation-status" [ngClass]="{'valid': schemaValidationResult.isValid, 'invalid': !schemaValidationResult.isValid}">
+                <mat-icon>{{ schemaValidationResult.isValid ? 'check_circle' : 'error' }}</mat-icon>
+                <span>{{ schemaValidationResult.isValid ? 'JSON is valid against the schema' : 'JSON does not match the schema' }}</span>
+              </div>
+
+              <div *ngIf="!schemaValidationResult.isValid && schemaValidationResult.errors.length > 0" class="validation-errors">
+                <h4>Validation Errors:</h4>
+                <ul>
+                  <li *ngFor="let error of schemaValidationResult.errors">
+                    <strong>{{ error.instancePath || 'root' }}:</strong> {{ error.message }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </mat-card-content>
