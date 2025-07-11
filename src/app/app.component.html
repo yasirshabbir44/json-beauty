@@ -1,29 +1,15 @@
 <div class="app-container">
-  <mat-toolbar color="primary" class="app-header">
-    <div class="container toolbar-container">
-      <div class="logo-container">
-        <div class="logo-animation">
-          <mat-icon class="logo-icon">code</mat-icon>
-        </div>
-        <div class="title-container">
-          <span class="logo-text">{{ title }}</span>
-          <span class="logo-subtitle">Format • Validate • Transform</span>
-        </div>
-      </div>
-      <span class="spacer"></span>
-      <div class="header-actions">
-        <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle Theme" class="theme-toggle-btn">
-          <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        </button>
-        <a mat-button href="https://github.com/yasirshabbir44/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
-          <mat-icon>code</mat-icon> GitHub
-        </a>
-        <button mat-icon-button aria-label="Help" matTooltip="Help" class="help-btn">
-          <mat-icon>help_outline</mat-icon>
-        </button>
-      </div>
-    </div>
-  </mat-toolbar>
+  <app-header [title]="title" subtitle="Format • Validate • Transform">
+    <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle Theme" class="theme-toggle-btn">
+      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+    <a mat-button href="https://github.com/yasirshabbir44/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
+      <mat-icon>code</mat-icon> GitHub
+    </a>
+    <button mat-icon-button aria-label="Help" matTooltip="Help" class="help-btn">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+  </app-header>
 
   <div class="main-content">
     <div class="container">
@@ -31,18 +17,5 @@
     </div>
   </div>
 
-  <footer class="app-footer">
-    <div class="container">
-      <div class="footer-content">
-        <p class="copyright">
-          &copy; {{ currentYear }} JSON Beauty - A powerful JSON formatter, validator, and beautifier
-        </p>
-        <div class="footer-links">
-          <a href="#" class="footer-link">Privacy Policy</a>
-          <a href="#" class="footer-link">Terms of Service</a>
-          <a href="#" class="footer-link">Contact</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <app-footer [copyright]="'JSON Beauty - A powerful JSON formatter, validator, and beautifier'"></app-footer>
 </div>

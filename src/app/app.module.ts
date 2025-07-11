@@ -21,6 +21,9 @@ import { MatDividerModule } from '@angular/material/divider';
 // App Components
 import { AppComponent } from './app.component';
 import { JsonEditorComponent } from './components/json-editor/json-editor.component';
+import { HeaderComponent } from './components/header/header.component';
+import { FooterComponent } from './components/footer/footer.component';
+import { JsonToolbarComponent } from './components/json-toolbar/json-toolbar.component';
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
@@ -28,7 +31,10 @@ import { AppRoutingModule } from './app-routing.module';
 @NgModule({
   declarations: [
     AppComponent,
-    JsonEditorComponent
+    JsonEditorComponent,
+    HeaderComponent,
+    FooterComponent,
+    JsonToolbarComponent
   ],
   imports: [
     BrowserModule,

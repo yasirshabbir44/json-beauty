@@ -808,6 +808,19 @@ export class JsonEditorComponent implements OnInit {
     });
   }
 
+  getJsonSize(): string {
+    const editorValue = this.editor?.getValue() || '';
+    const charCount = editorValue.length;
+
+    if (charCount < 1000) {
+      return charCount.toString();
+    } else if (charCount < 1000000) {
+      return (charCount / 1000).toFixed(1) + 'K';
+    } else {
+      return (charCount / 1000000).toFixed(1) + 'M';
+    }
+  }
+
   /**
    * Tree View Helper Methods
    */

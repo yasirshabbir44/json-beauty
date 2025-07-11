@@ -1,0 +1,40 @@
+<div class="toolbar-container">
+  <div class="toolbar-section">
+    <h3 class="toolbar-title">Actions</h3>
+    <div class="toolbar-buttons">
+      <button mat-raised-button color="primary" (click)="beautify.emit()" [disabled]="!isValidJson" class="action-button">
+        <mat-icon>format_align_left</mat-icon> Beautify
+      </button>
+
+      <button mat-raised-button color="primary" (click)="onImportClick(fileInput)" class="action-button">
+        <mat-icon>upload_file</mat-icon> Import
+      </button>
+      <input type="file" #fileInput style="display: none" accept=".json,.txt" (change)="onFileSelected($event)">
+
+      <button mat-raised-button color="accent" (click)="minify.emit()" [disabled]="!isValidJson" class="action-button">
+        <mat-icon>compress</mat-icon> Minify
+      </button>
+
+      <button mat-raised-button color="warn" (click)="lint.emit()" [disabled]="!isValidJson" class="action-button">
+        <mat-icon>build</mat-icon> Lint & Fix
+      </button>
+
+      <button mat-stroked-button (click)="clear.emit()" class="action-button">
+        <mat-icon>delete_outline</mat-icon> Clear
+      </button>
+    </div>
+  </div>
+  
+  <div class="toolbar-section">
+    <h3 class="toolbar-title">Export</h3>
+    <div class="toolbar-buttons">
+      <button mat-raised-button color="primary" (click)="copy.emit()" [disabled]="!isValidJson" class="action-button">
+        <mat-icon>content_copy</mat-icon> Copy
+      </button>
+
+      <button mat-raised-button color="accent" (click)="download.emit()" [disabled]="!isValidJson" class="action-button">
+        <mat-icon>download</mat-icon> Download
+      </button>
+    </div>
+  </div>
+</div>
