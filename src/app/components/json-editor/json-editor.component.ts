@@ -267,6 +267,16 @@ export class JsonEditorComponent implements OnInit {
         this.showError('Error parsing JSON for tree view');
         this.showTreeView = false;
       }
+    } else if (!this.showTreeView && this.selectedOutputFormat === 'json') {
+      // When switching from tree view to text view in JSON mode,
+      // ensure the output editor is initialized and updated
+      setTimeout(() => {
+        if (!this.outputEditor && this.outputEditorElement && this.outputEditorElement.nativeElement) {
+          this.initializeOutputEditor();
+        }
+        // Update the output with the formatted JSON
+        this.updateOutput();
+      }, 0);
     }
   }
 
@@ -492,6 +502,15 @@ export class JsonEditorComponent implements OnInit {
     this.selectedOutputFormat = this.selectedOutputFormat === 'json' ? 'yaml' : 'json';
     if (this.selectedOutputFormat === 'yaml' && !this.yamlOutput.value) {
       this.updateYamlOutput();
+    } else if (this.selectedOutputFormat === 'json') {
+      // Initialize the output editor if it's not already initialized
+      setTimeout(() => {
+        if (!this.outputEditor && this.outputEditorElement && this.outputEditorElement.nativeElement) {
+          this.initializeOutputEditor();
+        }
+        // Update JSON output when switching back to JSON format
+        this.updateOutput();
+      }, 0);
     }
   }
 
@@ -648,31 +667,43 @@ export class JsonEditorComponent implements OnInit {
   updateOutput(): void {
     if (this.isValidJson) {
       const jsonString = this.jsonInput.value || '';
-      this.jsonOutput.setValue(jsonString);
+      try {
+        // Beautify the JSON before setting it to the output
+        const beautifiedJson = this.jsonService.beautifyJson(jsonString);
+        this.jsonOutput.setValue(beautifiedJson);
 
-      // Update the output editor with the formatted JSON
-      if (this.outputEditor) {
-        this.outputEditor.setValue(jsonString, -1);
-        // Fold all arrays and objects for better readability
-        this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
+        // Update the output editor with the formatted JSON
+        if (this.outputEditor) {
+          this.outputEditor.setValue(beautifiedJson, -1);
+          // Fold all arrays and objects for better readability
+          this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
 
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
+          // Force the editor to update its display
+          this.outputEditor.renderer.updateFull(true);
+        }
 
-      // Update tree view data if tree view is active
-      if (this.showTreeView) {
-        try {
-          this.jsonTreeData = JSON.parse(jsonString);
-          // Reset expanded nodes when JSON changes
-          this.expandedNodes.clear();
-        } catch (error) {
-          this.jsonTreeData = null;
+        // Update tree view data if tree view is active
+        if (this.showTreeView) {
+          try {
+            this.jsonTreeData = JSON.parse(jsonString);
+            // Reset expanded nodes when JSON changes
+            this.expandedNodes.clear();
+          } catch (error) {
+            this.jsonTreeData = null;
+          }
+        }
+
+        this.updateJsonPaths();
+        this.updateYamlOutput();
+      } catch (error) {
+        console.error('Error beautifying JSON:', error);
+        // Fallback to unformatted JSON if beautification fails
+        this.jsonOutput.setValue(jsonString);
+        if (this.outputEditor) {
+          this.outputEditor.setValue(jsonString, -1);
+          this.outputEditor.renderer.updateFull(true);
         }
       }
-
-      this.updateJsonPaths();
-      this.updateYamlOutput();
     } else {
       this.jsonOutput.setValue('');
       if (this.outputEditor) {
