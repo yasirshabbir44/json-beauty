@@ -42,7 +42,13 @@ export class JsonService {
     if (obj === undefined) return 'undefined';
 
     // Handle different types
-    if (typeof obj === 'string') return `"${obj.replace(/"/g, '\\"')}"`;
+    if (typeof obj === 'string') {
+      // Only quote strings if they contain special characters
+      if (/[:#{}[\],&*!|<>=?%@`]/.test(obj) || /^\s|\s$/.test(obj) || obj === '') {
+        return `"${obj.replace(/"/g, '\\"')}"`;
+      }
+      return obj;
+    }
     if (typeof obj === 'number' || typeof obj === 'boolean') return obj.toString();
 
     const indentStr = ' '.repeat(indent);

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, HostListener } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { JsonService } from '../../services/json.service';
@@ -14,9 +14,9 @@ import 'ace-builds/src-noconflict/ext-searchbox';
   templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.scss']
 })
-export class JsonEditorComponent implements OnInit {
+export class JsonEditorComponent implements OnInit, AfterViewInit {
   @ViewChild('editor', { static: true }) editorElement!: ElementRef;
-  @ViewChild('outputEditor', { static: true }) outputEditorElement!: ElementRef;
+  @ViewChild('outputEditor', { static: false }) outputEditorElement!: ElementRef;
 
   editor: any;
   outputEditor: any;
@@ -271,12 +271,10 @@ export class JsonEditorComponent implements OnInit {
       // When switching from tree view to text view in JSON mode,
       // ensure the output editor is initialized and updated
       setTimeout(() => {
-        if (!this.outputEditor && this.outputEditorElement && this.outputEditorElement.nativeElement) {
-          this.initializeOutputEditor();
-        }
+        this.initializeOutputEditor();
         // Update the output with the formatted JSON
         this.updateOutput();
-      }, 0);
+      }, 100);
     }
   }
 
@@ -343,54 +341,38 @@ export class JsonEditorComponent implements OnInit {
       this.jsonInput.setValue(this.editor.getValue());
       this.validateJson();
     });
+  }
 
-    // Initialize output editor
-    // Ensure the output editor element exists before initializing
-    if (this.outputEditorElement && this.outputEditorElement.nativeElement) {
-      this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
-      this.updateOutputEditorTheme();
-      this.outputEditor.session.setMode('ace/mode/json');
-      this.outputEditor.setOptions({
-        readOnly: true,
-        showLineNumbers: true,
-        showGutter: true,
-        highlightActiveLine: false,
-        tabSize: 2,
-        fontSize: '15px',
-        printMarginColumn: 120,
-        showPrintMargin: false,
-        fadeFoldWidgets: true,
-        highlightSelectedWord: true,
-        displayIndentGuides: true
-      });
-
-      // Disable syntax error highlighting for output editor
-      this.outputEditor.getSession().setUseWorker(false);
-
-      // Force initial render
-      this.outputEditor.renderer.updateFull(true);
-    } else {
-      console.error('Output editor element not found. Will try to initialize later.');
-      // Try to initialize the output editor after a delay
-      setTimeout(() => {
-        if (this.outputEditorElement && this.outputEditorElement.nativeElement) {
-          this.initializeOutputEditor();
-        } else {
-          console.error('Output editor element still not found after delay.');
-        }
-      }, 500);
-    }
+  ngAfterViewInit(): void {
+    // Initialize output editor after view has been initialized
+    // This ensures the output editor element is in the DOM
+    setTimeout(() => {
+      this.initializeOutputEditor();
+    });
   }
 
   /**
    * Initializes the output editor separately
    */
   initializeOutputEditor(): void {
+    // Check if the output editor element is available
     if (!this.outputEditorElement || !this.outputEditorElement.nativeElement) {
-      console.error('Output editor element not available');
+      // If not available and we're in JSON mode without tree view, try again after a delay
+      if (!this.showTreeView && this.selectedOutputFormat === 'json') {
+        console.log('Output editor element not available yet. Will try again after a delay.');
+        setTimeout(() => {
+          this.initializeOutputEditor();
+        }, 100);
+      }
       return;
     }
 
+    // If the output editor is already initialized, don't initialize it again
+    if (this.outputEditor) {
+      return;
+    }
+
+    console.log('Initializing output editor');
     this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
     this.updateOutputEditorTheme();
     this.outputEditor.session.setMode('ace/mode/json');
@@ -502,15 +484,13 @@ export class JsonEditorComponent implements OnInit {
     this.selectedOutputFormat = this.selectedOutputFormat === 'json' ? 'yaml' : 'json';
     if (this.selectedOutputFormat === 'yaml' && !this.yamlOutput.value) {
       this.updateYamlOutput();
-    } else if (this.selectedOutputFormat === 'json') {
-      // Initialize the output editor if it's not already initialized
+    } else if (this.selectedOutputFormat === 'json' && !this.showTreeView) {
+      // Initialize the output editor if switching to JSON mode and not in tree view
       setTimeout(() => {
-        if (!this.outputEditor && this.outputEditorElement && this.outputEditorElement.nativeElement) {
-          this.initializeOutputEditor();
-        }
+        this.initializeOutputEditor();
         // Update JSON output when switching back to JSON format
         this.updateOutput();
-      }, 0);
+      }, 100);
     }
   }
 
@@ -672,14 +652,22 @@ export class JsonEditorComponent implements OnInit {
         const beautifiedJson = this.jsonService.beautifyJson(jsonString);
         this.jsonOutput.setValue(beautifiedJson);
 
-        // Update the output editor with the formatted JSON
-        if (this.outputEditor) {
-          this.outputEditor.setValue(beautifiedJson, -1);
-          // Fold all arrays and objects for better readability
-          this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
+        // Initialize the output editor if needed and update it with the formatted JSON
+        if (!this.showTreeView && this.selectedOutputFormat === 'json') {
+          // Try to initialize the output editor if it's not already initialized
+          if (!this.outputEditor) {
+            this.initializeOutputEditor();
+          }
 
-          // Force the editor to update its display
-          this.outputEditor.renderer.updateFull(true);
+          // Update the output editor if it's initialized
+          if (this.outputEditor) {
+            this.outputEditor.setValue(beautifiedJson, -1);
+            // Fold all arrays and objects for better readability
+            this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
+
+            // Force the editor to update its display
+            this.outputEditor.renderer.updateFull(true);
+          }
         }
 
         // Update tree view data if tree view is active
