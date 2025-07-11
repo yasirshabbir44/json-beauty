@@ -108,6 +108,26 @@
               <mat-icon class="section-icon mr-2 text-primary-600">input</mat-icon>
               <span class="text-primary-800 font-medium">Input JSON</span>
             </h3>
+            <div class="search-bar p-2 bg-neutral-100 border-b border-neutral-200">
+              <mat-form-field appearance="outline" class="search-input">
+                <mat-label>Search in Input</mat-label>
+                <input matInput #inputSearchInput (keyup.enter)="searchInJson(inputSearchInput.value, 'input')">
+                <button *ngIf="inputSearchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="inputSearchInput.value=''; clearSearch('input')">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </mat-form-field>
+              <div class="search-actions">
+                <button mat-icon-button color="primary" (click)="searchInJson(inputSearchInput.value, 'input')" matTooltip="Search in input">
+                  <mat-icon>search</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="findNext('input')" matTooltip="Find next">
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button mat-icon-button color="primary" (click)="findPrevious('input')" matTooltip="Find previous">
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+              </div>
+            </div>
             <div class="editor-wrapper rounded-b-xl overflow-hidden">
               <div #editor class="ace-editor"></div>
               <div *ngIf="!isValidJson" class="error-message bg-warn-50 border-t border-warn-200 p-3 flex items-center text-warn-800">
@@ -158,36 +178,47 @@
                 </div>
               </div>
 
-              <div *ngIf="!showTreeView" class="search-bar p-2 bg-neutral-100 border-b border-neutral-200">
+              <div class="search-bar p-2 bg-neutral-100 border-b border-neutral-200">
                 <mat-form-field appearance="outline" class="search-input">
-                  <mat-label>Search in JSON</mat-label>
-                  <input matInput #searchInput (keyup.enter)="searchInJson(searchInput.value)">
-                  <button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchInput.value=''; clearSearch()">
+                  <mat-label>Search in Output</mat-label>
+                  <input matInput #searchInput (keyup.enter)="searchInJson(searchInput.value, 'output')">
+                  <button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchInput.value=''; clearSearch('output')">
                     <mat-icon>close</mat-icon>
                   </button>
                 </mat-form-field>
                 <div class="search-actions">
-                  <button mat-icon-button color="primary" (click)="searchInJson(searchInput.value)" matTooltip="Search">
+                  <button mat-icon-button color="primary" (click)="searchInJson(searchInput.value, 'output')" matTooltip="Search in output">
                     <mat-icon>search</mat-icon>
                   </button>
-                  <button mat-icon-button color="primary" (click)="findNext()" matTooltip="Find next">
+                  <button mat-icon-button color="primary" (click)="findNext('output')" matTooltip="Find next">
                     <mat-icon>arrow_downward</mat-icon>
                   </button>
-                  <button mat-icon-button color="primary" (click)="findPrevious()" matTooltip="Find previous">
+                  <button mat-icon-button color="primary" (click)="findPrevious('output')" matTooltip="Find previous">
                     <mat-icon>arrow_upward</mat-icon>
                   </button>
                 </div>
               </div>
 
+              <!-- Tree Search (when tree view is active) -->
+              <div *ngIf="showTreeView" class="tree-search-bar p-2 bg-neutral-100 border-b border-neutral-200">
+                <mat-form-field appearance="outline" class="search-input">
+                  <mat-label>Search in Tree</mat-label>
+                  <input matInput #treeSearchInput (keyup)="searchInTree(treeSearchInput.value)">
+                  <button *ngIf="treeSearchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="treeSearchInput.value=''; clearTreeSearch()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </mat-form-field>
+              </div>
+
               <!-- Text View (Ace Editor) -->
-              <div *ngIf="!showTreeView" #outputEditor class="ace-editor output-editor"></div>
+              <div #outputEditor class="ace-editor output-editor" [style.display]="showTreeView ? 'none' : 'block'"></div>
 
               <!-- Tree View -->
               <div *ngIf="showTreeView" class="json-tree-view p-4 overflow-auto" style="max-height: 500px;">
                 <div *ngIf="!jsonTreeData" class="text-center p-4 text-neutral-500">
                   No valid JSON data to display
                 </div>
-                <ng-container *ngIf="jsonTreeData">
+                <ng-container *ngIf="jsonTreeData" [ngClass]="{'tree-search-active': treeSearchHighlighted}">
                   <div class="tree-node" *ngFor="let key of getObjectKeys(jsonTreeData); let i = index">
                     <div class="tree-node-content p-2 hover:bg-neutral-100 rounded flex items-start">
                       <button mat-icon-button class="tree-toggle mr-1" (click)="toggleNode('root_' + i)" *ngIf="isExpandable(jsonTreeData[key])">

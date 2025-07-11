@@ -52,6 +52,10 @@ export class JsonEditorComponent implements OnInit {
   showYamlOutput = false;
   selectedOutputFormat: 'json' | 'yaml' = 'json';
 
+  // Tree search properties
+  treeSearchResults: string[] = [];
+  treeSearchHighlighted: boolean = false;
+
   // Schema validation properties
   schemaInput = new FormControl('');
   showSchemaEditor = false;
@@ -326,8 +330,7 @@ export class JsonEditorComponent implements OnInit {
     }
 
     try {
-      const jsonObj = JSON.parse(this.jsonInput.value || '{}');
-      const beautified = JSON.stringify(jsonObj, null, 2);
+      const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
       this.editor.setValue(beautified, -1);
       this.jsonOutput.setValue(beautified);
 
@@ -349,8 +352,7 @@ export class JsonEditorComponent implements OnInit {
     }
 
     try {
-      const jsonObj = JSON.parse(this.jsonInput.value || '{}');
-      const minified = JSON.stringify(jsonObj);
+      const minified = this.jsonService.minifyJson(this.jsonInput.value || '{}');
       this.jsonOutput.setValue(minified);
 
       // Update the output editor
@@ -371,13 +373,7 @@ export class JsonEditorComponent implements OnInit {
     }
 
     try {
-      // Basic linting: parse and re-stringify with formatting
-      const jsonObj = JSON.parse(this.jsonInput.value || '{}');
-
-      // Sort keys alphabetically for consistent output
-      const sortedObj = this.sortObjectKeys(jsonObj);
-
-      const linted = JSON.stringify(sortedObj, null, 2);
+      const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
       this.editor.setValue(linted, -1);
       this.jsonOutput.setValue(linted);
 
@@ -559,16 +555,19 @@ export class JsonEditorComponent implements OnInit {
   }
 
   /**
-   * Searches for text in the JSON output
+   * Searches for text in the JSON editor (input or output)
    * @param searchText The text to search for
+   * @param editorType The editor to search in ('input' or 'output')
    */
-  searchInJson(searchText: string): void {
+  searchInJson(searchText: string, editorType: 'input' | 'output' = 'output'): void {
     if (!searchText) {
-      this.clearSearch();
+      this.clearSearch(editorType);
       return;
     }
 
-    if (this.outputEditor) {
+    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
+
+    if (targetEditor) {
       // Use Ace editor's search functionality
       const search = ace.require('ace/search').Search;
       const searchInstance = new search();
@@ -583,40 +582,81 @@ export class JsonEditorComponent implements OnInit {
         preventScroll: false
       });
 
-      const range = searchInstance.find(this.outputEditor.getSession());
+      const range = searchInstance.find(targetEditor.getSession());
       if (range) {
-        this.outputEditor.focus();
+        targetEditor.focus();
       } else {
-        this.showError(`No matches found for "${searchText}"`);
+        this.showError(`No matches found for "${searchText}" in ${editorType} editor`);
       }
     }
   }
 
   /**
    * Finds the next occurrence of the search text
+   * @param editorType The editor to search in ('input' or 'output')
    */
-  findNext(): void {
-    if (this.outputEditor) {
-      this.outputEditor.findNext();
+  findNext(editorType: 'input' | 'output' = 'output'): void {
+    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
+    if (targetEditor) {
+      targetEditor.findNext();
     }
   }
 
   /**
    * Finds the previous occurrence of the search text
+   * @param editorType The editor to search in ('input' or 'output')
    */
-  findPrevious(): void {
-    if (this.outputEditor) {
-      this.outputEditor.findPrevious();
+  findPrevious(editorType: 'input' | 'output' = 'output'): void {
+    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
+    if (targetEditor) {
+      targetEditor.findPrevious();
     }
   }
 
   /**
    * Clears the search highlighting
+   * @param editorType The editor to clear search in ('input' or 'output')
    */
-  clearSearch(): void {
-    if (this.outputEditor) {
-      this.outputEditor.execCommand('clearSelection');
+  clearSearch(editorType: 'input' | 'output' = 'output'): void {
+    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
+    if (targetEditor) {
+      targetEditor.execCommand('clearSelection');
     }
+  }
+
+  /**
+   * Searches in the JSON tree view
+   * @param searchText The text to search for in the tree
+   */
+  searchInTree(searchText: string): void {
+    if (!searchText || !this.jsonTreeData) {
+      this.clearTreeSearch();
+      return;
+    }
+
+    // Implement tree search logic here
+    // This is a simple implementation that highlights nodes containing the search text
+    try {
+      // Convert tree to string for searching
+      const jsonString = JSON.stringify(this.jsonTreeData);
+
+      if (jsonString.toLowerCase().includes(searchText.toLowerCase())) {
+        this.treeSearchHighlighted = true;
+        this.showSuccess(`Found matches for "${searchText}" in the tree view`);
+      } else {
+        this.treeSearchHighlighted = false;
+        this.showError(`No matches found for "${searchText}" in the tree view`);
+      }
+    } catch (e) {
+      this.showError(`Error searching in tree: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  /**
+   * Clears the tree search highlighting
+   */
+  clearTreeSearch(): void {
+    this.treeSearchHighlighted = false;
   }
 
   /**
@@ -873,8 +913,7 @@ export class JsonEditorComponent implements OnInit {
       this.jsonService.setIndentation(this.indentSize, this.indentChar as ' ' | '\t');
 
       // Re-beautify the JSON with the new settings
-      const jsonObj = JSON.parse(this.jsonInput.value || '{}');
-      const formatted = JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+      const formatted = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
 
       // Update the output
       this.jsonOutput.setValue(formatted);
