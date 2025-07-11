@@ -653,6 +653,28 @@ mat-divider {
   button {
     flex: 0 0 auto;
   }
+
+  // Search icon only styles
+  .search-icon-only {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+
+    button {
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Search actions styles
+  .search-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
 }
 
 @media (max-width: 599px) {

@@ -36,6 +36,7 @@ export class JsonEditorComponent implements OnInit {
 
   // Keyboard shortcuts
   keyboardShortcuts = [
+    { key: 'Ctrl + F', action: 'Show/Hide Search Bar' },
     { key: 'Ctrl + B', action: 'Beautify JSON' },
     { key: 'Ctrl + M', action: 'Minify JSON' },
     { key: 'Ctrl + L', action: 'Lint & Fix JSON' },
@@ -55,6 +56,11 @@ export class JsonEditorComponent implements OnInit {
   // Tree search properties
   treeSearchResults: string[] = [];
   treeSearchHighlighted: boolean = false;
+
+  // Search bar visibility properties
+  showInputSearchBar: boolean = false;
+  showOutputSearchBar: boolean = false;
+  showTreeSearchBar: boolean = false;
 
   // Schema validation properties
   schemaInput = new FormControl('');
@@ -80,6 +86,10 @@ export class JsonEditorComponent implements OnInit {
     // Only process if Ctrl key is pressed
     if (event.ctrlKey) {
       switch (event.key.toLowerCase()) {
+        case 'f':
+          event.preventDefault();
+          this.toggleSearchBar();
+          break;
         case 'b':
           event.preventDefault();
           this.beautifyJson();
@@ -112,6 +122,69 @@ export class JsonEditorComponent implements OnInit {
           this.toggleKeyboardShortcuts();
           break;
       }
+    }
+  }
+
+  /**
+   * Toggles the search bar visibility
+   */
+  toggleSearchBar(): void {
+    // Determine which editor is active or toggle both if none is specifically active
+    const activeElement = document.activeElement;
+
+    if (this.editorElement && this.editorElement.nativeElement.contains(activeElement)) {
+      // Input editor is active
+      this.showInputSearchBar = !this.showInputSearchBar;
+      // Hide other search bars
+      this.showOutputSearchBar = false;
+      this.showTreeSearchBar = false;
+
+      if (this.showInputSearchBar) {
+        // Focus the input search field after a short delay to allow the UI to update
+        setTimeout(() => {
+          const inputSearchField = document.querySelector('.input-search-field input') as HTMLElement;
+          if (inputSearchField) {
+            inputSearchField.focus();
+          }
+        }, 100);
+      }
+    } else if (this.outputEditorElement && this.outputEditorElement.nativeElement.contains(activeElement)) {
+      // Output editor is active
+      this.showOutputSearchBar = !this.showOutputSearchBar;
+      // Hide other search bars
+      this.showInputSearchBar = false;
+      this.showTreeSearchBar = false;
+
+      if (this.showOutputSearchBar) {
+        // Focus the output search field after a short delay
+        setTimeout(() => {
+          const outputSearchField = document.querySelector('.output-search-field input') as HTMLElement;
+          if (outputSearchField) {
+            outputSearchField.focus();
+          }
+        }, 100);
+      }
+    } else if (this.showTreeView) {
+      // Tree view is active
+      this.showTreeSearchBar = !this.showTreeSearchBar;
+      // Hide other search bars
+      this.showInputSearchBar = false;
+      this.showOutputSearchBar = false;
+
+      if (this.showTreeSearchBar) {
+        // Focus the tree search field after a short delay
+        setTimeout(() => {
+          const treeSearchField = document.querySelector('.tree-search-field input') as HTMLElement;
+          if (treeSearchField) {
+            treeSearchField.focus();
+          }
+        }, 100);
+      }
+    } else {
+      // No specific editor is active, toggle all search bars off
+      this.showInputSearchBar = false;
+      this.showOutputSearchBar = false;
+      this.showTreeSearchBar = false;
     }
   }
 
