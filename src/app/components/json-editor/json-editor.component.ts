@@ -257,6 +257,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
    * Toggles between text and tree views
    */
   toggleTreeView(): void {
+    // If trying to enable tree view in YAML mode, switch to JSON mode first
+    if (!this.showTreeView && this.selectedOutputFormat === 'yaml') {
+      this.selectedOutputFormat = 'json';
+      this.showSuccess('Switched to JSON mode for tree view');
+    }
+
     this.showTreeView = !this.showTreeView;
 
     if (this.showTreeView && this.isValidJson) {
@@ -267,14 +273,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         this.showError('Error parsing JSON for tree view');
         this.showTreeView = false;
       }
-    } else if (!this.showTreeView && this.selectedOutputFormat === 'json') {
-      // When switching from tree view to text view in JSON mode,
-      // ensure the output editor is initialized and updated
-      setTimeout(() => {
-        this.initializeOutputEditor();
-        // Update the output with the formatted JSON
-        this.updateOutput();
-      }, 100);
+    } else if (!this.showTreeView) {
+      // When switching from tree view to text view
+      if (this.selectedOutputFormat === 'json') {
+        // In JSON mode, ensure the output editor is initialized and updated
+        setTimeout(() => {
+          this.initializeOutputEditor();
+          // Update the output with the formatted JSON
+          this.updateOutput();
+        }, 100);
+      } else if (this.selectedOutputFormat === 'yaml') {
+        // In YAML mode, update the YAML output
+        this.updateYamlOutput();
+      }
     }
   }
 
@@ -437,6 +448,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       this.yamlOutput.setValue('');
       this.jsonPaths = [];
       this.jsonTreeData = null;
+
+      // Disable tree view if it's active
+      if (this.showTreeView) {
+        this.showTreeView = false;
+        this.showError('Tree view disabled due to invalid JSON');
+      }
     }
   }
 
@@ -482,10 +499,17 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
    */
   toggleOutputFormat(): void {
     this.selectedOutputFormat = this.selectedOutputFormat === 'json' ? 'yaml' : 'json';
-    if (this.selectedOutputFormat === 'yaml' && !this.yamlOutput.value) {
+    if (this.selectedOutputFormat === 'yaml') {
+      // Always update YAML output when switching to YAML mode
       this.updateYamlOutput();
-    } else if (this.selectedOutputFormat === 'json' && !this.showTreeView) {
-      // Initialize the output editor if switching to JSON mode and not in tree view
+
+      // Disable tree view when switching to YAML mode
+      if (this.showTreeView) {
+        this.showTreeView = false;
+        this.showSuccess('Tree view disabled in YAML mode');
+      }
+    } else if (this.selectedOutputFormat === 'json') {
+      // Initialize the output editor if switching to JSON mode
       setTimeout(() => {
         this.initializeOutputEditor();
         // Update JSON output when switching back to JSON format
@@ -678,6 +702,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             this.expandedNodes.clear();
           } catch (error) {
             this.jsonTreeData = null;
+            // Disable tree view if parsing fails
+            this.showTreeView = false;
+            this.showError('Tree view disabled due to JSON parsing error');
           }
         }
 
