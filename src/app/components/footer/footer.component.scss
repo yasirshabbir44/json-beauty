@@ -1,8 +1,10 @@
 .footer-container {
   background: linear-gradient(135deg, #4285F4, #34A853);
   color: white;
-  padding: 2rem 0;
-  margin-top: 2rem;
+  padding: 1rem 0;
+  margin-top: auto;
+  width: 100%;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .footer-content {
@@ -59,12 +61,12 @@
   transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
-  
+
   &:hover {
     opacity: 1;
     text-decoration: underline;
   }
-  
+
   .link-icon {
     font-size: 16px;
     height: 16px;
@@ -78,7 +80,7 @@
     flex-direction: column;
     gap: 1.5rem;
   }
-  
+
   .footer-links {
     width: 100%;
     justify-content: flex-start;

@@ -2,8 +2,11 @@
   width: 100%;
   background: linear-gradient(135deg, #4285F4, #34A853);
   color: white;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-content {
@@ -77,7 +80,7 @@
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: flex-end;
