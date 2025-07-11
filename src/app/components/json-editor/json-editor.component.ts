@@ -43,7 +43,9 @@ export class JsonEditorComponent implements OnInit {
     { key: 'Ctrl + C', action: 'Copy to Clipboard' },
     { key: 'Ctrl + S', action: 'Download JSON' },
     { key: 'Ctrl + D', action: 'Clear Editor' },
-    { key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts' }
+    { key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts' },
+    { key: 'Ctrl + 1', action: 'Maximize/Minimize Input' },
+    { key: 'Ctrl + 2', action: 'Maximize/Minimize Output' }
   ];
 
   // Properties for new features
@@ -71,6 +73,10 @@ export class JsonEditorComponent implements OnInit {
   compareJsonInput = new FormControl('');
   showJsonCompare = false;
   jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
+
+  // Maximize/minimize properties
+  isInputMaximized = false;
+  isOutputMaximized = false;
 
   constructor(private snackBar: MatSnackBar, private jsonService: JsonService) {
     // Listen for dark mode changes
@@ -120,6 +126,14 @@ export class JsonEditorComponent implements OnInit {
         case 'k':
           event.preventDefault();
           this.toggleKeyboardShortcuts();
+          break;
+        case '1':
+          event.preventDefault();
+          this.toggleInputMaximize();
+          break;
+        case '2':
+          event.preventDefault();
+          this.toggleOutputMaximize();
           break;
       }
     }
@@ -199,6 +213,44 @@ export class JsonEditorComponent implements OnInit {
     this.updateOutputEditorTheme();
     // Store theme preference in localStorage
     localStorage.setItem('jsonBeautyTheme', this.isDarkTheme ? 'dark' : 'light');
+  }
+
+  /**
+   * Toggles the maximized state of the input section
+   */
+  toggleInputMaximize(): void {
+    this.isInputMaximized = !this.isInputMaximized;
+
+    // If input is being maximized, ensure output is minimized
+    if (this.isInputMaximized) {
+      this.isOutputMaximized = false;
+    }
+
+    // Resize the editor after the UI has updated
+    setTimeout(() => {
+      if (this.editor) {
+        this.editor.resize();
+      }
+    }, 100);
+  }
+
+  /**
+   * Toggles the maximized state of the output section
+   */
+  toggleOutputMaximize(): void {
+    this.isOutputMaximized = !this.isOutputMaximized;
+
+    // If output is being maximized, ensure input is minimized
+    if (this.isOutputMaximized) {
+      this.isInputMaximized = false;
+    }
+
+    // Resize the editor after the UI has updated
+    setTimeout(() => {
+      if (this.outputEditor) {
+        this.outputEditor.resize();
+      }
+    }, 100);
   }
 
   /**

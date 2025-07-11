@@ -22,10 +22,14 @@
 
         <div class="editor-columns">
           <!-- Input Section -->
-          <div class="editor-section">
+          <div class="editor-section" [class.maximized]="isInputMaximized">
             <h3>
               <mat-icon>input</mat-icon>
               <span>Input JSON</span>
+              <div class="spacer"></div>
+              <button mat-icon-button (click)="toggleInputMaximize()" [matTooltip]="isInputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
+                <mat-icon>{{ isInputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+              </button>
             </h3>
             <div class="editor-wrapper">
               <div #editor class="ace-editor"></div>
@@ -37,10 +41,14 @@
           </div>
 
           <!-- Output Section -->
-          <div class="editor-section">
+          <div class="editor-section" [class.maximized]="isOutputMaximized">
             <h3>
               <mat-icon>output</mat-icon>
               <span>Output</span>
+              <div class="spacer"></div>
+              <button mat-icon-button (click)="toggleOutputMaximize()" [matTooltip]="isOutputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
+                <mat-icon>{{ isOutputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+              </button>
             </h3>
             <div class="editor-wrapper">
               <!-- Text View (Ace Editor) -->

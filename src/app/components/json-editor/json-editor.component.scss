@@ -113,6 +113,23 @@
     border-color: #d0d0d0;
   }
 
+  &.maximized {
+    position: fixed;
+    top: 64px; /* Height of the app header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 100%;
+    height: calc(100vh - 64px);
+    border-radius: 0;
+    box-shadow: none;
+
+    .editor-wrapper {
+      height: calc(100% - 45px); /* Subtract the height of the section header */
+    }
+  }
+
   h3 {
     margin: 0;
     padding: 12px 16px;
@@ -127,6 +144,20 @@
     mat-icon {
       margin-right: 8px;
       color: #4285F4;
+    }
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+
+    .maximize-btn {
+      color: #5f6368;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #4285F4;
+        background-color: rgba(66, 133, 244, 0.08);
+      }
     }
   }
 }
