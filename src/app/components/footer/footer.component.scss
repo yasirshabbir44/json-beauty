@@ -1,16 +1,15 @@
 .footer-container {
   background: linear-gradient(135deg, #4285F4, #34A853);
   color: white;
-  padding: 1rem 0;
+  padding: 1.25rem 0;
   margin-top: auto;
   width: 100%;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .footer-content {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -76,13 +75,50 @@
 }
 
 @media (max-width: 768px) {
+  .footer-container {
+    padding: 1rem 0;
+  }
+
   .footer-content {
     flex-direction: column;
     gap: 1.5rem;
+    padding: 0 1rem;
   }
 
   .footer-links {
     width: 100%;
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    padding: 0.75rem 0;
+  }
+
+  .footer-content {
+    padding: 0 0.75rem;
+    gap: 1rem;
+  }
+
+  .footer-main {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
+    gap: 1rem;
+  }
+}
+
+/* Dark theme styles */
+:host-context(.dark-theme) {
+  .footer-container {
+    background: linear-gradient(135deg, #1a73e8, #188038);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
   }
 }

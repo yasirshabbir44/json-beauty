@@ -3,136 +3,31 @@
   flex-direction: column;
   min-height: 100vh;
   overflow-x: hidden;
+  background-color: #f8f9fa;
 }
 
 .main-content {
   flex: 1;
-  padding: 1rem;
-  max-width: 1200px;
+  padding: 1.5rem;
   width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
+  min-height: 70vh; /* Ensure minimum height for content area */
 }
 
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);
-  padding: 0;
-  background: #fff;
-  height: 64px;
-  border-bottom: 1px solid #e0e0e0;
-}
+/* App header styles moved to header component */
 
-.toolbar-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+/* Toolbar container styles moved to header component */
 
-.logo-container {
-  display: flex;
-  align-items: center;
+/* Logo styles moved to header component */
 
-  .logo-animation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 12px;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: rotate(20deg);
-    }
-  }
-
-  .logo-icon {
-    font-size: 24px;
-    height: 24px;
-    width: 24px;
-    color: #4285F4; // Google blue
-  }
-
-  .title-container {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .logo-text {
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1.2;
-    color: #5f6368; // Google gray text
-  }
-
-  .logo-subtitle {
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: #5f6368; // Google gray text
-    opacity: 0.8;
-    margin-top: 2px;
-  }
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  .theme-toggle-btn, .help-btn {
-    color: #5f6368; // Google gray
-    border-radius: 50%;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-
-    mat-icon {
-      transition: transform 0.2s ease;
-    }
-
-    &:hover mat-icon {
-      transform: rotate(15deg);
-    }
-  }
-
-  .github-link {
-    margin: 0 8px;
-    font-weight: 500;
-    border-radius: 4px;
-    padding: 0 16px;
-    color: #5f6368; // Google gray
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.04);
-    }
-
-    mat-icon {
-      margin-right: 6px;
-    }
-  }
-}
+/* Header action styles moved to header component */
 
 .spacer {
   flex: 1 1 auto;
 }
 
-.main-content {
-  flex: 1;
-  padding: 0;
-  background-color: #f8f9fa;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-}
+/* Duplicate main-content styles removed */
 
 .app-footer {
   padding: 0;
@@ -188,120 +83,31 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .app-header {
-    .logo-container {
-      .logo-icon {
-        font-size: 24px;
-        height: 24px;
-        width: 24px;
-        margin-right: 8px;
-      }
-
-      .logo-text {
-        font-size: 18px;
-      }
-    }
-  }
-
   .main-content {
-    padding: 0;
+    padding: 1rem;
   }
 }
 
 @media (max-width: 599px) {
-  .toolbar-container {
-    padding: 0;
-  }
-
-  .header-actions {
-    .github-link {
-      span {
-        display: none;
-      }
-
-      mat-icon {
-        margin-right: 0;
-      }
-    }
-  }
-
   .main-content {
-    padding: 0;
+    padding: 0.75rem;
   }
+}
 
-  .app-footer {
-    padding: 0;
-
-    .footer-links {
-      flex-direction: column;
-      align-items: center;
-
-      .footer-link {
-        margin: 4px 0;
-      }
-    }
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.5rem;
   }
 }
 
 /* Dark theme styles */
 :host-context(.dark-theme) {
-  .app-header {
-    background: #202124; // Google's dark theme background
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid #3c4043; // Google's dark theme border
-  }
-
-  .logo-container {
-    .logo-icon {
-      color: #4285F4; // Google blue
-    }
-
-    .logo-text {
-      color: #e8eaed; // Google's dark theme text color
-    }
-
-    .logo-subtitle {
-      color: #9aa0a6; // Google's dark theme secondary text color
-      opacity: 1;
-    }
-  }
-
-  .header-actions {
-    .theme-toggle-btn, .help-btn {
-      color: #e8eaed; // Google's dark theme text color
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.08); // Google's dark theme hover
-      }
-    }
-
-    .github-link {
-      color: #e8eaed; // Google's dark theme text color
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.08); // Google's dark theme hover
-      }
-    }
-  }
 
   .main-content {
     background-color: #202124; // Google's dark theme background
   }
 
-  .app-footer {
+  .app-container {
     background-color: #202124; // Google's dark theme background
-    border-top: 1px solid #3c4043; // Google's dark theme border
-
-    .copyright {
-      color: #9aa0a6; // Google's dark theme secondary text color
-    }
-
-    .footer-link {
-      color: #9aa0a6; // Google's dark theme secondary text color
-
-      &:hover {
-        color: #4285F4; // Google blue
-      }
-    }
   }
 }
