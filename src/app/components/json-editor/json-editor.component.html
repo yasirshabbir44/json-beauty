@@ -6,11 +6,6 @@
       </div>
       <mat-card-title class="text-xl font-medium text-primary-900">JSON Beauty</mat-card-title>
       <mat-card-subtitle class="text-sm text-primary-700">Format, validate, and manipulate your JSON data</mat-card-subtitle>
-      <div class="ml-auto">
-        <button mat-icon-button (click)="toggleTheme()" matTooltip="Toggle Dark/Light Theme" aria-label="Toggle theme">
-          <mat-icon>{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</mat-icon>
-        </button>
-      </div>
     </mat-card-header>
 
     <mat-card-content class="p-4">
@@ -163,23 +158,25 @@
                 </div>
               </div>
 
-              <div *ngIf="!showTreeView" class="search-bar p-2 bg-neutral-100 border-b border-neutral-200 flex flex-wrap items-center gap-2">
-                <mat-form-field appearance="outline" class="search-input flex-grow mr-2">
+              <div *ngIf="!showTreeView" class="search-bar p-2 bg-neutral-100 border-b border-neutral-200">
+                <mat-form-field appearance="outline" class="search-input">
                   <mat-label>Search in JSON</mat-label>
                   <input matInput #searchInput (keyup.enter)="searchInJson(searchInput.value)">
                   <button *ngIf="searchInput.value" matSuffix mat-icon-button aria-label="Clear" (click)="searchInput.value=''; clearSearch()">
                     <mat-icon>close</mat-icon>
                   </button>
                 </mat-form-field>
-                <button mat-icon-button color="primary" (click)="searchInJson(searchInput.value)" matTooltip="Search">
-                  <mat-icon>search</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" (click)="findNext()" matTooltip="Find next">
-                  <mat-icon>arrow_downward</mat-icon>
-                </button>
-                <button mat-icon-button color="primary" (click)="findPrevious()" matTooltip="Find previous">
-                  <mat-icon>arrow_upward</mat-icon>
-                </button>
+                <div class="search-actions">
+                  <button mat-icon-button color="primary" (click)="searchInJson(searchInput.value)" matTooltip="Search">
+                    <mat-icon>search</mat-icon>
+                  </button>
+                  <button mat-icon-button color="primary" (click)="findNext()" matTooltip="Find next">
+                    <mat-icon>arrow_downward</mat-icon>
+                  </button>
+                  <button mat-icon-button color="primary" (click)="findPrevious()" matTooltip="Find previous">
+                    <mat-icon>arrow_upward</mat-icon>
+                  </button>
+                </div>
               </div>
 
               <!-- Text View (Ace Editor) -->
