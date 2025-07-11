@@ -17,6 +17,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 // App Components
 import { AppComponent } from './app.component';
@@ -55,7 +62,14 @@ import { AppRoutingModule } from './app-routing.module';
     MatSnackBarModule,
     MatTooltipModule,
     MatTabsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatExpansionModule,
+    MatSlideToggleModule,
+    MatDialogModule,
+    MatChipsModule,
+    MatBadgeModule,
+    MatMenuModule,
+    MatButtonToggleModule
   ],
   providers: [],
   bootstrap: [AppComponent]
