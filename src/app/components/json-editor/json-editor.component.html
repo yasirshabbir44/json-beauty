@@ -1,10 +1,10 @@
 <div class="editor-container" [class.dark-theme]="isDarkTheme">
   <mat-card class="editor-card">
-    <mat-card-header>
-      <mat-icon color="primary">code</mat-icon>
-      <mat-card-title>JSON Editor</mat-card-title>
-      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
-    </mat-card-header>
+<!--    <mat-card-header>-->
+<!--      <mat-icon color="primary">code</mat-icon>-->
+<!--      <mat-card-title>JSON Editor</mat-card-title>-->
+<!--      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>-->
+<!--    </mat-card-header>-->
 
     <mat-card-content class="p-2">
       <div class="editor-layout">
@@ -121,6 +121,8 @@
           </mat-card>
         </div>
 
+
+
         <div class="editor-columns">
           <!-- Input Section -->
           <div class="editor-section" [class.maximized]="isInputMaximized">
@@ -220,6 +222,26 @@
             </div>
           </div>
         </div>
+          <!-- Status Section -->
+          <div class="status-section" *ngIf="isValidJson">
+              <div class="status-item success">
+                  <mat-icon>check_circle</mat-icon>
+                  <span>JSON is valid</span>
+              </div>
+              <div class="status-item">
+                  <mat-icon>data_object</mat-icon>
+                  <span>{{ getJsonSize() }} characters</span>
+              </div>
+              <div class="status-item" *ngIf="showTreeView">
+                  <mat-icon>account_tree</mat-icon>
+                  <span>Tree View</span>
+              </div>
+              <div class="status-item" *ngIf="selectedOutputFormat === 'yaml'">
+                  <mat-icon>description</mat-icon>
+                  <span>YAML Mode</span>
+              </div>
+          </div>
+
 
         <!-- JSON Paths Section -->
         <div *ngIf="showJsonPaths && isValidJson" class="json-paths-section">
@@ -238,25 +260,7 @@
           </div>
         </div>
 
-        <!-- Status Section -->
-        <div class="status-section" *ngIf="isValidJson">
-          <div class="status-item success">
-            <mat-icon>check_circle</mat-icon>
-            <span>JSON is valid</span>
-          </div>
-          <div class="status-item">
-            <mat-icon>data_object</mat-icon>
-            <span>{{ getJsonSize() }} characters</span>
-          </div>
-          <div class="status-item" *ngIf="showTreeView">
-            <mat-icon>account_tree</mat-icon>
-            <span>Tree View</span>
-          </div>
-          <div class="status-item" *ngIf="selectedOutputFormat === 'yaml'">
-            <mat-icon>description</mat-icon>
-            <span>YAML Mode</span>
-          </div>
-        </div>
+
       </div>
     </mat-card-content>
   </mat-card>
