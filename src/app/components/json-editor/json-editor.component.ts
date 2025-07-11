@@ -11,269 +11,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 
 @Component({
   selector: 'app-json-editor',
-  template: `<div class="editor-container" [class.dark-theme]="isDarkTheme">
-  <mat-card class="editor-card">
-    <mat-card-header>
-      <mat-icon color="primary">code</mat-icon>
-      <mat-card-title>JSON Editor</mat-card-title>
-      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content class="p-2">
-      <div class="editor-layout">
-        <!-- Toolbar Component -->
-        <app-json-toolbar 
-          [isValidJson]="isValidJson"
-          (beautify)="beautifyJson()"
-          (minify)="minifyJson()"
-          (lint)="lintJson()"
-          (clear)="clearEditor()"
-          (import)="importFile($event)"
-          (copy)="copyToClipboard()"
-          (download)="downloadOutput()"
-          (share)="shareJson()"
-          (toggleTreeView)="toggleTreeView()"
-          (toggleOutputFormat)="toggleOutputFormat()"
-          (toggleJsonPaths)="toggleJsonPaths()"
-          (toggleSchemaEditor)="toggleSchemaEditor()"
-          (toggleTheme)="toggleTheme()"
-          (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
-          (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()">
-        </app-json-toolbar>
-
-        <!-- Keyboard Shortcuts Dialog -->
-        <div *ngIf="showKeyboardShortcuts" class="overlay-dialog">
-          <mat-card class="dialog-card">
-            <mat-card-header>
-              <mat-card-title>Keyboard Shortcuts</mat-card-title>
-              <button mat-icon-button (click)="toggleKeyboardShortcuts()" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="shortcuts-list">
-                <div *ngFor="let shortcut of keyboardShortcuts" class="shortcut-item">
-                  <span class="shortcut-key">{{ shortcut.key }}</span>
-                  <span class="shortcut-action">{{ shortcut.action }}</span>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <!-- Formatting Options Dialog -->
-        <div *ngIf="showFormattingOptions" class="overlay-dialog">
-          <mat-card class="dialog-card">
-            <mat-card-header>
-              <mat-card-title>Formatting Options</mat-card-title>
-              <button mat-icon-button (click)="showFormattingOptions = false" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="formatting-options">
-                <mat-form-field appearance="fill">
-                  <mat-label>Indent Size</mat-label>
-                  <mat-select [(ngModel)]="indentSize">
-                    <mat-option [value]="2">2 spaces</mat-option>
-                    <mat-option [value]="4">4 spaces</mat-option>
-                    <mat-option [value]="8">8 spaces</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="fill">
-                  <mat-label>Indent Character</mat-label>
-                  <mat-select [(ngModel)]="indentChar">
-                    <mat-option value=" ">Space</mat-option>
-                    <mat-option value="\\t">Tab</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <button mat-raised-button color="primary" (click)="applyFormatting()">
-                  Apply Formatting
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <!-- Schema Validation Dialog -->
-        <div *ngIf="showSchemaEditor" class="overlay-dialog">
-          <mat-card class="dialog-card schema-dialog">
-            <mat-card-header>
-              <mat-card-title>JSON Schema Validation</mat-card-title>
-              <button mat-icon-button (click)="showSchemaEditor = false" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <p class="schema-description">Enter a JSON Schema to validate your JSON against:</p>
-              <textarea [formControl]="schemaInput" class="schema-textarea" placeholder="Enter JSON Schema..."></textarea>
-
-              <button mat-raised-button color="primary" (click)="validateJsonSchema()">
-                Validate
-              </button>
-
-              <div *ngIf="schemaValidationResult" class="validation-result">
-                <div *ngIf="schemaValidationResult.isValid" class="valid-result">
-                  <mat-icon color="primary">check_circle</mat-icon>
-                  <span>JSON is valid against the schema</span>
-                </div>
-                <div *ngIf="!schemaValidationResult.isValid" class="invalid-result">
-                  <mat-icon color="warn">error</mat-icon>
-                  <span>JSON does not match the schema</span>
-                  <div class="error-details">
-                    <div *ngFor="let error of schemaValidationResult.errors" class="error-item">
-                      <span>{{ error.message }}</span>
-                      <span *ngIf="error.dataPath">at {{ error.dataPath }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <div class="editor-columns">
-          <!-- Input Section -->
-          <div class="editor-section" [class.maximized]="isInputMaximized">
-            <h3>
-              <mat-icon>input</mat-icon>
-              <span>Input JSON</span>
-              <div class="spacer"></div>
-              <button mat-icon-button (click)="toggleInputMaximize()" [matTooltip]="isInputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
-                <mat-icon>{{ isInputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-              </button>
-            </h3>
-            <div class="editor-wrapper">
-              <div #editor class="ace-editor"></div>
-              <div *ngIf="!isValidJson" class="error-message">
-                <mat-icon color="warn">error_outline</mat-icon>
-                <span>{{ errorMessage }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Output Section -->
-          <div class="editor-section" [class.maximized]="isOutputMaximized">
-            <h3>
-              <mat-icon>output</mat-icon>
-              <span>Output</span>
-              <div class="output-format-selector" *ngIf="isValidJson">
-                <mat-button-toggle-group [value]="selectedOutputFormat" (change)="toggleOutputFormat()">
-                  <mat-button-toggle value="json">JSON</mat-button-toggle>
-                  <mat-button-toggle value="yaml">YAML</mat-button-toggle>
-                </mat-button-toggle-group>
-              </div>
-              <div class="spacer"></div>
-              <button mat-icon-button (click)="toggleOutputMaximize()" [matTooltip]="isOutputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
-                <mat-icon>{{ isOutputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-              </button>
-            </h3>
-
-            <div class="editor-wrapper">
-              <!-- Text View (Ace Editor) - shown when tree view is off or when in JSON mode -->
-              <div *ngIf="!showTreeView && selectedOutputFormat === 'json'" #outputEditor class="ace-editor output-editor"></div>
-
-              <!-- YAML View - shown when in YAML mode and tree view is off -->
-              <div *ngIf="!showTreeView && selectedOutputFormat === 'yaml'" class="yaml-output">
-                <pre>{{ yamlOutput.value }}</pre>
-              </div>
-
-              <!-- Tree View - shown when tree view is on -->
-              <div *ngIf="showTreeView && jsonTreeData" class="tree-view">
-                <div class="tree-container">
-                  <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
-                </div>
-
-                <!-- Tree Node Template -->
-                <ng-template #treeNode let-node let-path="path" let-level="level">
-                  <div class="tree-level" [style.padding-left.px]="level * 20">
-                    <!-- Object Node -->
-                    <div *ngIf="isObject(node) && !isArray(node)">
-                      <div class="tree-node" (click)="toggleNode(path)">
-                        <mat-icon class="tree-icon">{{ isNodeExpanded(path) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-                        <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
-                        <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
-                      </div>
-                      <div *ngIf="isNodeExpanded(path)" class="tree-children">
-                        <ng-container *ngFor="let key of getObjectKeys(node)">
-                          <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
-                        </ng-container>
-                      </div>
-                    </div>
-
-                    <!-- Array Node -->
-                    <div *ngIf="isArray(node)">
-                      <div class="tree-node" (click)="toggleNode(path)">
-                        <mat-icon class="tree-icon">{{ isNodeExpanded(path) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-                        <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
-                        <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
-                      </div>
-                      <div *ngIf="isNodeExpanded(path)" class="tree-children">
-                        <ng-container *ngFor="let item of node; let i = index">
-                          <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
-                        </ng-container>
-                      </div>
-                    </div>
-
-                    <!-- Primitive Values -->
-                    <div *ngIf="!isObject(node) && !isArray(node)" class="tree-leaf">
-                      <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
-                      <span class="node-value" [ngClass]="{
-                        'string-value': isString(node),
-                        'number-value': isNumber(node),
-                        'boolean-value': isBoolean(node),
-                        'null-value': node === null
-                      }">{{ formatValue(node) }}</span>
-                    </div>
-                  </div>
-                </ng-template>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- JSON Paths Section -->
-        <div *ngIf="showJsonPaths && isValidJson" class="json-paths-section">
-          <h3>
-            <mat-icon>route</mat-icon>
-            <span>JSON Paths</span>
-            <div class="spacer"></div>
-            <button mat-icon-button (click)="toggleJsonPaths()" class="close-btn">
-              <mat-icon>close</mat-icon>
-            </button>
-          </h3>
-          <div class="paths-container">
-            <mat-chip-set>
-              <mat-chip *ngFor="let path of jsonPaths" color="primary" selected>{{ path }}</mat-chip>
-            </mat-chip-set>
-          </div>
-        </div>
-
-        <!-- Status Section -->
-        <div class="status-section" *ngIf="isValidJson">
-          <div class="status-item success">
-            <mat-icon>check_circle</mat-icon>
-            <span>JSON is valid</span>
-          </div>
-          <div class="status-item">
-            <mat-icon>data_object</mat-icon>
-            <span>{{ getJsonSize() }} characters</span>
-          </div>
-          <div class="status-item" *ngIf="showTreeView">
-            <mat-icon>account_tree</mat-icon>
-            <span>Tree View</span>
-          </div>
-          <div class="status-item" *ngIf="selectedOutputFormat === 'yaml'">
-            <mat-icon>description</mat-icon>
-            <span>YAML Mode</span>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>`,
+  templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.scss']
 })
 export class JsonEditorComponent implements OnInit {
@@ -597,6 +335,52 @@ export class JsonEditorComponent implements OnInit {
     });
 
     // Initialize output editor
+    // Ensure the output editor element exists before initializing
+    if (this.outputEditorElement && this.outputEditorElement.nativeElement) {
+      this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
+      this.updateOutputEditorTheme();
+      this.outputEditor.session.setMode('ace/mode/json');
+      this.outputEditor.setOptions({
+        readOnly: true,
+        showLineNumbers: true,
+        showGutter: true,
+        highlightActiveLine: false,
+        tabSize: 2,
+        fontSize: '15px',
+        printMarginColumn: 120,
+        showPrintMargin: false,
+        fadeFoldWidgets: true,
+        highlightSelectedWord: true,
+        displayIndentGuides: true
+      });
+
+      // Disable syntax error highlighting for output editor
+      this.outputEditor.getSession().setUseWorker(false);
+
+      // Force initial render
+      this.outputEditor.renderer.updateFull(true);
+    } else {
+      console.error('Output editor element not found. Will try to initialize later.');
+      // Try to initialize the output editor after a delay
+      setTimeout(() => {
+        if (this.outputEditorElement && this.outputEditorElement.nativeElement) {
+          this.initializeOutputEditor();
+        } else {
+          console.error('Output editor element still not found after delay.');
+        }
+      }, 500);
+    }
+  }
+
+  /**
+   * Initializes the output editor separately
+   */
+  initializeOutputEditor(): void {
+    if (!this.outputEditorElement || !this.outputEditorElement.nativeElement) {
+      console.error('Output editor element not available');
+      return;
+    }
+
     this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
     this.updateOutputEditorTheme();
     this.outputEditor.session.setMode('ace/mode/json');
@@ -616,6 +400,14 @@ export class JsonEditorComponent implements OnInit {
 
     // Disable syntax error highlighting for output editor
     this.outputEditor.getSession().setUseWorker(false);
+
+    // Force initial render
+    this.outputEditor.renderer.updateFull(true);
+
+    // Update the output if we have valid JSON
+    if (this.isValidJson && this.jsonOutput.value) {
+      this.outputEditor.setValue(this.jsonOutput.value, -1);
+    }
   }
 
   updateEditorTheme(): void {
@@ -640,9 +432,19 @@ export class JsonEditorComponent implements OnInit {
     this.errorMessage = result.errorMessage;
 
     if (this.isValidJson) {
-      // If JSON is valid, update paths and YAML output
-      this.updateJsonPaths();
-      this.updateYamlOutput();
+      // If JSON is valid, update the output and other related data
+      this.updateOutput();
+    } else {
+      // If JSON is invalid, clear the output
+      this.jsonOutput.setValue('');
+      if (this.outputEditor) {
+        this.outputEditor.setValue('', -1);
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
+      }
+      this.yamlOutput.setValue('');
+      this.jsonPaths = [];
+      this.jsonTreeData = null;
     }
   }
 
@@ -719,11 +521,29 @@ export class JsonEditorComponent implements OnInit {
     try {
       const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
       this.editor.setValue(beautified, -1);
+      this.jsonInput.setValue(beautified);
       this.jsonOutput.setValue(beautified);
 
       // Update the output editor
       if (this.outputEditor) {
         this.outputEditor.setValue(beautified, -1);
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
+      }
+
+      // Update other related data
+      this.updateJsonPaths();
+      this.updateYamlOutput();
+
+      // Update tree view if active
+      if (this.showTreeView) {
+        try {
+          this.jsonTreeData = JSON.parse(beautified);
+          // Reset expanded nodes when JSON changes
+          this.expandedNodes.clear();
+        } catch (error) {
+          this.jsonTreeData = null;
+        }
       }
 
       this.showSuccess('JSON beautified successfully');
@@ -745,6 +565,23 @@ export class JsonEditorComponent implements OnInit {
       // Update the output editor
       if (this.outputEditor) {
         this.outputEditor.setValue(minified, -1);
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
+      }
+
+      // Update other related data
+      this.updateJsonPaths();
+      this.updateYamlOutput();
+
+      // Update tree view if active
+      if (this.showTreeView) {
+        try {
+          this.jsonTreeData = JSON.parse(minified);
+          // Reset expanded nodes when JSON changes
+          this.expandedNodes.clear();
+        } catch (error) {
+          this.jsonTreeData = null;
+        }
       }
 
       this.showSuccess('JSON minified successfully');
@@ -762,11 +599,29 @@ export class JsonEditorComponent implements OnInit {
     try {
       const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
       this.editor.setValue(linted, -1);
+      this.jsonInput.setValue(linted);
       this.jsonOutput.setValue(linted);
 
       // Update the output editor
       if (this.outputEditor) {
         this.outputEditor.setValue(linted, -1);
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
+      }
+
+      // Update other related data
+      this.updateJsonPaths();
+      this.updateYamlOutput();
+
+      // Update tree view if active
+      if (this.showTreeView) {
+        try {
+          this.jsonTreeData = JSON.parse(linted);
+          // Reset expanded nodes when JSON changes
+          this.expandedNodes.clear();
+        } catch (error) {
+          this.jsonTreeData = null;
+        }
       }
 
       this.showSuccess('JSON linted successfully');
@@ -800,6 +655,9 @@ export class JsonEditorComponent implements OnInit {
         this.outputEditor.setValue(jsonString, -1);
         // Fold all arrays and objects for better readability
         this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
+
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
       }
 
       // Update tree view data if tree view is active
@@ -819,6 +677,8 @@ export class JsonEditorComponent implements OnInit {
       this.jsonOutput.setValue('');
       if (this.outputEditor) {
         this.outputEditor.setValue('', -1);
+        // Force the editor to update its display
+        this.outputEditor.renderer.updateFull(true);
       }
       this.yamlOutput.setValue('');
       this.jsonPaths = [];
