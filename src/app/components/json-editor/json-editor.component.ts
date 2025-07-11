@@ -513,11 +513,6 @@ export class JsonEditorComponent implements OnInit {
   }
 
   beautifyJson(): void {
-    if (!this.isValidJson) {
-      this.showError('Cannot beautify invalid JSON');
-      return;
-    }
-
     try {
       const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
       this.editor.setValue(beautified, -1);
@@ -531,18 +526,23 @@ export class JsonEditorComponent implements OnInit {
         this.outputEditor.renderer.updateFull(true);
       }
 
-      // Update other related data
-      this.updateJsonPaths();
-      this.updateYamlOutput();
+      // After beautification, validate the JSON
+      this.validateJson();
 
-      // Update tree view if active
-      if (this.showTreeView) {
-        try {
-          this.jsonTreeData = JSON.parse(beautified);
-          // Reset expanded nodes when JSON changes
-          this.expandedNodes.clear();
-        } catch (error) {
-          this.jsonTreeData = null;
+      // If the JSON is now valid, update other related data
+      if (this.isValidJson) {
+        this.updateJsonPaths();
+        this.updateYamlOutput();
+
+        // Update tree view if active
+        if (this.showTreeView) {
+          try {
+            this.jsonTreeData = JSON.parse(beautified);
+            // Reset expanded nodes when JSON changes
+            this.expandedNodes.clear();
+          } catch (error) {
+            this.jsonTreeData = null;
+          }
         }
       }
 
@@ -553,11 +553,6 @@ export class JsonEditorComponent implements OnInit {
   }
 
   minifyJson(): void {
-    if (!this.isValidJson) {
-      this.showError('Cannot minify invalid JSON');
-      return;
-    }
-
     try {
       const minified = this.jsonService.minifyJson(this.jsonInput.value || '{}');
       this.jsonOutput.setValue(minified);
@@ -569,18 +564,23 @@ export class JsonEditorComponent implements OnInit {
         this.outputEditor.renderer.updateFull(true);
       }
 
-      // Update other related data
-      this.updateJsonPaths();
-      this.updateYamlOutput();
+      // After minification, validate the JSON
+      this.validateJson();
 
-      // Update tree view if active
-      if (this.showTreeView) {
-        try {
-          this.jsonTreeData = JSON.parse(minified);
-          // Reset expanded nodes when JSON changes
-          this.expandedNodes.clear();
-        } catch (error) {
-          this.jsonTreeData = null;
+      // If the JSON is now valid, update other related data
+      if (this.isValidJson) {
+        this.updateJsonPaths();
+        this.updateYamlOutput();
+
+        // Update tree view if active
+        if (this.showTreeView) {
+          try {
+            this.jsonTreeData = JSON.parse(minified);
+            // Reset expanded nodes when JSON changes
+            this.expandedNodes.clear();
+          } catch (error) {
+            this.jsonTreeData = null;
+          }
         }
       }
 
@@ -591,11 +591,6 @@ export class JsonEditorComponent implements OnInit {
   }
 
   lintJson(): void {
-    if (!this.isValidJson) {
-      this.showError('Cannot lint invalid JSON');
-      return;
-    }
-
     try {
       const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
       this.editor.setValue(linted, -1);
@@ -609,18 +604,23 @@ export class JsonEditorComponent implements OnInit {
         this.outputEditor.renderer.updateFull(true);
       }
 
-      // Update other related data
-      this.updateJsonPaths();
-      this.updateYamlOutput();
+      // After linting, validate the JSON
+      this.validateJson();
 
-      // Update tree view if active
-      if (this.showTreeView) {
-        try {
-          this.jsonTreeData = JSON.parse(linted);
-          // Reset expanded nodes when JSON changes
-          this.expandedNodes.clear();
-        } catch (error) {
-          this.jsonTreeData = null;
+      // If the JSON is now valid, update other related data
+      if (this.isValidJson) {
+        this.updateJsonPaths();
+        this.updateYamlOutput();
+
+        // Update tree view if active
+        if (this.showTreeView) {
+          try {
+            this.jsonTreeData = JSON.parse(linted);
+            // Reset expanded nodes when JSON changes
+            this.expandedNodes.clear();
+          } catch (error) {
+            this.jsonTreeData = null;
+          }
         }
       }
 
