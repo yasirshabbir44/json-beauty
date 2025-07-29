@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import Ajv from 'ajv';
 import * as jsondiffpatch from 'jsondiffpatch';
 import * as JSON5 from 'json5';
+import * as yaml from 'js-yaml';
 
 @Injectable({
   providedIn: 'root'
@@ -28,6 +29,24 @@ export class JsonService {
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : String(e);
       throw new Error(`Error converting JSON to YAML: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Converts YAML to JSON
+   * @param yamlString The YAML string to convert
+   * @returns The JSON string
+   */
+  yamlToJson(yamlString: string): string {
+    try {
+      // Parse YAML string to JavaScript object
+      const obj = yaml.load(yamlString || '');
+      
+      // Convert the object to a JSON string with proper indentation
+      return JSON.stringify(obj, null, this.indentChar.repeat(this.indentSize));
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      throw new Error(`Error converting YAML to JSON: ${errorMessage}`);
     }
   }
 
@@ -206,25 +225,22 @@ export class JsonService {
    */
   enforceStrictDoubleQuotes(jsonString: string): string {
     try {
-      // First try to parse the JSON to see if it's valid
+      // First try to parse the JSON to see if it's valid standard JSON
       const jsonObj = JSON.parse(jsonString || '{}');
 
       // Use JSON.stringify to ensure all keys and string values use double quotes
       return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
     } catch (e) {
-      // If parsing fails, try to fix common issues with quotes
-      // This is a simple approach and may not handle all cases
-      let fixedJson = jsonString
-        // Replace single quotes around keys with double quotes
-        .replace(/'([^']+)':/g, '"$1":')
-        // Replace single quotes around string values with double quotes
-        .replace(/:\s*'([^']*)'/g, ': "$1"');
-
+      // If standard JSON parsing fails, try using JSON5 parser
+      // This handles single quotes, trailing commas, comments, etc.
       try {
-        // Try to parse the fixed JSON
-        const jsonObj = JSON.parse(fixedJson);
+        // Parse with JSON5 which is more lenient
+        const jsonObj = JSON5.parse(jsonString || '{}');
+        
+        // Convert back to standard JSON with double quotes
         return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
       } catch (e) {
+        // If JSON5 parsing also fails, it's likely not valid JSON at all
         const errorMessage = e instanceof Error ? e.message : String(e);
         throw new Error(`Error enforcing strict double quotes: ${errorMessage}`);
       }
@@ -318,9 +334,14 @@ export class JsonService {
    * @returns A new object with sorted keys
    */
   private sortObjectKeys(obj: any): any {
-    // If not an object or is null, return as is
-    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    // If null or not an object, return as is
+    if (obj === null || typeof obj !== 'object') {
       return obj;
+    }
+    
+    // Handle arrays - map each item and recursively sort if it's an object
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.sortObjectKeys(item));
     }
 
     // Create a new object with sorted keys

@@ -1,10 +1,10 @@
 <div class="editor-container" [class.dark-theme]="isDarkTheme">
   <mat-card class="editor-card">
-<!--    <mat-card-header>-->
-<!--      <mat-icon color="primary">code</mat-icon>-->
-<!--      <mat-card-title>JSON Editor</mat-card-title>-->
-<!--      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>-->
-<!--    </mat-card-header>-->
+    <mat-card-header>
+      <mat-icon color="primary">code</mat-icon>
+      <mat-card-title>JSON Editor</mat-card-title>
+      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
+    </mat-card-header>
 
     <mat-card-content class="p-2">
       <div class="editor-layout">
@@ -123,7 +123,7 @@
 
 
 
-        <div class="editor-columns">
+        <div class="editor-columns" [class.input-maximized]="isInputMaximized" [class.output-maximized]="isOutputMaximized">
           <!-- Input Section -->
           <div class="editor-section" [class.maximized]="isInputMaximized">
             <h3>

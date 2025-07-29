@@ -498,9 +498,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
    * Toggles the output format between JSON and YAML
    */
   toggleOutputFormat(): void {
-    this.selectedOutputFormat = this.selectedOutputFormat === 'json' ? 'yaml' : 'json';
-    if (this.selectedOutputFormat === 'yaml') {
-      // Always update YAML output when switching to YAML mode
+    if (this.selectedOutputFormat === 'json') {
+      // Switching from JSON to YAML
+      this.selectedOutputFormat = 'yaml';
+      
+      // Update YAML output when switching to YAML mode
       this.updateYamlOutput();
 
       // Disable tree view when switching to YAML mode
@@ -508,13 +510,32 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         this.showTreeView = false;
         this.showSuccess('Tree view disabled in YAML mode');
       }
-    } else if (this.selectedOutputFormat === 'json') {
-      // Initialize the output editor if switching to JSON mode
-      setTimeout(() => {
-        this.initializeOutputEditor();
-        // Update JSON output when switching back to JSON format
-        this.updateOutput();
-      }, 100);
+    } else {
+      // Switching from YAML to JSON
+      this.selectedOutputFormat = 'json';
+      
+      try {
+        // Convert YAML back to JSON
+        const jsonString = this.jsonService.yamlToJson(this.yamlOutput.value || '');
+        
+        // Update the input editor with the converted JSON
+        this.editor.setValue(jsonString, -1);
+        this.jsonInput.setValue(jsonString);
+        
+        // Validate the JSON
+        this.validateJson();
+        
+        // Initialize the output editor if switching to JSON mode
+        setTimeout(() => {
+          this.initializeOutputEditor();
+          // Update JSON output
+          this.updateOutput();
+        }, 100);
+      } catch (error) {
+        this.showError(`Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`);
+        // Stay in YAML mode if conversion fails
+        this.selectedOutputFormat = 'yaml';
+      }
     }
   }
 
