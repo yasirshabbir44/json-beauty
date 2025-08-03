@@ -4,15 +4,20 @@
   min-height: 100vh;
   overflow-x: hidden;
   background-color: #f8f9fa;
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #3c4043; /* Google's text color for better readability */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .main-content {
   flex: 1;
-  padding: 1.5rem;
+  padding: 2rem;
   width: 100%;
+  max-width: 1400px; /* Limit width for very large screens */
   margin: 0 auto;
   box-sizing: border-box;
   min-height: 70vh; /* Ensure minimum height for content area */
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 /* App header styles moved to header component */

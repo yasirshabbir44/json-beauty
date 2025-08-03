@@ -2,19 +2,22 @@
   width: 100%;
   background: linear-gradient(135deg, #4285F4, #34A853);
   color: white;
-    padding: 0.75rem 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.85rem 0;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.23);
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .header-content {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   margin: 0 auto;
   padding: 0 1.5rem;
+  max-width: 1400px;
+  width: 100%;
 }
 
 .logo-container {
@@ -32,11 +35,13 @@
   width: 48px;
   height: 48px;
   margin-right: 0.75rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    transform: rotate(20deg);
+    transform: rotate(20deg) scale(1.05);
     background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -45,6 +50,7 @@
   height: 24px;
   width: 24px;
   color: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .title-container {
@@ -54,19 +60,25 @@
 
 .logo-text {
   font-size: 1.25rem;
-  font-weight: 500;
+  font-weight: 600;
   margin: 0;
   line-height: 1.2;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.85));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .logo-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 400;
   margin: 0.2rem 0 0;
-  opacity: 0.85;
-  letter-spacing: 0.2px;
+  opacity: 0.9;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .header-actions {
@@ -79,45 +91,63 @@
     .theme-toggle-btn, .help-btn {
       color: white;
       opacity: 0.9;
-      transition: all 0.2s ease;
-
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin: 0 0.25rem;
+      
       &:hover {
         opacity: 1;
         background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: none;
       }
 
       mat-icon {
-        transition: transform 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
       }
 
       &:hover mat-icon {
-        transform: translateY(-1px);
+        transform: rotate(5deg);
       }
     }
 
     .github-link {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
       color: white;
       border-radius: 4px;
-      padding: 0.25rem 0.75rem;
+      padding: 0.3rem 0.85rem;
       font-weight: 500;
       font-size: 0.875rem;
-      letter-spacing: 0.3px;
-      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       text-decoration: none;
       display: flex;
       align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
 
       &:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
       }
 
       mat-icon {
-        margin-right: 0.25rem;
+        margin-right: 0.35rem;
         font-size: 18px;
         height: 18px;
         width: 18px;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
       }
     }
   }
