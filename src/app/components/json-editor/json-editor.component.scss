@@ -2,6 +2,7 @@
   width: 100%;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in-out;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .editor-card {
@@ -9,8 +10,11 @@
   border-radius: 12px;
   background: #ffffff;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              background-color 0.3s ease,
+              color 0.3s ease,
+              border-color 0.3s ease;
 
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -88,18 +92,47 @@
 
 .editor-columns {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  flex-direction: row;
+  gap: 28px;
   margin: 0;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
 
-  @media (min-width: 992px) {
-    flex-direction: row;
-    gap: 28px;
+  @media (max-width: 991px) {
+    flex-direction: column;
+    gap: 24px;
   }
 
   @media (max-width: 767px) {
     gap: 32px;
+  }
+  
+  /* Styles for when input panel is maximized */
+  &.input-maximized {
+    app-json-output-editor {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      position: absolute;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                  transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  visibility 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+  }
+  
+  /* Styles for when output panel is maximized */
+  &.output-maximized {
+    app-json-input-editor {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+      position: absolute;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                  transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  visibility 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
   }
 }
 
@@ -127,215 +160,9 @@
   }
 }
 
-.editor-section {
-  width: 100%;
-  flex: 1;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background-color: #ffffff;
-  position: relative;
+/* Editor section styles are now in the shared styles file */
 
-  &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
-  }
-
-  // Output section styling
-  &.output-section {
-    border-color: rgba(66, 133, 244, 0.3);
-    background-color: #f8f9fa;
-    position: relative;
-
-    &:hover {
-      box-shadow: 0 8px 24px rgba(66, 133, 244, 0.15);
-      border-color: rgba(66, 133, 244, 0.5);
-    }
-
-    h3 {
-      background: linear-gradient(to right, #e8f0fe, #f5f9ff);
-      border-bottom: 1px solid rgba(66, 133, 244, 0.3);
-    }
-
-    .output-indicator {
-      position: absolute;
-      top: -12px;
-      right: 20px;
-      background: linear-gradient(135deg, #4285F4, #5c9eff);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-      transform: translateY(0);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
-      }
-    }
-  }
-
-  &.maximized {
-    position: fixed;
-    top: 64px; /* Height of the app header */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1000;
-    width: 100%;
-    height: calc(100vh - 64px);
-    border-radius: 0;
-    box-shadow: none;
-    overflow: auto;
-
-    .editor-wrapper {
-      height: calc(100% - 48px); /* Subtract the height of the section header */
-    }
-  }
-  
-  /* Ensure only one section can be maximized at a time */
-  &.input-maximized:not(.maximized) {
-    display: none;
-  }
-  
-  &.output-maximized:not(.maximized) {
-    display: none;
-  }
-
-  h3 {
-    margin: 0;
-    padding: 14px 20px;
-    background: linear-gradient(to right, #f8f9fa, #ffffff);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    font-size: 1.05rem;
-    font-weight: 600;
-    color: #4285F4;
-    height: 54px;
-    letter-spacing: 0.3px;
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 50px;
-      height: 1px;
-      background-color: #4285F4;
-    }
-
-    mat-icon {
-      margin-right: 10px;
-      color: #4285F4;
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
-    }
-
-    .spacer {
-      flex: 1 1 auto;
-    }
-
-    .maximize-btn {
-      color: #5f6368;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-left: 8px;
-      
-      &:hover {
-        color: #4285F4;
-        background-color: rgba(66, 133, 244, 0.08);
-        transform: scale(1.1);
-      }
-      
-      &:active {
-        transform: scale(1);
-      }
-    }
-  }
-}
-
-.editor-wrapper {
-  position: relative;
-  height: 60vh; /* Use viewport height for better screen utilization */
-  min-height: 400px;
-  border: none;
-  overflow: hidden;
-  background-color: #ffffff;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border-radius: 0 0 12px 12px;
-
-  &:focus-within {
-    background-color: #f8f9fa;
-    box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.2);
-  }
-  
-  @media (max-width: 767px) {
-    height: 50vh;
-    min-height: 300px;
-  }
-  
-  @media (max-width: 480px) {
-    height: 40vh;
-    min-height: 250px;
-  }
-}
-
-.ace-editor {
-  width: 100%;
-  height: 100%;
-  font-size: 15px;
-  font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-  line-height: 1.6;
-  padding: 16px;
-  box-sizing: border-box;
-  border-radius: 0 0 8px 8px;
-}
-
-.error-message {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(244, 67, 54, 0.1);
-  color: #d32f2f;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  border-top: 1px solid rgba(244, 67, 54, 0.2);
-  backdrop-filter: blur(4px);
-  animation: fadeIn 0.3s ease-in-out;
-  font-size: 0.875rem;
-  line-height: 1.4;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
-
-  mat-icon {
-    margin-right: 10px;
-    color: #f44336;
-    animation: pulse 1.5s infinite;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0% { opacity: 0.7; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
+/* Error message styles are now in the shared styles file */
 
 .full-width {
   width: 100%;
@@ -418,144 +245,9 @@
   }
 }
 
-/* Tree View Styles */
-.tree-view {
-  height: 100%;
-  overflow: auto;
-  padding: 16px;
-  background-color: #ffffff;
-}
+/* Tree view styles are now in the output editor component */
 
-.tree-container {
-  font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-  font-size: 15px;
-  line-height: 1.6;
-  width: 100%;
-  overflow-x: auto;
-}
-
-.tree-node {
-  display: flex;
-  align-items: center;
-  padding: 6px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  margin: 2px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-
-  &:hover {
-    background-color: rgba(66, 133, 244, 0.08);
-  }
-
-  .tree-icon {
-    color: #5f6368;
-    margin-right: 8px;
-    transition: transform 0.2s ease;
-    flex-shrink: 0;
-  }
-}
-
-.tree-children {
-  margin-left: 16px;
-  border-left: 1px dashed #e0e0e0;
-  padding-left: 8px;
-  
-  // Add different colors for different nesting levels to improve readability
-  &:nth-child(odd) {
-    border-left-color: #4285F4;
-  }
-  
-  &:nth-child(even) {
-    border-left-color: #34A853;
-  }
-  
-  // Limit the maximum nesting level to prevent performance issues
-  .tree-children .tree-children .tree-children .tree-children .tree-children {
-    margin-left: 8px;
-    padding-left: 4px;
-  }
-}
-
-.tree-leaf {
-  display: flex;
-  align-items: center;
-  padding: 6px 8px;
-  margin-left: 24px;
-  border-radius: 4px;
-  margin: 2px 0 2px 24px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-
-  &:hover {
-    background-color: rgba(66, 133, 244, 0.04);
-  }
-}
-
-.node-label {
-  font-weight: 600;
-  margin-right: 8px;
-  color: #4285F4;
-}
-
-.node-info {
-  color: #5f6368;
-  font-size: 0.85em;
-  padding: 2px 6px;
-  background-color: #f1f3f4;
-  border-radius: 4px;
-  margin-left: 4px;
-}
-
-.node-value {
-  font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-  padding: 2px 6px;
-  border-radius: 4px;
-
-  &.string-value {
-    color: #0d904f;
-    background-color: rgba(13, 144, 79, 0.08);
-  }
-
-  &.number-value {
-    color: #1a73e8;
-    background-color: rgba(26, 115, 232, 0.08);
-  }
-
-  &.boolean-value {
-    color: #9334e6;
-    background-color: rgba(147, 52, 230, 0.08);
-  }
-
-  &.null-value {
-    color: #d93025;
-    font-style: italic;
-    background-color: rgba(217, 48, 37, 0.08);
-  }
-}
-
-/* YAML Output Styles */
-.yaml-output {
-  height: 100%;
-  overflow: auto;
-  padding: 16px;
-  background-color: #ffffff;
-  border-radius: 0 0 8px 8px;
-
-  pre {
-    font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-    font-size: 15px;
-    line-height: 1.6;
-    margin: 0;
-    white-space: pre-wrap;
-    color: #333333;
-  }
-}
+/* YAML output styles are now in the output editor component */
 
 /* JSON Paths Section Styles */
 .json-paths-section {
@@ -907,9 +599,17 @@
 
 /* Dark Theme Styles */
 .dark-theme {
+  /* Add a transition to the body for smooth theme switching */
+  transition: background-color 0.3s ease;
+  
   .editor-card {
     background: #2d2d2d;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    /* Ensure transitions work in both directions */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+                background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease;
 
     &:hover {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -918,72 +618,21 @@
     mat-card-header {
       background: #1e1e1e;
       border-bottom: 1px solid #3d3d3d;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
 
       mat-card-title {
         color: #4285F4;
+        transition: color 0.3s ease;
       }
 
       mat-card-subtitle {
         color: #aaaaaa;
+        transition: color 0.3s ease;
       }
     }
   }
 
-  .editor-section {
-    border-color: #3d3d3d;
-    background-color: #2d2d2d;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      border-color: #4d4d4d;
-    }
-
-    // Output section styling for dark theme
-    &.output-section {
-      border-color: #4285F4;
-      background-color: #252525;
-
-      &:hover {
-        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
-        border-color: #5c9eff;
-      }
-
-      h3 {
-        background-color: #1a3050;
-        border-bottom: 1px solid #4285F4;
-      }
-
-      .output-indicator {
-        background-color: #4285F4;
-        color: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      }
-    }
-
-    h3 {
-      background-color: #1e1e1e;
-      border-bottom: 1px solid #3d3d3d;
-      color: #4285F4;
-
-      .maximize-btn {
-        color: #aaaaaa;
-
-        &:hover {
-          color: #4285F4;
-          background-color: rgba(66, 133, 244, 0.15);
-        }
-      }
-    }
-  }
-
-  .editor-wrapper {
-    background-color: #2d2d2d;
-
-    &:focus-within {
-      background-color: #252525;
-    }
-  }
+  /* Editor section dark theme styles are now in the shared styles file */
 
   .status-section {
     background-color: #1e1e1e;

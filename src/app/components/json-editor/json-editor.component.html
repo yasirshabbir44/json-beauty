@@ -28,238 +28,76 @@
           (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()">
         </app-json-toolbar>
 
-        <!-- Keyboard Shortcuts Dialog -->
-        <div *ngIf="showKeyboardShortcuts" class="overlay-dialog">
-          <mat-card class="dialog-card">
-            <mat-card-header>
-              <mat-card-title>Keyboard Shortcuts</mat-card-title>
-              <button mat-icon-button (click)="toggleKeyboardShortcuts()" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="shortcuts-list">
-                <div *ngFor="let shortcut of keyboardShortcuts" class="shortcut-item">
-                  <span class="shortcut-key">{{ shortcut.key }}</span>
-                  <span class="shortcut-action">{{ shortcut.action }}</span>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <!-- Formatting Options Dialog -->
-        <div *ngIf="showFormattingOptions" class="overlay-dialog">
-          <mat-card class="dialog-card">
-            <mat-card-header>
-              <mat-card-title>Formatting Options</mat-card-title>
-              <button mat-icon-button (click)="showFormattingOptions = false" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="formatting-options">
-                <mat-form-field appearance="fill">
-                  <mat-label>Indent Size</mat-label>
-                  <mat-select [(ngModel)]="indentSize">
-                    <mat-option [value]="2">2 spaces</mat-option>
-                    <mat-option [value]="4">4 spaces</mat-option>
-                    <mat-option [value]="8">8 spaces</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <mat-form-field appearance="fill">
-                  <mat-label>Indent Character</mat-label>
-                  <mat-select [(ngModel)]="indentChar">
-                    <mat-option value=" ">Space</mat-option>
-                    <mat-option value="\t">Tab</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-                <button mat-raised-button color="primary" (click)="applyFormatting()">
-                  Apply Formatting
-                </button>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
-
-        <!-- Schema Validation Dialog -->
-        <div *ngIf="showSchemaEditor" class="overlay-dialog">
-          <mat-card class="dialog-card schema-dialog">
-            <mat-card-header>
-              <mat-card-title>JSON Schema Validation</mat-card-title>
-              <button mat-icon-button (click)="showSchemaEditor = false" class="close-btn">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <p class="schema-description">Enter a JSON Schema to validate your JSON against:</p>
-              <textarea [formControl]="schemaInput" class="schema-textarea" placeholder="Enter JSON Schema..."></textarea>
-
-              <button mat-raised-button color="primary" (click)="validateJsonSchema()">
-                Validate
-              </button>
-
-              <div *ngIf="schemaValidationResult" class="validation-result">
-                <div *ngIf="schemaValidationResult.isValid" class="valid-result">
-                  <mat-icon color="primary">check_circle</mat-icon>
-                  <span>JSON is valid against the schema</span>
-                </div>
-                <div *ngIf="!schemaValidationResult.isValid" class="invalid-result">
-                  <mat-icon color="warn">error</mat-icon>
-                  <span>JSON does not match the schema</span>
-                  <div class="error-details">
-                    <div *ngFor="let error of schemaValidationResult.errors" class="error-item">
-                      <span>{{ error.message }}</span>
-                      <span *ngIf="error.dataPath">at {{ error.dataPath }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        </div>
+        <!-- Dialogs Component -->
+        <app-json-dialogs
+          [showKeyboardShortcuts]="showKeyboardShortcuts"
+          [keyboardShortcuts]="keyboardShortcuts"
+          (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
+          
+          [showFormattingOptions]="showFormattingOptions"
+          [indentSize]="indentSize"
+          [indentChar]="indentChar"
+          (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
+          (applyFormatting)="applyFormatting()"
+          
+          [showSchemaEditor]="showSchemaEditor"
+          [schemaInput]="schemaInput"
+          [schemaValidationResult]="schemaValidationResult"
+          (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
+          (validateJsonSchema)="validateJsonSchema()">
+        </app-json-dialogs>
 
 
 
         <div class="editor-columns" [class.input-maximized]="isInputMaximized" [class.output-maximized]="isOutputMaximized">
-          <!-- Input Section -->
-          <div class="editor-section" [class.maximized]="isInputMaximized">
-            <h3>
-              <mat-icon>input</mat-icon>
-              <span>Input JSON</span>
-              <div class="spacer"></div>
-              <button mat-icon-button (click)="toggleInputMaximize()" [matTooltip]="isInputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
-                <mat-icon>{{ isInputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-              </button>
-            </h3>
-            <div class="editor-wrapper">
-              <div #editor class="ace-editor"></div>
-              <div *ngIf="!isValidJson" class="error-message">
-                <mat-icon color="warn">error_outline</mat-icon>
-                <span>{{ errorMessage }}</span>
-              </div>
-            </div>
-          </div>
+          <!-- Input Editor Component -->
+          <app-json-input-editor
+            [isDarkTheme]="isDarkTheme"
+            [isMaximized]="isInputMaximized"
+            [showInputSearchBar]="showInputSearchBar"
+            [isValidJson]="isValidJson"
+            [errorMessage]="errorMessage"
+            (jsonInputChange)="onJsonInputChange($event)"
+            (toggleMaximize)="toggleInputMaximize()">
+          </app-json-input-editor>
 
-          <!-- Output Section -->
-          <div class="editor-section output-section" [class.maximized]="isOutputMaximized">
-            <div class="output-indicator">Result</div>
-            <h3>
-              <mat-icon>output</mat-icon>
-              <span>Output</span>
-              <div class="output-format-selector" *ngIf="isValidJson">
-                <mat-button-toggle-group [value]="selectedOutputFormat" (change)="toggleOutputFormat()">
-                  <mat-button-toggle value="json">JSON</mat-button-toggle>
-                  <mat-button-toggle value="yaml">YAML</mat-button-toggle>
-                </mat-button-toggle-group>
-              </div>
-              <div class="spacer"></div>
-              <button mat-icon-button (click)="toggleOutputMaximize()" [matTooltip]="isOutputMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
-                <mat-icon>{{ isOutputMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-              </button>
-            </h3>
-
-            <div class="editor-wrapper">
-              <!-- Text View (Ace Editor) - shown when tree view is off or when in JSON mode -->
-              <div *ngIf="!showTreeView && selectedOutputFormat === 'json'" #outputEditor class="ace-editor output-editor"></div>
-
-              <!-- YAML View - shown when in YAML mode and tree view is off -->
-              <div *ngIf="!showTreeView && selectedOutputFormat === 'yaml'" class="yaml-output">
-                <pre>{{ yamlOutput.value }}</pre>
-              </div>
-
-              <!-- Tree View - shown when tree view is on -->
-              <div *ngIf="showTreeView && jsonTreeData" class="tree-view">
-                <div class="tree-container">
-                  <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
-                </div>
-
-                <!-- Tree Node Template -->
-                <ng-template #treeNode let-node let-path="path" let-level="level">
-                  <div class="tree-level" [style.padding-left.px]="level * 20">
-                    <!-- Object Node -->
-                    <div *ngIf="isObject(node) && !isArray(node)">
-                      <div class="tree-node" (click)="toggleNode(path)">
-                        <mat-icon class="tree-icon">{{ isNodeExpanded(path) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-                        <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
-                        <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
-                      </div>
-                      <div *ngIf="isNodeExpanded(path)" class="tree-children">
-                        <ng-container *ngFor="let key of getObjectKeys(node)">
-                          <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
-                        </ng-container>
-                      </div>
-                    </div>
-
-                    <!-- Array Node -->
-                    <div *ngIf="isArray(node)">
-                      <div class="tree-node" (click)="toggleNode(path)">
-                        <mat-icon class="tree-icon">{{ isNodeExpanded(path) ? 'expand_more' : 'chevron_right' }}</mat-icon>
-                        <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
-                        <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
-                      </div>
-                      <div *ngIf="isNodeExpanded(path)" class="tree-children">
-                        <ng-container *ngFor="let item of node; let i = index">
-                          <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
-                        </ng-container>
-                      </div>
-                    </div>
-
-                    <!-- Primitive Values -->
-                    <div *ngIf="!isObject(node) && !isArray(node)" class="tree-leaf">
-                      <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
-                      <span class="node-value" [ngClass]="{
-                        'string-value': isString(node),
-                        'number-value': isNumber(node),
-                        'boolean-value': isBoolean(node),
-                        'null-value': node === null
-                      }">{{ formatValue(node) }}</span>
-                    </div>
-                  </div>
-                </ng-template>
-              </div>
-            </div>
-          </div>
+          <!-- Output Editor Component -->
+          <app-json-output-editor
+            [isDarkTheme]="isDarkTheme"
+            [isMaximized]="isOutputMaximized"
+            [showOutputSearchBar]="showOutputSearchBar"
+            [isValidJson]="isValidJson"
+            [jsonOutput]="jsonOutput"
+            [yamlOutput]="yamlOutput"
+            [showTreeView]="showTreeView"
+            [jsonTreeData]="jsonTreeData"
+            [selectedOutputFormat]="selectedOutputFormat"
+            [expandedNodes]="expandedNodes"
+            [treeSearchResults]="treeSearchResults"
+            [showTreeSearchBar]="showTreeSearchBar"
+            [treeSearchHighlighted]="treeSearchHighlighted"
+            (toggleMaximize)="toggleOutputMaximize()"
+            (toggleOutputFormat)="toggleOutputFormat()"
+            (toggleNode)="toggleNode($event)"
+            (treeSearch)="searchInTree($event)">
+          </app-json-output-editor>
         </div>
-          <!-- Status Section -->
-          <div class="status-section" *ngIf="isValidJson">
-              <div class="status-item success">
-                  <mat-icon>check_circle</mat-icon>
-                  <span>JSON is valid</span>
-              </div>
-              <div class="status-item">
-                  <mat-icon>data_object</mat-icon>
-                  <span>{{ getJsonSize() }} characters</span>
-              </div>
-              <div class="status-item" *ngIf="showTreeView">
-                  <mat-icon>account_tree</mat-icon>
-                  <span>Tree View</span>
-              </div>
-              <div class="status-item" *ngIf="selectedOutputFormat === 'yaml'">
-                  <mat-icon>description</mat-icon>
-                  <span>YAML Mode</span>
-              </div>
-          </div>
+        <!-- Status Component -->
+        <app-json-status
+          [isValidJson]="isValidJson"
+          [jsonSize]="getJsonSize()"
+          [showTreeView]="showTreeView"
+          [selectedOutputFormat]="selectedOutputFormat">
+        </app-json-status>
 
 
-        <!-- JSON Paths Section -->
-        <div *ngIf="showJsonPaths && isValidJson" class="json-paths-section">
-          <h3>
-            <mat-icon>route</mat-icon>
-            <span>JSON Paths</span>
-            <div class="spacer"></div>
-            <button mat-icon-button (click)="toggleJsonPaths()" class="close-btn">
-              <mat-icon>close</mat-icon>
-            </button>
-          </h3>
-          <div class="paths-container">
-            <mat-chip-set>
-              <mat-chip *ngFor="let path of jsonPaths" color="primary" selected>{{ path }}</mat-chip>
-            </mat-chip-set>
-          </div>
-        </div>
+        <!-- JSON Paths Component -->
+        <app-json-paths
+          [showJsonPaths]="showJsonPaths"
+          [isValidJson]="isValidJson"
+          [jsonPaths]="jsonPaths"
+          (toggleJsonPaths)="toggleJsonPaths()">
+        </app-json-paths>
 
 
       </div>

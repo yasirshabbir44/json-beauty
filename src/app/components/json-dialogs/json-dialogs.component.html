@@ -1,0 +1,92 @@
+<!-- Keyboard Shortcuts Dialog -->
+<div *ngIf="showKeyboardShortcuts" class="overlay-dialog">
+  <mat-card class="dialog-card">
+    <mat-card-header>
+      <mat-card-title>Keyboard Shortcuts</mat-card-title>
+      <button mat-icon-button (click)="closeKeyboardShortcuts()" class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="shortcuts-list">
+        <div *ngFor="let shortcut of keyboardShortcuts" class="shortcut-item">
+          <span class="shortcut-key">{{ shortcut.key }}</span>
+          <span class="shortcut-action">{{ shortcut.action }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Formatting Options Dialog -->
+<div *ngIf="showFormattingOptions" class="overlay-dialog">
+  <mat-card class="dialog-card">
+    <mat-card-header>
+      <mat-card-title>Formatting Options</mat-card-title>
+      <button mat-icon-button (click)="closeFormattingOptions()" class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="formatting-options">
+        <mat-form-field appearance="fill">
+          <mat-label>Indent Size</mat-label>
+          <mat-select [(ngModel)]="indentSize">
+            <mat-option [value]="2">2 spaces</mat-option>
+            <mat-option [value]="4">4 spaces</mat-option>
+            <mat-option [value]="8">8 spaces</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Indent Character</mat-label>
+          <mat-select [(ngModel)]="indentChar">
+            <mat-option value=" ">Space</mat-option>
+            <mat-option value="\t">Tab</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="onApplyFormatting()">
+          Apply Formatting
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Schema Validation Dialog -->
+<div *ngIf="showSchemaEditor" class="overlay-dialog">
+  <mat-card class="dialog-card schema-dialog">
+    <mat-card-header>
+      <mat-card-title>JSON Schema Validation</mat-card-title>
+      <button mat-icon-button (click)="closeSchemaEditor()" class="close-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    <mat-card-content>
+      <p class="schema-description">Enter a JSON Schema to validate your JSON against:</p>
+      <textarea [formControl]="schemaInput" class="schema-textarea" placeholder="Enter JSON Schema..."></textarea>
+
+      <button mat-raised-button color="primary" (click)="onValidateJsonSchema()">
+        Validate
+      </button>
+
+      <div *ngIf="schemaValidationResult" class="validation-result">
+        <div *ngIf="schemaValidationResult.isValid" class="valid-result">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <span>JSON is valid against the schema</span>
+        </div>
+        <div *ngIf="!schemaValidationResult.isValid" class="invalid-result">
+          <mat-icon color="warn">error</mat-icon>
+          <span>JSON does not match the schema</span>
+          <div class="error-details">
+            <div *ngFor="let error of schemaValidationResult.errors" class="error-item">
+              <span>{{ error.message }}</span>
+              <span *ngIf="error.dataPath">at {{ error.dataPath }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

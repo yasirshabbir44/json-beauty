@@ -1,0 +1,39 @@
+<div class="editor-section" [class.maximized]="isMaximized">
+  <h3>
+    <mat-icon>input</mat-icon>
+    <span>Input JSON</span>
+    <div class="spacer"></div>
+    <button mat-icon-button (click)="toggleInputMaximize()" [matTooltip]="isMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn">
+      <mat-icon>{{ isMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+    </button>
+  </h3>
+  <div class="editor-wrapper">
+    <div #editor class="ace-editor"></div>
+    <div *ngIf="!isValidJson" class="error-message">
+      <mat-icon color="warn">error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+    
+    <!-- Search Bar -->
+    <div *ngIf="showInputSearchBar" class="search-bar input-search-field">
+      <mat-form-field appearance="outline">
+        <mat-label>Search</mat-label>
+        <input matInput #searchInput (keyup.enter)="searchInJson(searchInput.value)">
+        <button mat-icon-button matSuffix (click)="searchInJson(searchInput.value)">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+      <div class="search-actions">
+        <button mat-icon-button (click)="findPrevious()" matTooltip="Previous">
+          <mat-icon>keyboard_arrow_up</mat-icon>
+        </button>
+        <button mat-icon-button (click)="findNext()" matTooltip="Next">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+        <button mat-icon-button (click)="clearSearch()" matTooltip="Clear">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

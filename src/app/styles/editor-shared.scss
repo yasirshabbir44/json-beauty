@@ -1,0 +1,375 @@
+// Shared styles for editor components
+// This file contains common styles used by both input and output editor components
+
+// Base editor section styles
+.editor-section {
+  width: 100%;
+  flex: 1;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background-color: #ffffff;
+  position: relative;
+
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+
+  // Output section specific styling
+  &.output-section {
+    border-color: rgba(66, 133, 244, 0.3);
+    background-color: #f8f9fa;
+    position: relative;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(66, 133, 244, 0.15);
+      border-color: rgba(66, 133, 244, 0.5);
+    }
+
+    h3 {
+      background: linear-gradient(to right, #e8f0fe, #f5f9ff);
+      border-bottom: 1px solid rgba(66, 133, 244, 0.3);
+    }
+
+    .output-indicator {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(135deg, #4285F4, #5c9eff);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      transform: translateY(0);
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+
+  // Maximized state
+  &.maximized {
+    position: fixed;
+    top: 64px; /* Height of the app header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    width: 100%;
+    height: calc(100vh - 64px);
+    border-radius: 0;
+    box-shadow: none;
+    overflow: auto;
+    transform: translateY(0); /* Ensure transform is consistent with non-maximized state */
+    opacity: 1;
+    animation: maximize-animation 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+    .editor-wrapper {
+      height: calc(100% - 54px); /* Subtract the height of the section header */
+    }
+  }
+
+  // Header styles
+  h3 {
+    margin: 0;
+    padding: 14px 20px;
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #4285F4;
+    height: 54px;
+    letter-spacing: 0.3px;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 50px;
+      height: 1px;
+      background-color: #4285F4;
+    }
+
+    mat-icon {
+      margin-right: 10px;
+      color: #4285F4;
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+
+    .spacer {
+      flex: 1 1 auto;
+    }
+
+    .maximize-btn {
+      color: #5f6368;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      margin-left: 8px;
+      
+      &:hover {
+        color: #4285F4;
+        background-color: rgba(66, 133, 244, 0.08);
+        transform: scale(1.1);
+      }
+      
+      &:active {
+        transform: scale(1);
+      }
+    }
+  }
+}
+
+// Editor wrapper styles
+.editor-wrapper {
+  position: relative;
+  height: 60vh; /* Use viewport height for better screen utilization */
+  min-height: 400px;
+  max-height: 800px;
+  border: none;
+  overflow: hidden;
+  background-color: #ffffff;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 0 0 12px 12px;
+
+  &:focus-within {
+    background-color: #f8f9fa;
+    box-shadow: inset 0 0 0 1px rgba(66, 133, 244, 0.2);
+  }
+  
+  @media (max-width: 767px) {
+    height: 50vh;
+    min-height: 300px;
+    max-height: 600px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 40vh;
+    min-height: 250px;
+    max-height: 500px;
+  }
+}
+
+// Ace editor styles
+.ace-editor {
+  width: 100%;
+  height: 100%;
+  font-size: 15px;
+  font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
+  line-height: 1.6;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 0 0 8px 8px;
+  
+  &.output-editor {
+    background-color: #f8f9fa;
+  }
+}
+
+// Error message styles
+.error-message {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #d32f2f;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(244, 67, 54, 0.2);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-in-out;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+
+  mat-icon {
+    margin-right: 10px;
+    color: #f44336;
+    animation: pulse 1.5s infinite;
+  }
+}
+
+// Search bar styles
+.search-bar {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  animation: fadeIn 0.3s ease-in-out;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  max-width: calc(100% - 20px); /* Prevent overflow on small screens */
+  
+  mat-form-field {
+    width: 200px;
+    margin-right: 8px;
+    font-size: 14px;
+    
+    @media (max-width: 480px) {
+      width: 150px;
+    }
+  }
+  
+  .search-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    
+    button {
+      margin-left: 4px;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    top: 5px;
+    right: 5px;
+    padding: 6px;
+  }
+  
+  /* Special styling for tree search */
+  &.tree-search-field {
+    background-color: rgba(232, 240, 254, 0.95); /* Light blue background for tree search */
+    border-color: rgba(26, 115, 232, 0.2);
+  }
+}
+
+// View container and transition styles
+.view-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border-radius: 0 0 8px 8px;
+}
+
+.view-active {
+  opacity: 1;
+  transform: translateX(0);
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.view-inactive {
+  opacity: 0;
+  transform: translateX(20px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes maximize-animation {
+  from {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Dark theme styles
+:host-context(.dark-theme) {
+  .editor-section {
+    border-color: #3d3d3d;
+    background-color: #2d2d2d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border-color: #4d4d4d;
+    }
+
+    // Output section styling for dark theme
+    &.output-section {
+      border-color: #4285F4;
+      background-color: #252525;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+        border-color: #5c9eff;
+      }
+
+      h3 {
+        background-color: #1a3050;
+        border-bottom: 1px solid #4285F4;
+      }
+
+      .output-indicator {
+        background-color: #4285F4;
+        color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    h3 {
+      background-color: #1e1e1e;
+      border-bottom: 1px solid #3d3d3d;
+      color: #4285F4;
+
+      .maximize-btn {
+        color: #aaaaaa;
+
+        &:hover {
+          color: #4285F4;
+          background-color: rgba(66, 133, 244, 0.15);
+        }
+      }
+    }
+  }
+
+  .editor-wrapper {
+    background-color: #2d2d2d;
+
+    &:focus-within {
+      background-color: #252525;
+    }
+  }
+  
+  .search-bar {
+    background-color: rgba(45, 45, 45, 0.95);
+    border-color: #3d3d3d;
+    
+    mat-form-field {
+      color: #e0e0e0;
+    }
+  }
+}

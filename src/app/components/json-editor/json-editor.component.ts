@@ -3,6 +3,11 @@ import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { JsonService } from '../../services/json.service';
 import * as ace from 'ace-builds';
+import { JsonInputEditorComponent } from '../json-input-editor/json-input-editor.component';
+import { JsonOutputEditorComponent } from '../json-output-editor/json-output-editor.component';
+import { JsonDialogsComponent } from '../json-dialogs/json-dialogs.component';
+import { JsonStatusComponent } from '../json-status/json-status.component';
+import { JsonPathsComponent } from '../json-paths/json-paths.component';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -14,12 +19,20 @@ import 'ace-builds/src-noconflict/ext-searchbox';
   templateUrl: './json-editor.component.html',
   styleUrls: ['./json-editor.component.scss']
 })
+/**
+ * Main JSON Editor component that orchestrates the interaction between child components:
+ * - JsonInputEditorComponent: Handles the input JSON editor
+ * - JsonOutputEditorComponent: Handles the output JSON/YAML display and tree view
+ * - JsonToolbarComponent: Provides action buttons for JSON operations
+ * - JsonDialogsComponent: Manages dialog windows for keyboard shortcuts, formatting options, etc.
+ * - JsonStatusComponent: Displays status information about the JSON
+ * - JsonPathsComponent: Shows JSON paths when enabled
+ * 
+ * This component maintains the state and coordinates data flow between the child components.
+ */
 export class JsonEditorComponent implements OnInit, AfterViewInit {
-  @ViewChild('editor', { static: true }) editorElement!: ElementRef;
-  @ViewChild('outputEditor', { static: false }) outputEditorElement!: ElementRef;
-
-  editor: any;
-  outputEditor: any;
+  @ViewChild(JsonInputEditorComponent, { static: false }) jsonInputEditor!: JsonInputEditorComponent;
+  @ViewChild(JsonOutputEditorComponent, { static: false }) jsonOutputEditor!: JsonOutputEditorComponent;
   jsonInput = new FormControl('');
   jsonOutput = new FormControl('');
   isValidJson = true;
@@ -81,9 +94,31 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   constructor(private snackBar: MatSnackBar, private jsonService: JsonService) {
     // Listen for dark mode changes
     document.body.addEventListener('DOMSubtreeModified', () => {
-      this.updateEditorTheme();
-      this.updateOutputEditorTheme();
+      this.updateTheme();
     });
+  }
+  
+  /**
+   * Handles input changes from the JsonInputEditorComponent
+   * This method is a key part of the data flow between components:
+   * 1. JsonInputEditorComponent emits changes via jsonInputChange event
+   * 2. This method updates the jsonInput FormControl
+   * 3. validateJson() is called to process the input
+   * 4. If valid, updateOutput() updates the jsonOutput FormControl
+   * 5. Child components react to the changes via their @Input properties
+   * 
+   * @param value The new JSON input value
+   */
+  onJsonInputChange(value: string): void {
+    this.jsonInput.setValue(value);
+    this.validateJson();
+  }
+  
+  /**
+   * Updates the theme for all components
+   */
+  updateTheme(): void {
+    // Theme updates will be handled by the child components through the isDarkTheme input
   }
 
   // Listen for keyboard shortcuts
@@ -109,8 +144,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
           this.lintJson();
           break;
         case 'c':
-          // Only handle if we're not in the editor (let browser handle copy in editor)
-          if (document.activeElement !== this.editorElement.nativeElement) {
+          // Let the browser handle copy if we're in an input field
+          if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
             event.preventDefault();
             this.copyToClipboard();
           }
@@ -143,11 +178,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
    * Toggles the search bar visibility
    */
   toggleSearchBar(): void {
-    // Determine which editor is active or toggle both if none is specifically active
-    const activeElement = document.activeElement;
-
-    if (this.editorElement && this.editorElement.nativeElement.contains(activeElement)) {
-      // Input editor is active
+    // Determine which view is active or toggle all off if none is specifically active
+    if (this.isInputMaximized) {
+      // Input editor is maximized
       this.showInputSearchBar = !this.showInputSearchBar;
       // Hide other search bars
       this.showOutputSearchBar = false;
@@ -162,7 +195,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
           }
         }, 100);
       }
-    } else if (this.outputEditorElement && this.outputEditorElement.nativeElement.contains(activeElement)) {
+    } else if (this.isOutputMaximized || (!this.isInputMaximized && !this.showTreeView)) {
       // Output editor is active
       this.showOutputSearchBar = !this.showOutputSearchBar;
       // Hide other search bars
@@ -195,7 +228,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         }, 100);
       }
     } else {
-      // No specific editor is active, toggle all search bars off
+      // No specific view is active, toggle all search bars off
       this.showInputSearchBar = false;
       this.showOutputSearchBar = false;
       this.showTreeSearchBar = false;
@@ -209,8 +242,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   toggleTheme(): void {
     this.isDarkTheme = !this.isDarkTheme;
     document.body.classList.toggle('dark-theme', this.isDarkTheme);
-    this.updateEditorTheme();
-    this.updateOutputEditorTheme();
+    
+    // Update themes in child components
+    if (this.jsonInputEditor) {
+      this.jsonInputEditor.updateEditorTheme();
+    }
+    
+    if (this.jsonOutputEditor) {
+      this.jsonOutputEditor.updateOutputEditorTheme();
+    }
+    
     // Store theme preference in localStorage
     localStorage.setItem('jsonBeautyTheme', this.isDarkTheme ? 'dark' : 'light');
   }
@@ -225,13 +266,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     if (this.isInputMaximized) {
       this.isOutputMaximized = false;
     }
-
-    // Resize the editor after the UI has updated
-    setTimeout(() => {
-      if (this.editor) {
-        this.editor.resize();
-      }
-    }, 100);
   }
 
   /**
@@ -244,13 +278,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     if (this.isOutputMaximized) {
       this.isInputMaximized = false;
     }
-
-    // Resize the editor after the UI has updated
-    setTimeout(() => {
-      if (this.outputEditor) {
-        this.outputEditor.resize();
-      }
-    }, 100);
   }
 
   /**
@@ -278,7 +305,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       if (this.selectedOutputFormat === 'json') {
         // In JSON mode, ensure the output editor is initialized and updated
         setTimeout(() => {
-          this.initializeOutputEditor();
+          if (this.jsonOutputEditor) {
+            this.jsonOutputEditor.initializeOutputEditor();
+          }
           // Update the output with the formatted JSON
           this.updateOutput();
         }, 100);
@@ -296,8 +325,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       this.isDarkTheme = true;
       document.body.classList.add('dark-theme');
     }
-
-    this.initializeEditor();
 
     // Check for JSON data in URL (for shared links)
     this.loadJsonFromUrl();
@@ -320,112 +347,24 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     };
 
     this.jsonInput.setValue(JSON.stringify(sampleJson, null, 2));
-    this.updateOutput();
-  }
-
-  initializeEditor(): void {
-    ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
-
-    // Initialize input editor
-    this.editor = ace.edit(this.editorElement.nativeElement);
-    this.updateEditorTheme();
-    this.editor.session.setMode('ace/mode/json');
-    this.editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableLiveAutocompletion: true,
-      showLineNumbers: true,
-      showGutter: true,
-      highlightActiveLine: true,
-      tabSize: 2,
-      fontSize: '15px',
-      printMarginColumn: 120,
-      showPrintMargin: false,
-      fadeFoldWidgets: true,
-      highlightSelectedWord: true,
-      displayIndentGuides: true
-    });
-
-    // Enable real-time syntax error highlighting
-    this.editor.getSession().setUseWorker(true);
-
-    this.editor.on('change', () => {
-      this.jsonInput.setValue(this.editor.getValue());
-      this.validateJson();
-    });
+    // The output will be updated after validation in the validateJson method
   }
 
   ngAfterViewInit(): void {
-    // Initialize output editor after view has been initialized
-    // This ensures the output editor element is in the DOM
+    // Initialize the input editor with the initial JSON value
     setTimeout(() => {
-      this.initializeOutputEditor();
-    });
-  }
-
-  /**
-   * Initializes the output editor separately
-   */
-  initializeOutputEditor(): void {
-    // Check if the output editor element is available
-    if (!this.outputEditorElement || !this.outputEditorElement.nativeElement) {
-      // If not available and we're in JSON mode without tree view, try again after a delay
-      if (!this.showTreeView && this.selectedOutputFormat === 'json') {
-        console.log('Output editor element not available yet. Will try again after a delay.');
-        setTimeout(() => {
-          this.initializeOutputEditor();
-        }, 100);
+      if (this.jsonInputEditor) {
+        this.jsonInputEditor.setValue(this.jsonInput.value || '');
       }
-      return;
-    }
-
-    // If the output editor is already initialized, don't initialize it again
-    if (this.outputEditor) {
-      return;
-    }
-
-    console.log('Initializing output editor');
-    this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
-    this.updateOutputEditorTheme();
-    this.outputEditor.session.setMode('ace/mode/json');
-    this.outputEditor.setOptions({
-      readOnly: true,
-      showLineNumbers: true,
-      showGutter: true,
-      highlightActiveLine: false,
-      tabSize: 2,
-      fontSize: '15px',
-      printMarginColumn: 120,
-      showPrintMargin: false,
-      fadeFoldWidgets: true,
-      highlightSelectedWord: true,
-      displayIndentGuides: true
-    });
-
-    // Disable syntax error highlighting for output editor
-    this.outputEditor.getSession().setUseWorker(false);
-
-    // Force initial render
-    this.outputEditor.renderer.updateFull(true);
-
-    // Update the output if we have valid JSON
-    if (this.isValidJson && this.jsonOutput.value) {
-      this.outputEditor.setValue(this.jsonOutput.value, -1);
-    }
+      
+      // Validate the initial JSON to update the output
+      this.validateJson();
+    }, 100);
   }
 
-  updateEditorTheme(): void {
-    if (this.editor) {
-      const isDarkMode = document.body.classList.contains('dark-theme');
-      this.editor.setTheme(isDarkMode ? 'ace/theme/dracula' : 'ace/theme/github');
-    }
-  }
+  // Output editor initialization is now handled by the JsonOutputEditorComponent
 
-  updateOutputEditorTheme(): void {
-    if (this.outputEditor) {
-      const isDarkMode = document.body.classList.contains('dark-theme');
-      this.outputEditor.setTheme(isDarkMode ? 'ace/theme/dracula' : 'ace/theme/github');
-    }
-  }
+  // Theme updates are now handled by the child components through the isDarkTheme input
 
   validateJson(): void {
     const jsonString = this.jsonInput.value || '';
@@ -440,11 +379,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     } else {
       // If JSON is invalid, clear the output
       this.jsonOutput.setValue('');
-      if (this.outputEditor) {
-        this.outputEditor.setValue('', -1);
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
       this.yamlOutput.setValue('');
       this.jsonPaths = [];
       this.jsonTreeData = null;
@@ -519,7 +453,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         const jsonString = this.jsonService.yamlToJson(this.yamlOutput.value || '');
         
         // Update the input editor with the converted JSON
-        this.editor.setValue(jsonString, -1);
+        if (this.jsonInputEditor) {
+          this.jsonInputEditor.setValue(jsonString);
+        }
         this.jsonInput.setValue(jsonString);
         
         // Validate the JSON
@@ -527,7 +463,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         
         // Initialize the output editor if switching to JSON mode
         setTimeout(() => {
-          this.initializeOutputEditor();
+          if (this.jsonOutputEditor) {
+            this.jsonOutputEditor.initializeOutputEditor();
+          }
           // Update JSON output
           this.updateOutput();
         }, 100);
@@ -559,16 +497,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   beautifyJson(): void {
     try {
       const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
-      this.editor.setValue(beautified, -1);
+      
+      // Update the input editor
+      if (this.jsonInputEditor) {
+        this.jsonInputEditor.setValue(beautified);
+      }
+      
       this.jsonInput.setValue(beautified);
       this.jsonOutput.setValue(beautified);
-
-      // Update the output editor
-      if (this.outputEditor) {
-        this.outputEditor.setValue(beautified, -1);
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
 
       // After beautification, validate the JSON
       this.validateJson();
@@ -601,13 +537,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       const minified = this.jsonService.minifyJson(this.jsonInput.value || '{}');
       this.jsonOutput.setValue(minified);
 
-      // Update the output editor
-      if (this.outputEditor) {
-        this.outputEditor.setValue(minified, -1);
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
-
       // After minification, validate the JSON
       this.validateJson();
 
@@ -637,16 +566,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   lintJson(): void {
     try {
       const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
-      this.editor.setValue(linted, -1);
+      
+      // Update the input editor
+      if (this.jsonInputEditor) {
+        this.jsonInputEditor.setValue(linted);
+      }
+      
       this.jsonInput.setValue(linted);
       this.jsonOutput.setValue(linted);
-
-      // Update the output editor
-      if (this.outputEditor) {
-        this.outputEditor.setValue(linted, -1);
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
 
       // After linting, validate the JSON
       this.validateJson();
@@ -689,6 +616,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     return sortedObj;
   }
 
+  /**
+   * Updates the output based on the current input JSON
+   * This method is central to the data flow from input to output:
+   * 1. Called after validateJson() confirms the JSON is valid
+   * 2. Beautifies the JSON and updates the jsonOutput FormControl
+   * 3. Updates the tree view data if tree view is active
+   * 4. Updates JSON paths and YAML output
+   * 5. Child components (JsonOutputEditorComponent, JsonPathsComponent) 
+   *    react to these changes via their @Input properties
+   */
   updateOutput(): void {
     if (this.isValidJson) {
       const jsonString = this.jsonInput.value || '';
@@ -696,24 +633,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         // Beautify the JSON before setting it to the output
         const beautifiedJson = this.jsonService.beautifyJson(jsonString);
         this.jsonOutput.setValue(beautifiedJson);
-
-        // Initialize the output editor if needed and update it with the formatted JSON
-        if (!this.showTreeView && this.selectedOutputFormat === 'json') {
-          // Try to initialize the output editor if it's not already initialized
-          if (!this.outputEditor) {
-            this.initializeOutputEditor();
-          }
-
-          // Update the output editor if it's initialized
-          if (this.outputEditor) {
-            this.outputEditor.setValue(beautifiedJson, -1);
-            // Fold all arrays and objects for better readability
-            this.outputEditor.getSession().foldAll(2); // Start folding from depth 2
-
-            // Force the editor to update its display
-            this.outputEditor.renderer.updateFull(true);
-          }
-        }
 
         // Update tree view data if tree view is active
         if (this.showTreeView) {
@@ -735,18 +654,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         console.error('Error beautifying JSON:', error);
         // Fallback to unformatted JSON if beautification fails
         this.jsonOutput.setValue(jsonString);
-        if (this.outputEditor) {
-          this.outputEditor.setValue(jsonString, -1);
-          this.outputEditor.renderer.updateFull(true);
-        }
       }
     } else {
       this.jsonOutput.setValue('');
-      if (this.outputEditor) {
-        this.outputEditor.setValue('', -1);
-        // Force the editor to update its display
-        this.outputEditor.renderer.updateFull(true);
-      }
       this.yamlOutput.setValue('');
       this.jsonPaths = [];
       this.jsonTreeData = null;
@@ -821,12 +731,21 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   }
 
   clearEditor(): void {
-    this.editor.setValue('', -1);
+    // Clear the input editor
+    if (this.jsonInputEditor) {
+      this.jsonInputEditor.clearEditor();
+    }
+    
     this.jsonInput.setValue('');
     this.jsonOutput.setValue('');
     this.isValidJson = false;
     this.errorMessage = 'JSON is empty';
     this.schemaValidationResult = null;
+    
+    // Clear other data
+    this.yamlOutput.setValue('');
+    this.jsonPaths = [];
+    this.jsonTreeData = null;
   }
 
   /**
@@ -845,8 +764,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         // Try to parse the file content to validate it's JSON
         JSON.parse(content);
 
-        // Set the editor value
-        this.editor.setValue(content, -1);
+        // Set the input editor value
+        if (this.jsonInputEditor) {
+          this.jsonInputEditor.setValue(content);
+        }
+        
         this.jsonInput.setValue(content);
         this.validateJson();
         this.updateOutput();
@@ -868,75 +790,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     reader.readAsText(file);
   }
 
-  /**
-   * Searches for text in the JSON editor (input or output)
-   * @param searchText The text to search for
-   * @param editorType The editor to search in ('input' or 'output')
-   */
-  searchInJson(searchText: string, editorType: 'input' | 'output' = 'output'): void {
-    if (!searchText) {
-      this.clearSearch(editorType);
-      return;
-    }
-
-    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
-
-    if (targetEditor) {
-      // Use Ace editor's search functionality
-      const search = ace.require('ace/search').Search;
-      const searchInstance = new search();
-
-      searchInstance.set({
-        needle: searchText,
-        caseSensitive: false,
-        wholeWord: false,
-        regExp: false,
-        range: null,
-        wrap: true,
-        preventScroll: false
-      });
-
-      const range = searchInstance.find(targetEditor.getSession());
-      if (range) {
-        targetEditor.focus();
-      } else {
-        this.showError(`No matches found for "${searchText}" in ${editorType} editor`);
-      }
-    }
-  }
-
-  /**
-   * Finds the next occurrence of the search text
-   * @param editorType The editor to search in ('input' or 'output')
-   */
-  findNext(editorType: 'input' | 'output' = 'output'): void {
-    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
-    if (targetEditor) {
-      targetEditor.findNext();
-    }
-  }
-
-  /**
-   * Finds the previous occurrence of the search text
-   * @param editorType The editor to search in ('input' or 'output')
-   */
-  findPrevious(editorType: 'input' | 'output' = 'output'): void {
-    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
-    if (targetEditor) {
-      targetEditor.findPrevious();
-    }
-  }
-
-  /**
-   * Clears the search highlighting
-   * @param editorType The editor to clear search in ('input' or 'output')
-   */
-  clearSearch(editorType: 'input' | 'output' = 'output'): void {
-    const targetEditor = editorType === 'input' ? this.editor : this.outputEditor;
-    if (targetEditor) {
-      targetEditor.execCommand('clearSelection');
-    }
-  }
+  // Search functionality is now handled by the child components
 
   /**
    * Searches in the JSON tree view
@@ -1050,8 +904,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   }
 
   getJsonSize(): string {
-    const editorValue = this.editor?.getValue() || '';
-    const charCount = editorValue.length;
+    const jsonValue = this.jsonInput.value || '';
+    const charCount = jsonValue.length;
 
     if (charCount < 1000) {
       return charCount.toString();
@@ -1213,14 +1067,20 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         // Try to parse the JSON to validate it
         JSON.parse(decodedJson);
 
-        // Set the editor value
-        this.editor.setValue(decodedJson, -1);
+        // Set the input value
         this.jsonInput.setValue(decodedJson);
-
-        // Beautify the JSON for better readability
-        this.beautifyJson();
-
-        this.showSuccess('JSON loaded from shared URL');
+        
+        // Set the input editor value after it's initialized
+        setTimeout(() => {
+          if (this.jsonInputEditor) {
+            this.jsonInputEditor.setValue(decodedJson);
+          }
+          
+          // Beautify the JSON for better readability
+          this.beautifyJson();
+          
+          this.showSuccess('JSON loaded from shared URL');
+        }, 100);
       }
     } catch (error) {
       this.showError(`Error loading JSON from URL: ${error instanceof Error ? error.message : String(error)}`);
@@ -1245,10 +1105,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       // Update the output
       this.jsonOutput.setValue(formatted);
 
-      // Update the output editor
-      if (this.outputEditor) {
-        this.outputEditor.setValue(formatted, -1);
-      }
+      // The output editor will be updated through data binding in the child component
 
       this.showSuccess('Formatting options applied');
     } catch (error) {

@@ -31,6 +31,11 @@ import { JsonEditorComponent } from './components/json-editor/json-editor.compon
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { JsonToolbarComponent } from './components/json-toolbar/json-toolbar.component';
+import { JsonInputEditorComponent } from './components/json-input-editor/json-input-editor.component';
+import { JsonOutputEditorComponent } from './components/json-output-editor/json-output-editor.component';
+import { JsonDialogsComponent } from './components/json-dialogs/json-dialogs.component';
+import { JsonStatusComponent } from './components/json-status/json-status.component';
+import { JsonPathsComponent } from './components/json-paths/json-paths.component';
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
@@ -41,7 +46,12 @@ import { AppRoutingModule } from './app-routing.module';
     JsonEditorComponent,
     HeaderComponent,
     FooterComponent,
-    JsonToolbarComponent
+    JsonToolbarComponent,
+    JsonInputEditorComponent,
+    JsonOutputEditorComponent,
+    JsonDialogsComponent,
+    JsonStatusComponent,
+    JsonPathsComponent
   ],
   imports: [
     BrowserModule,
