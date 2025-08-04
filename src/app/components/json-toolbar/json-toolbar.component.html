@@ -39,6 +39,10 @@
       <button mat-raised-button color="primary" (click)="share.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Generate shareable URL">
         <mat-icon>share</mat-icon> Share
       </button>
+
+      <button mat-raised-button color="warn" (click)="convertToCsv.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Convert JSON to CSV">
+        <mat-icon>table_chart</mat-icon> To CSV
+      </button>
     </div>
   </div>
 
@@ -59,6 +63,27 @@
 
       <button mat-raised-button color="primary" (click)="toggleSchemaEditor.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Validate against JSON schema">
         <mat-icon>check_circle</mat-icon> Validate
+      </button>
+    </div>
+  </div>
+
+  <div class="toolbar-section">
+    <h3 class="toolbar-title">Advanced</h3>
+    <div class="toolbar-buttons">
+      <button mat-raised-button color="primary" (click)="generateSchema.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Generate JSON schema from data">
+        <mat-icon>schema</mat-icon> Generate Schema
+      </button>
+
+      <button mat-raised-button color="accent" (click)="toggleJsonPathQuery.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Query JSON using JSONPath">
+        <mat-icon>search</mat-icon> JSONPath Query
+      </button>
+
+      <button mat-raised-button color="warn" (click)="toggleJsonCompare.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Compare two JSON documents">
+        <mat-icon>compare</mat-icon> Compare
+      </button>
+
+      <button mat-raised-button color="primary" (click)="toggleJsonVisualize.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Visualize JSON data">
+        <mat-icon>bar_chart</mat-icon> Visualize
       </button>
     </div>
   </div>

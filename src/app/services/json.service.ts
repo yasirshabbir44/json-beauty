@@ -3,6 +3,8 @@ import Ajv from 'ajv';
 import * as jsondiffpatch from 'jsondiffpatch';
 import * as JSON5 from 'json5';
 import * as yaml from 'js-yaml';
+import * as generateSchemaLib from 'generate-schema';
+const generateSchema = generateSchemaLib.json;
 
 @Injectable({
   providedIn: 'root'
@@ -489,5 +491,234 @@ export class JsonService {
         errorMessage: e.message
       };
     }
+  }
+
+  /**
+   * Converts JSON to CSV format
+   * @param jsonString The JSON string to convert
+   * @returns The CSV string
+   */
+  jsonToCsv(jsonString: string): string {
+    try {
+      const jsonObj = JSON.parse(jsonString || '[]');
+      
+      // If it's not an array, wrap it in an array
+      const jsonArray = Array.isArray(jsonObj) ? jsonObj : [jsonObj];
+      
+      if (jsonArray.length === 0) {
+        return '';
+      }
+
+      // Handle different JSON structures
+      if (typeof jsonArray[0] !== 'object' || jsonArray[0] === null) {
+        // Simple array of primitives
+        return jsonArray.map(item => this.escapeCsvValue(String(item))).join('\n');
+      }
+
+      // For array of objects, extract headers
+      const headers = this.extractCsvHeaders(jsonArray);
+      
+      // Generate CSV content
+      const csvRows = [];
+      
+      // Add headers row
+      csvRows.push(headers.join(','));
+      
+      // Add data rows
+      for (const item of jsonArray) {
+        const row = headers.map(header => {
+          const value = this.getNestedValue(item, header);
+          return this.escapeCsvValue(this.formatCsvValue(value));
+        });
+        csvRows.push(row.join(','));
+      }
+      
+      return csvRows.join('\n');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error converting JSON to CSV: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Extracts CSV headers from an array of objects
+   * @param jsonArray The array of objects
+   * @returns Array of header strings
+   */
+  private extractCsvHeaders(jsonArray: any[]): string[] {
+    const headers = new Set<string>();
+    
+    // Collect all unique keys from all objects
+    for (const item of jsonArray) {
+      if (typeof item === 'object' && item !== null) {
+        this.collectKeys(item, '', headers);
+      }
+    }
+    
+    return Array.from(headers);
+  }
+
+  /**
+   * Recursively collects all keys from an object
+   * @param obj The object to collect keys from
+   * @param prefix The current path prefix
+   * @param keys Set to store the collected keys
+   */
+  private collectKeys(obj: any, prefix: string, keys: Set<string>): void {
+    if (typeof obj !== 'object' || obj === null) {
+      return;
+    }
+    
+    for (const key of Object.keys(obj)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      
+      if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+        // Recursively collect keys for nested objects
+        this.collectKeys(obj[key], fullKey, keys);
+      } else {
+        // Add the key to the set
+        keys.add(fullKey);
+      }
+    }
+  }
+
+  /**
+   * Gets a nested value from an object using a dot-notation path
+   * @param obj The object to get the value from
+   * @param path The path to the value
+   * @returns The value at the path
+   */
+  private getNestedValue(obj: any, path: string): any {
+    const parts = path.split('.');
+    let current = obj;
+    
+    for (const part of parts) {
+      if (current === undefined || current === null) {
+        return undefined;
+      }
+      current = current[part];
+    }
+    
+    return current;
+  }
+
+  /**
+   * Formats a value for CSV output
+   * @param value The value to format
+   * @returns The formatted value as a string
+   */
+  private formatCsvValue(value: any): string {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+    
+    return String(value);
+  }
+
+  /**
+   * Escapes a value for CSV format
+   * @param value The value to escape
+   * @returns The escaped value
+   */
+  private escapeCsvValue(value: string): string {
+    // If the value contains commas, newlines, or quotes, wrap it in quotes
+    if (value.includes(',') || value.includes('\n') || value.includes('"')) {
+      // Double up any quotes in the value
+      return `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
+
+  /**
+   * Generates a JSON schema from a JSON document
+   * @param jsonString The JSON string to generate a schema for
+   * @returns The generated schema as a string
+   */
+  generateJsonSchema(jsonString: string): string {
+    try {
+      const jsonObj = JSON.parse(jsonString || '{}');
+      const schema = generateSchema(jsonObj);
+      
+      // Format the schema with proper indentation
+      return JSON.stringify(schema, null, this.indentChar.repeat(this.indentSize));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error generating JSON schema: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Queries a JSON document using JSONPath syntax
+   * @param jsonString The JSON string to query
+   * @param jsonPath The JSONPath expression
+   * @returns The query result as a string
+   */
+  queryJsonPath(jsonString: string, jsonPath: string): string {
+    try {
+      const jsonObj = JSON.parse(jsonString || '{}');
+      
+      // Simple implementation of JSONPath query
+      // This is a basic implementation and could be enhanced with a full JSONPath library
+      const result = this.evaluateJsonPath(jsonObj, jsonPath);
+      
+      return JSON.stringify(result, null, this.indentChar.repeat(this.indentSize));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error querying JSON path: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Evaluates a JSONPath expression against an object
+   * @param obj The object to query
+   * @param path The JSONPath expression
+   * @returns The query result
+   */
+  private evaluateJsonPath(obj: any, path: string): any {
+    // Handle root object
+    if (path === '$') {
+      return obj;
+    }
+    
+    // Remove the root symbol if present
+    if (path.startsWith('$.')) {
+      path = path.substring(2);
+    } else if (path.startsWith('$')) {
+      path = path.substring(1);
+    }
+    
+    // Split the path into segments
+    const segments = path.split('.');
+    let current = obj;
+    
+    for (const segment of segments) {
+      if (current === undefined || current === null) {
+        return undefined;
+      }
+      
+      // Handle array indices
+      if (segment.includes('[') && segment.includes(']')) {
+        const [name, indexPart] = segment.split('[');
+        const index = parseInt(indexPart.replace(']', ''), 10);
+        
+        if (name) {
+          current = current[name];
+        }
+        
+        if (Array.isArray(current) && !isNaN(index)) {
+          current = current[index];
+        } else {
+          return undefined;
+        }
+      } else {
+        current = current[segment];
+      }
+    }
+    
+    return current;
   }
 }

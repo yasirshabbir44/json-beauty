@@ -87,6 +87,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   showJsonCompare = false;
   jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
 
+  // JSON path query properties
+  jsonPathQuery = new FormControl('');
+  showJsonPathQueryDialog = false;
+  jsonPathQueryResult: string = '';
+
+  // JSON visualization properties
+  showJsonVisualize = false;
+  
   // Maximize/minimize properties
   isInputMaximized = false;
   isOutputMaximized = false;
@@ -696,6 +704,42 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     this.showSuccess('YAML downloaded successfully');
   }
 
+  /**
+   * Converts JSON to CSV and downloads it
+   */
+  convertToCsv(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to convert to CSV');
+      return;
+    }
+
+    try {
+      // Convert JSON to CSV
+      const csvString = this.jsonService.jsonToCsv(this.jsonInput.value);
+      
+      if (!csvString) {
+        this.showError('Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.');
+        return;
+      }
+
+      // Download the CSV
+      const blob = new Blob([csvString], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'json-data.csv';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      this.showSuccess('JSON converted to CSV and downloaded successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error converting JSON to CSV: ${errorMessage}`);
+    }
+  }
+
   copyToClipboard(): void {
     const textToCopy = this.selectedOutputFormat === 'json' 
       ? this.jsonOutput.value 
@@ -886,6 +930,153 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         isValid: false,
         errors: [{ message: e.message }]
       };
+    }
+  }
+
+  /**
+   * Generates a JSON schema from the current JSON data
+   */
+  generateJsonSchema(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to generate a schema');
+      return;
+    }
+
+    try {
+      // Generate the schema
+      const schema = this.jsonService.generateJsonSchema(this.jsonInput.value);
+      
+      // Set the schema to the schema input
+      this.schemaInput.setValue(schema);
+      
+      // Show the schema editor
+      this.showSchemaEditor = true;
+      
+      this.showSuccess('JSON schema generated successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error generating JSON schema: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Toggles the JSON path query dialog
+   */
+  toggleJsonPathQuery(): void {
+    this.showJsonPathQueryDialog = !this.showJsonPathQueryDialog;
+    
+    if (this.showJsonPathQueryDialog && !this.jsonPathQuery.value) {
+      // Set a default query example
+      this.jsonPathQuery.setValue('$');
+    }
+    
+    if (this.showJsonPathQueryDialog && this.jsonPathQuery.value) {
+      // Execute the query if there's already a value
+      this.executeJsonPathQuery();
+    }
+  }
+  
+  /**
+   * Executes a JSONPath query on the current JSON data
+   */
+  executeJsonPathQuery(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to query');
+      return;
+    }
+    
+    if (!this.jsonPathQuery.value) {
+      this.showError('Please enter a JSONPath query');
+      return;
+    }
+    
+    try {
+      // Execute the query
+      this.jsonPathQueryResult = this.jsonService.queryJsonPath(
+        this.jsonInput.value,
+        this.jsonPathQuery.value
+      );
+      
+      this.showSuccess('JSONPath query executed successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error executing JSONPath query: ${errorMessage}`);
+      this.jsonPathQueryResult = '';
+    }
+  }
+  
+  /**
+   * Toggles the JSON comparison dialog
+   */
+  toggleJsonCompare(): void {
+    this.showJsonCompare = !this.showJsonCompare;
+    
+    if (this.showJsonCompare && !this.compareJsonInput.value) {
+      // Set a default value for comparison
+      this.compareJsonInput.setValue('{}');
+    }
+  }
+  
+  /**
+   * Compares the current JSON with another JSON document
+   */
+  compareJson(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to compare');
+      return;
+    }
+    
+    if (!this.compareJsonInput.value) {
+      this.showError('Please enter JSON to compare against');
+      return;
+    }
+    
+    try {
+      // Compare the JSON documents
+      this.jsonDiffResult = this.jsonService.compareJson(
+        this.jsonInput.value,
+        this.compareJsonInput.value
+      );
+      
+      if (this.jsonDiffResult.hasChanges) {
+        this.showSuccess('JSON comparison completed. Differences found.');
+      } else {
+        this.showSuccess('JSON comparison completed. No differences found.');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error comparing JSON: ${errorMessage}`);
+      this.jsonDiffResult = null;
+    }
+  }
+  
+  /**
+   * Toggles the JSON visualization dialog
+   */
+  toggleJsonVisualize(): void {
+    this.showJsonVisualize = !this.showJsonVisualize;
+    
+    if (this.showJsonVisualize) {
+      // Initialize visualization if needed
+      this.initializeVisualization();
+    }
+  }
+  
+  /**
+   * Initializes the JSON visualization
+   */
+  private initializeVisualization(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to visualize');
+      return;
+    }
+    
+    try {
+      // For now, just show a message that visualization is not fully implemented
+      this.showSuccess('JSON visualization feature is coming soon!');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error initializing visualization: ${errorMessage}`);
     }
   }
 

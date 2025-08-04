@@ -19,10 +19,15 @@
           (copy)="copyToClipboard()"
           (download)="downloadOutput()"
           (share)="shareJson()"
+          (convertToCsv)="convertToCsv()"
           (toggleTreeView)="toggleTreeView()"
           (toggleOutputFormat)="toggleOutputFormat()"
           (toggleJsonPaths)="toggleJsonPaths()"
           (toggleSchemaEditor)="toggleSchemaEditor()"
+          (generateSchema)="generateJsonSchema()"
+          (toggleJsonPathQuery)="toggleJsonPathQuery()"
+          (toggleJsonCompare)="toggleJsonCompare()"
+          (toggleJsonVisualize)="toggleJsonVisualize()"
           (toggleTheme)="toggleTheme()"
           (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
           (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()">
@@ -44,7 +49,22 @@
           [schemaInput]="schemaInput"
           [schemaValidationResult]="schemaValidationResult"
           (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
-          (validateJsonSchema)="validateJsonSchema()">
+          (validateJsonSchema)="validateJsonSchema()"
+          
+          [showJsonPathQueryDialog]="showJsonPathQueryDialog"
+          [jsonPathQuery]="jsonPathQuery"
+          [jsonPathQueryResult]="jsonPathQueryResult"
+          (toggleJsonPathQuery)="toggleJsonPathQuery()"
+          (executeJsonPathQuery)="executeJsonPathQuery()"
+          
+          [showJsonCompare]="showJsonCompare"
+          [compareJsonInput]="compareJsonInput"
+          [jsonDiffResult]="jsonDiffResult"
+          (toggleJsonCompare)="toggleJsonCompare()"
+          (compareJson)="compareJson()"
+          
+          [showJsonVisualize]="showJsonVisualize"
+          (toggleJsonVisualize)="toggleJsonVisualize()">
         </app-json-dialogs>
 
 

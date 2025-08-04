@@ -7,16 +7,17 @@
 html, body { 
   height: 100%; 
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif; 
+  font-family: 'Segoe UI', Roboto, "Helvetica Neue", Arial, sans-serif; 
 }
 
 body { 
   background-color: #f8f9fa;
-  color: rgba(0, 0, 0, 0.87);
+  color: #202124;
   line-height: 1.6;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 /* Typography */
@@ -24,44 +25,65 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   font-weight: 500;
   line-height: 1.2;
-  color: rgba(0, 0, 0, 0.87);
+  color: #202124;
+  letter-spacing: -0.01em;
 }
 
-h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
-h2 { font-size: 2rem; margin-bottom: 1.25rem; }
-h3 { font-size: 1.75rem; margin-bottom: 1rem; }
-h4 { font-size: 1.5rem; margin-bottom: 0.75rem; }
-h5 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+h1 { font-size: 2.25rem; margin-bottom: 1.5rem; font-weight: 600; }
+h2 { font-size: 1.875rem; margin-bottom: 1.25rem; }
+h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+h4 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+h5 { font-size: 1.125rem; margin-bottom: 0.5rem; }
 h6 { font-size: 1rem; margin-bottom: 0.5rem; }
 
 p {
   margin-top: 0;
   margin-bottom: 1rem;
+  color: #5f6368;
+  line-height: 1.7;
 }
 
 a {
-  color: #2196f3;
+  color: #0078d4; /* Microsoft blue */
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  font-weight: 500;
 
   &:hover {
-    color: #1976d2;
-    text-decoration: underline;
+    color: #106ebe;
+    text-decoration: none;
   }
 }
 
 /* Responsive layout */
 .container {
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
   box-sizing: border-box;
+}
+
+/* Elevation - Microsoft Fluent UI inspired shadows */
+.elevation-1 {
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+}
+
+.elevation-2 {
+  box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+}
+
+.elevation-3 {
+  box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+}
+
+.elevation-4 {
+  box-shadow: 0 12.8px 28.8px 0 rgba(0, 0, 0, 0.132), 0 2.4px 7.2px 0 rgba(0, 0, 0, 0.108);
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 0;
+    padding: 0 16px;
   }
 
   body {
@@ -78,7 +100,7 @@ a {
 
 @media (max-width: 576px) {
   .container {
-    padding: 0;
+    padding: 0 12px;
   }
 
   body {

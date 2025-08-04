@@ -26,6 +26,24 @@ export class JsonDialogsComponent {
   @Output() toggleSchemaEditor = new EventEmitter<void>();
   @Output() validateJsonSchema = new EventEmitter<void>();
   
+  // JSON path query dialog
+  @Input() showJsonPathQueryDialog: boolean = false;
+  @Input() jsonPathQuery: FormControl = new FormControl('');
+  @Input() jsonPathQueryResult: string = '';
+  @Output() toggleJsonPathQuery = new EventEmitter<void>();
+  @Output() executeJsonPathQuery = new EventEmitter<void>();
+  
+  // JSON comparison dialog
+  @Input() showJsonCompare: boolean = false;
+  @Input() compareJsonInput: FormControl = new FormControl('');
+  @Input() jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
+  @Output() toggleJsonCompare = new EventEmitter<void>();
+  @Output() compareJson = new EventEmitter<void>();
+  
+  // JSON visualization dialog
+  @Input() showJsonVisualize: boolean = false;
+  @Output() toggleJsonVisualize = new EventEmitter<void>();
+  
   constructor() { }
   
   /**
@@ -64,5 +82,40 @@ export class JsonDialogsComponent {
    */
   onValidateJsonSchema(): void {
     this.validateJsonSchema.emit();
+  }
+  
+  /**
+   * Closes the JSON path query dialog
+   */
+  closeJsonPathQuery(): void {
+    this.toggleJsonPathQuery.emit();
+  }
+  
+  /**
+   * Executes the JSON path query
+   */
+  onExecuteJsonPathQuery(): void {
+    this.executeJsonPathQuery.emit();
+  }
+  
+  /**
+   * Closes the JSON comparison dialog
+   */
+  closeJsonCompare(): void {
+    this.toggleJsonCompare.emit();
+  }
+  
+  /**
+   * Compares the JSON documents
+   */
+  onCompareJson(): void {
+    this.compareJson.emit();
+  }
+  
+  /**
+   * Closes the JSON visualization dialog
+   */
+  closeJsonVisualize(): void {
+    this.toggleJsonVisualize.emit();
   }
 }
