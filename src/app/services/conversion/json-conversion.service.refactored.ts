@@ -180,29 +180,11 @@ export class JsonConversionService implements IJsonConversionService {
   /**
    * Converts XML to JSON format
    * @param xmlString The XML string to convert
-   * @returns The JSON string
+   * @returns Promise resolving to the JSON string
    */
   xmlToJson(xmlString: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      parseString(xmlString, { 
-        explicitArray: false,
-        explicitRoot: false,
-        valueProcessors: [
-          (value: string) => {
-            // Convert numeric strings to numbers
-            if (/^-?\d+$/.test(value)) {
-              return parseInt(value, 10);
-            } else if (/^-?\d+\.\d+$/.test(value)) {
-              return parseFloat(value);
-            } else if (value === 'true') {
-              return true;
-            } else if (value === 'false') {
-              return false;
-            }
-            return value;
-          }
-        ]
-      }, (err: any, result: any) => {
+      parseString(xmlString, { explicitArray: false }, (err: any, result: any) => {
         if (err) {
           reject(new Error(`Error converting XML to JSON: ${err.message}`));
           return;
