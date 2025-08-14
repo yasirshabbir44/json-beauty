@@ -1,4 +1,3 @@
-
 <div #editorSection class="editor-section output-section" [class.maximized]="isMaximized">
     <h3>
         <mat-icon>output</mat-icon>
@@ -9,6 +8,19 @@
                 <mat-button-toggle value="yaml">YAML</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
+        <div class="view-mode-selector" *ngIf="isValidJson">
+            <mat-button-toggle-group [value]="selectedViewMode" (change)="onToggleViewMode()">
+                <mat-button-toggle value="text" matTooltip="Text View">
+                    <mat-icon>text_fields</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="tree" matTooltip="Tree View">
+                    <mat-icon>account_tree</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="table" matTooltip="Table View">
+                    <mat-icon>table_chart</mat-icon>
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
         <div class="spacer"></div>
         <button mat-icon-button (click)="toggleOutputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn">
             <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
@@ -16,73 +28,49 @@
     </h3>
 
     <div class="editor-wrapper">
-        <!-- Text View (Ace Editor) - shown when tree view is off or when in JSON mode -->
-        <div [class.view-active]="!showTreeView && selectedOutputFormat === 'json'"
-             [class.view-inactive]="showTreeView || selectedOutputFormat !== 'json'"
+        <!-- Text View (Ace Editor) - shown when in text view mode and JSON format -->
+        <div [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'json'"
+             [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'json'"
              #outputEditor class="ace-editor output-editor view-container"></div>
 
-        <!-- YAML View - shown when in YAML mode and tree view is off -->
-        <div [class.view-active]="!showTreeView && selectedOutputFormat === 'yaml'"
-             [class.view-inactive]="showTreeView || selectedOutputFormat !== 'yaml'"
+        <!-- YAML View - shown when in text view mode and YAML format -->
+        <div [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'yaml'"
+             [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'yaml'"
              class="yaml-output view-container">
             <pre>{{ yamlOutput.value }}</pre>
         </div>
 
-        <!-- Tree View - shown when tree view is on -->
-        <div [class.view-active]="showTreeView && jsonTreeData"
-             [class.view-inactive]="!showTreeView || !jsonTreeData"
+        <!-- Tree View - shown when in tree view mode -->
+        <div [class.view-active]="selectedViewMode === 'tree' && jsonTreeData"
+             [class.view-inactive]="selectedViewMode !== 'tree' || !jsonTreeData"
              class="tree-view view-container">
             <div class="tree-container">
                 <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
             </div>
-
-            <!-- Tree Node Template -->
-            <ng-template #treeNode let-node let-path="path" let-level="level">
-                <div class="tree-level" [style.padding-left.px]="level * 20">
-                    <!-- Object Node -->
-                    <div *ngIf="isObject(node) && !isArray(node)">
-                        <div class="tree-node" (click)="onToggleNode(path)">
-                            <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
-                            <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
-                            <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
-                        </div>
-                        <div class="tree-children" [class.collapsed]="!isNodeExpanded(path)">
-                            <ng-container *ngFor="let key of getObjectKeys(node)">
-                                <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
-                            </ng-container>
-                        </div>
-                    </div>
-
-                    <!-- Array Node -->
-                    <div *ngIf="isArray(node)">
-                        <div class="tree-node" (click)="onToggleNode(path)">
-                            <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
-                            <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
-                            <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
-                        </div>
-                        <div class="tree-children" [class.collapsed]="!isNodeExpanded(path)">
-                            <ng-container *ngFor="let item of node; let i = index">
-                                <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
-                            </ng-container>
-                        </div>
-                    </div>
-
-                    <!-- Primitive Values -->
-                    <div *ngIf="!isObject(node) && !isArray(node)" class="tree-leaf">
-                        <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
-                        <span class="node-value" [ngClass]="{
-              'string-value': isString(node),
-              'number-value': isNumber(node),
-              'boolean-value': isBoolean(node),
-              'null-value': node === null
-            }">{{ formatValue(node) }}</span>
-                    </div>
-                </div>
-            </ng-template>
+        </div>
+        
+        <!-- Table View - shown when in table view mode -->
+        <div [class.view-active]="selectedViewMode === 'table' && jsonTreeData"
+             [class.view-inactive]="selectedViewMode !== 'table' || !jsonTreeData"
+             class="table-view view-container">
+            <div class="table-container">
+                <table class="json-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngTemplateOutlet="tableRow; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Search Bar for JSON Output -->
-        <div *ngIf="showOutputSearchBar && !showTreeView && selectedOutputFormat === 'json'" class="search-bar output-search-field">
+        <div *ngIf="showOutputSearchBar && selectedViewMode === 'text' && selectedOutputFormat === 'json'" class="search-bar output-search-field">
             <mat-form-field appearance="outline">
                 <mat-label>Search</mat-label>
                 <input matInput #searchOutput (keyup.enter)="searchInJson(searchOutput.value)">
@@ -104,7 +92,7 @@
         </div>
 
         <!-- Search Bar for Tree View -->
-        <div *ngIf="showTreeSearchBar && showTreeView" class="search-bar tree-search-field">
+        <div *ngIf="showTreeSearchBar && selectedViewMode === 'tree'" class="search-bar tree-search-field">
             <mat-form-field appearance="outline">
                 <mat-label>Search in Tree</mat-label>
                 <input matInput #searchTree (keyup.enter)="searchInTree(searchTree.value)">
@@ -130,3 +118,108 @@
         </div>
     </div>
 </div>
+
+<!-- Tree Node Template -->
+<ng-template #treeNode let-node let-path="path" let-level="level">
+    <div class="tree-level" [style.padding-left.px]="level * 20">
+        <!-- Object Node -->
+        <div *ngIf="isObject(node) && !isArray(node)">
+            <div class="tree-node" (click)="onToggleNode(path)">
+                <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
+                <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
+                <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
+            </div>
+            <div class="tree-children" [class.collapsed]="!isNodeExpanded(path)">
+                <ng-container *ngFor="let key of getObjectKeys(node)">
+                    <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Array Node -->
+        <div *ngIf="isArray(node)">
+            <div class="tree-node" (click)="onToggleNode(path)">
+                <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
+                <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
+                <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
+            </div>
+            <div class="tree-children" [class.collapsed]="!isNodeExpanded(path)">
+                <ng-container *ngFor="let item of node; let i = index">
+                    <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Primitive Values -->
+        <div *ngIf="!isObject(node) && !isArray(node)" class="tree-leaf">
+            <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
+            <span class="node-value" [ngClass]="{
+              'string-value': isString(node),
+              'number-value': isNumber(node),
+              'boolean-value': isBoolean(node),
+              'null-value': node === null
+            }">{{ formatValue(node) }}</span>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Table Row Template -->
+<ng-template #tableRow let-node let-path="path" let-level="level">
+    <!-- Object Row -->
+    <ng-container *ngIf="isObject(node) && !isArray(node)">
+        <tr [class.expandable]="true" (click)="onToggleNode(path)">
+            <td class="key-cell">
+                <span class="indent" [style.padding-left.px]="level * 20"></span>
+                <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
+                <span>{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
+            </td>
+            <td class="type-cell">Object</td>
+            <td class="value-cell">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</td>
+        </tr>
+        <ng-container *ngIf="isNodeExpanded(path)">
+            <ng-container *ngFor="let key of getObjectKeys(node)">
+                <ng-container *ngTemplateOutlet="tableRow; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    
+    <!-- Array Row -->
+    <ng-container *ngIf="isArray(node)">
+        <tr [class.expandable]="true" (click)="onToggleNode(path)">
+            <td class="key-cell">
+                <span class="indent" [style.padding-left.px]="level * 20"></span>
+                <mat-icon class="tree-icon" [class.expanded]="isNodeExpanded(path)">chevron_right</mat-icon>
+                <span>{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
+            </td>
+            <td class="type-cell">Array</td>
+            <td class="value-cell">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</td>
+        </tr>
+        <ng-container *ngIf="isNodeExpanded(path)">
+            <ng-container *ngFor="let item of node; let i = index">
+                <ng-container *ngTemplateOutlet="tableRow; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
+            </ng-container>
+        </ng-container>
+    </ng-container>
+    
+    <!-- Primitive Value Row -->
+    <ng-container *ngIf="!isObject(node) && !isArray(node)">
+        <tr>
+            <td class="key-cell">
+                <span class="indent" [style.padding-left.px]="level * 20"></span>
+                <span>{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
+            </td>
+            <td class="type-cell">
+                <span *ngIf="isString(node)">String</span>
+                <span *ngIf="isNumber(node)">Number</span>
+                <span *ngIf="isBoolean(node)">Boolean</span>
+                <span *ngIf="node === null">Null</span>
+            </td>
+            <td class="value-cell" [ngClass]="{
+                'string-value': isString(node),
+                'number-value': isNumber(node),
+                'boolean-value': isBoolean(node),
+                'null-value': node === null
+            }">{{ formatValue(node) }}</td>
+        </tr>
+    </ng-container>
+</ng-template>

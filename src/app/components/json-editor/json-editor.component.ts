@@ -58,7 +58,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     { key: 'Ctrl + D', action: 'Clear Editor' },
     { key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts' },
     { key: 'Ctrl + 1', action: 'Maximize/Minimize Input' },
-    { key: 'Ctrl + 2', action: 'Maximize/Minimize Output' }
+    { key: 'Ctrl + 2', action: 'Maximize/Minimize Output' },
+    { key: 'Ctrl + Alt + 0', action: 'Fold All Code' },
+    { key: 'Ctrl + Alt + Shift + 0', action: 'Unfold All Code' }
   ];
 
   // Properties for new features
@@ -67,6 +69,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   showJsonPaths = false;
   showYamlOutput = false;
   selectedOutputFormat: 'json' | 'yaml' = 'json';
+  selectedViewMode: 'text' | 'tree' | 'table' = 'text';
 
   // Tree search properties
   treeSearchResults: string[] = [];
@@ -289,27 +292,42 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Toggles between text and tree views
+   * Toggles between text and tree views (legacy method, kept for backward compatibility)
    */
   toggleTreeView(): void {
-    // If trying to enable tree view in YAML mode, switch to JSON mode first
-    if (!this.showTreeView && this.selectedOutputFormat === 'yaml') {
+    // Toggle between text and tree view modes
+    this.selectedViewMode = this.selectedViewMode === 'text' ? 'tree' : 'text';
+    this.handleViewModeChange(this.selectedViewMode);
+  }
+  
+  /**
+   * Handles changes to the view mode (text, tree, table)
+   * @param viewMode The new view mode
+   */
+  handleViewModeChange(viewMode: 'text' | 'tree' | 'table'): void {
+    // If trying to enable tree or table view in YAML mode, switch to JSON mode first
+    if ((viewMode === 'tree' || viewMode === 'table') && this.selectedOutputFormat === 'yaml') {
       this.selectedOutputFormat = 'json';
-      this.showSuccess('Switched to JSON mode for tree view');
+      this.showSuccess('Switched to JSON mode for ' + viewMode + ' view');
     }
-
-    this.showTreeView = !this.showTreeView;
-
-    if (this.showTreeView && this.isValidJson) {
+    
+    // Update the view mode
+    this.selectedViewMode = viewMode;
+    
+    // Update showTreeView for backward compatibility
+    this.showTreeView = viewMode === 'tree' || viewMode === 'table';
+    
+    if ((viewMode === 'tree' || viewMode === 'table') && this.isValidJson) {
       try {
         // Parse the JSON to create the tree data
         this.jsonTreeData = JSON.parse(this.jsonOutput.value || '{}');
       } catch (error) {
-        this.showError('Error parsing JSON for tree view');
+        this.showError('Error parsing JSON for ' + viewMode + ' view');
+        this.selectedViewMode = 'text';
         this.showTreeView = false;
       }
-    } else if (!this.showTreeView) {
-      // When switching from tree view to text view
+    } else if (viewMode === 'text') {
+      // When switching to text view
       if (this.selectedOutputFormat === 'json') {
         // In JSON mode, ensure the output editor is initialized and updated
         setTimeout(() => {

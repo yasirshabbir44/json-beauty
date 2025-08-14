@@ -18,6 +18,10 @@ import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
+import 'ace-builds/src-noconflict/ext-code_lens';
+import 'ace-builds/src-noconflict/ext-modelist';
+import 'ace-builds/src-noconflict/ext-prompt';
+import 'ace-builds/src-noconflict/ext-linking';
 
 @Component({
     selector: 'app-json-output-editor',
@@ -37,6 +41,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Input() showTreeView: boolean = false;
     @Input() jsonTreeData: any = null;
     @Input() selectedOutputFormat: 'json' | 'yaml' = 'json';
+    @Input() selectedViewMode: 'text' | 'tree' | 'table' = 'text';
     @Input() expandedNodes: Set<string> = new Set();
     @Input() treeSearchResults: string[] = [];
     @Input() showTreeSearchBar: boolean = false;
@@ -44,6 +49,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     @Output() toggleMaximize = new EventEmitter<void>();
     @Output() toggleOutputFormat = new EventEmitter<void>();
+    @Output() toggleViewMode = new EventEmitter<'text' | 'tree' | 'table'>();
     @Output() toggleNode = new EventEmitter<string>();
     @Output() treeSearch = new EventEmitter<string>();
 
@@ -210,9 +216,34 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 fontSize: '15px',
                 printMarginColumn: 120,
                 showPrintMargin: false,
-                fadeFoldWidgets: true,
+                fadeFoldWidgets: false,
                 highlightSelectedWord: true,
-                displayIndentGuides: true
+                displayIndentGuides: true,
+                // Enable code folding
+                showFoldWidgets: true,
+                foldStyle: 'markbegin'
+            });
+            
+            // Set up the session for folding
+            const session = this.outputEditor.getSession();
+            session.setFoldStyle('markbegin');
+            session.setUseWrapMode(true);
+            
+            // Add fold/unfold commands to the editor
+            this.outputEditor.commands.addCommand({
+                name: 'foldAll',
+                bindKey: {win: 'Ctrl-Alt-0', mac: 'Command-Option-0'},
+                exec: (editor: any) => {
+                    editor.getSession().foldAll();
+                }
+            });
+            
+            this.outputEditor.commands.addCommand({
+                name: 'unfoldAll',
+                bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
+                exec: (editor: any) => {
+                    editor.getSession().unfold();
+                }
             });
 
             // Disable syntax error highlighting for output editor
@@ -312,6 +343,13 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      */
     onToggleOutputFormat(): void {
         this.toggleOutputFormat.emit();
+    }
+    
+    /**
+     * Handles toggling between different view modes (text, tree, table)
+     */
+    onToggleViewMode(): void {
+        this.toggleViewMode.emit(this.selectedViewMode);
     }
 
     /**

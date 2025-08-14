@@ -1,0 +1,53 @@
+<div class="outline-panel" [class.visible]="showOutline" [class.dark-theme]="isDarkTheme">
+  <div class="outline-header">
+    <h3>
+      <mat-icon>account_tree</mat-icon>
+      <span>JSON Outline</span>
+    </h3>
+    <div class="spacer"></div>
+    <button mat-icon-button (click)="showOutline = false" matTooltip="Close Outline">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  
+  <div class="outline-content">
+    <div *ngIf="!isValidJson" class="outline-error">
+      <mat-icon color="warn">error</mat-icon>
+      <span>Invalid JSON. Fix errors to see outline.</span>
+    </div>
+    
+    <div *ngIf="isValidJson && outlineData.length === 0" class="outline-empty">
+      <mat-icon>info</mat-icon>
+      <span>No outline available.</span>
+    </div>
+    
+    <div *ngIf="isValidJson && outlineData.length > 0" class="outline-tree">
+      <ng-container *ngFor="let node of outlineData">
+        <ng-container *ngTemplateOutlet="outlineNode; context: { $implicit: node }"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<!-- Outline Node Template -->
+<ng-template #outlineNode let-node>
+  <div class="outline-node" [class.has-children]="node.children && node.children.length > 0" (click)="navigateToNode(node)">
+    <div class="node-header" (click)="$event.stopPropagation(); toggleNode(node)">
+      <mat-icon *ngIf="node.children && node.children.length > 0" class="expand-icon" [class.expanded]="node.expanded">
+        chevron_right
+      </mat-icon>
+      <mat-icon *ngIf="!node.children || node.children.length === 0" class="type-icon">
+        {{ getNodeIcon(node) }}
+      </mat-icon>
+      <span class="node-key" [ngClass]="'type-' + node.type">{{ node.key }}</span>
+      <span *ngIf="node.type === 'array'" class="node-info">[{{ node.children?.length || 0 }}]</span>
+      <span *ngIf="node.type === 'object'" class="node-info">{{ '{' }}{{ node.children?.length || 0 }}{{ '}' }}</span>
+    </div>
+    
+    <div *ngIf="node.children && node.children.length > 0" class="node-children" [class.expanded]="node.expanded">
+      <ng-container *ngFor="let childNode of node.children">
+        <ng-container *ngTemplateOutlet="outlineNode; context: { $implicit: childNode }"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>

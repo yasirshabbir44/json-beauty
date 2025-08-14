@@ -92,12 +92,14 @@
             [showTreeView]="showTreeView"
             [jsonTreeData]="jsonTreeData"
             [selectedOutputFormat]="selectedOutputFormat"
+            [selectedViewMode]="selectedViewMode"
             [expandedNodes]="expandedNodes"
             [treeSearchResults]="treeSearchResults"
             [showTreeSearchBar]="showTreeSearchBar"
             [treeSearchHighlighted]="treeSearchHighlighted"
             (toggleMaximize)="toggleOutputMaximize()"
             (toggleOutputFormat)="toggleOutputFormat()"
+            (toggleViewMode)="handleViewModeChange($event)"
             (toggleNode)="toggleNode($event)"
             (treeSearch)="searchInTree($event)">
           </app-json-output-editor>

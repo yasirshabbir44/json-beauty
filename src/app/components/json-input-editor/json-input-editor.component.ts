@@ -6,6 +6,10 @@ import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
+import 'ace-builds/src-noconflict/ext-code_lens';
+import 'ace-builds/src-noconflict/ext-modelist';
+import 'ace-builds/src-noconflict/ext-prompt';
+import 'ace-builds/src-noconflict/ext-linking';
 
 @Component({
   selector: 'app-json-input-editor',
@@ -57,9 +61,34 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
       fontSize: '15px',
       printMarginColumn: 120,
       showPrintMargin: false,
-      fadeFoldWidgets: true,
+      fadeFoldWidgets: false,
       highlightSelectedWord: true,
-      displayIndentGuides: true
+      displayIndentGuides: true,
+      // Enable code folding
+      showFoldWidgets: true,
+      foldStyle: 'markbegin'
+    });
+    
+    // Set up the session for folding
+    const session = this.editor.getSession();
+    session.setFoldStyle('markbegin');
+    session.setUseWrapMode(true);
+    
+    // Add fold/unfold commands to the editor
+    this.editor.commands.addCommand({
+      name: 'foldAll',
+      bindKey: {win: 'Ctrl-Alt-0', mac: 'Command-Option-0'},
+      exec: (editor: any) => {
+        editor.getSession().foldAll();
+      }
+    });
+    
+    this.editor.commands.addCommand({
+      name: 'unfoldAll',
+      bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
+      exec: (editor: any) => {
+        editor.getSession().unfold();
+      }
     });
 
     // Enable real-time syntax error highlighting
