@@ -1,7 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { JsonService } from '../../services/json.service';
+import { VersionHistoryService } from '../../services/history/version-history.service';
+import { ShareDialogComponent } from '../share-dialog/share-dialog.component';
 import * as ace from 'ace-builds';
 import { JsonInputEditorComponent } from '../json-input-editor/json-input-editor.component';
 import { JsonOutputEditorComponent } from '../json-output-editor/json-output-editor.component';
@@ -106,7 +109,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   isInputMaximized = false;
   isOutputMaximized = false;
 
-  constructor(private snackBar: MatSnackBar, private jsonService: JsonService) {
+  constructor(
+    private snackBar: MatSnackBar, 
+    private jsonService: JsonService,
+    private versionHistoryService: VersionHistoryService,
+    private dialog: MatDialog
+  ) {
     // Listen for dark mode changes
     document.body.addEventListener('DOMSubtreeModified', () => {
       this.updateTheme();
@@ -127,6 +135,43 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   onJsonInputChange(value: string): void {
     this.jsonInput.setValue(value);
     this.validateJson();
+    
+    // Auto-save version if JSON is valid and not empty
+    if (this.isValidJson && value.trim() !== '') {
+      this.saveVersion();
+    }
+  }
+  
+  /**
+   * Saves the current JSON content as a version
+   * @param name Optional name for the version
+   */
+  saveVersion(name?: string): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      return;
+    }
+    
+    this.versionHistoryService.addVersion(this.jsonInput.value, name);
+  }
+  
+  /**
+   * Loads JSON content from a saved version
+   * @param content The JSON content to load
+   */
+  loadVersionContent(content: string): void {
+    if (!content) {
+      return;
+    }
+    
+    this.jsonInput.setValue(content);
+    
+    // Update the input editor
+    if (this.jsonInputEditor) {
+      this.jsonInputEditor.setValue(content);
+    }
+    
+    this.validateJson();
+    this.updateOutput();
   }
   
   /**
@@ -723,6 +768,28 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     } else {
       this.downloadYaml();
     }
+  }
+  
+  /**
+   * Downloads the JSON output as a text file
+   */
+  downloadText(): void {
+    if (!this.jsonOutput.value) {
+      this.showError('Nothing to download');
+      return;
+    }
+
+    const blob = new Blob([this.jsonOutput.value], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'json-data.txt';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    this.showSuccess('Text file downloaded successfully');
   }
 
   /**
@@ -1341,7 +1408,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Generates a shareable URL with the current JSON data
+   * Generates a shareable URL with the current JSON data and opens a dialog
+   * with options to copy, share, and view the shared content
    */
   shareJson(): void {
     if (!this.isValidJson) {
@@ -1360,14 +1428,18 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       const baseUrl = window.location.href.split('?')[0];
       const shareableUrl = `${baseUrl}?json=${encodedJson}`;
 
-      // Copy the URL to the clipboard
-      navigator.clipboard.writeText(shareableUrl)
-        .then(() => {
-          this.showSuccess('Shareable URL copied to clipboard');
-        })
-        .catch(err => {
-          this.showError('Failed to copy URL: ' + err);
-        });
+      // Open the share dialog
+      this.dialog.open(ShareDialogComponent, {
+        width: '550px',
+        data: {
+          shareableUrl: shareableUrl,
+          jsonContent: this.jsonInput.value
+        }
+      });
+      
+      // Save this version to history
+      this.saveVersion('Shared version');
+      
     } catch (error) {
       this.showError(`Error generating shareable URL: ${error instanceof Error ? error.message : String(error)}`);
     }

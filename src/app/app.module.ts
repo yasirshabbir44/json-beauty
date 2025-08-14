@@ -38,6 +38,8 @@ import { JsonDialogsComponent } from './components/json-dialogs/json-dialogs.com
 import { JsonStatusComponent } from './components/json-status/json-status.component';
 import { JsonPathsComponent } from './components/json-paths/json-paths.component';
 import { SearchReplaceComponent } from './components/search-replace/search-replace.component';
+import { VersionHistoryComponent } from './components/version-history/version-history.component';
+import { ShareDialogComponent } from './components/share-dialog/share-dialog.component';
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
@@ -57,7 +59,9 @@ import { ConvertersModule } from './services/conversion/converters/converters.mo
     JsonDialogsComponent,
     JsonStatusComponent,
     JsonPathsComponent,
-    SearchReplaceComponent
+    SearchReplaceComponent,
+    VersionHistoryComponent,
+    ShareDialogComponent
   ],
   imports: [
     BrowserModule,

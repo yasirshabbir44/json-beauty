@@ -18,6 +18,7 @@
           (import)="importFile($event)"
           (copy)="copyToClipboard()"
           (download)="downloadOutput()"
+          (downloadText)="downloadText()"
           (share)="shareJson()"
           (convertToCsv)="convertToCsv()"
           (convertToXml)="convertToXml()"
@@ -129,6 +130,11 @@
           [text]="searchReplaceText"
           (textChanged)="onSearchReplaceTextChanged($event)">
         </app-search-replace>
+
+        <!-- Version History Component -->
+        <app-version-history
+          (versionSelected)="loadVersionContent($event)">
+        </app-version-history>
 
       </div>
     </mat-card-content>

@@ -18,6 +18,7 @@ export class JsonToolbarComponent {
   // Export actions
   @Output() copy = new EventEmitter<void>();
   @Output() download = new EventEmitter<void>();
+  @Output() downloadText = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
   @Output() convertToCsv = new EventEmitter<void>();
   @Output() convertToXml = new EventEmitter<void>();

@@ -32,8 +32,12 @@
         <mat-icon>content_copy</mat-icon> Copy
       </button>
 
-      <button mat-raised-button color="accent" (click)="download.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Download as file">
-        <mat-icon>download</mat-icon> Download
+      <button mat-raised-button color="accent" (click)="download.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Download as JSON file">
+        <mat-icon>download</mat-icon> Download JSON
+      </button>
+
+      <button mat-raised-button color="accent" (click)="downloadText.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Download as text file">
+        <mat-icon>description</mat-icon> Download TXT
       </button>
 
       <button mat-raised-button color="primary" (click)="share.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Generate shareable URL">

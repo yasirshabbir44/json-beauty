@@ -1,0 +1,90 @@
+.share-content {
+  padding: 0 16px;
+  max-width: 500px;
+}
+
+.share-description {
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.url-container {
+  margin-bottom: 24px;
+  
+  .url-field {
+    width: 100%;
+  }
+}
+
+.share-options {
+  margin-bottom: 24px;
+  
+  h3 {
+    margin-bottom: 12px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  .option-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    
+    button {
+      display: flex;
+      align-items: center;
+      
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.qr-code-container {
+  margin-bottom: 16px;
+  text-align: center;
+  
+  h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  p {
+    margin-bottom: 16px;
+    color: #555;
+  }
+  
+  .qr-code {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px;
+    background-color: white;
+  }
+}
+
+// Dark theme support
+:host-context(.dark-theme) {
+  .share-description {
+    color: #bbb;
+  }
+  
+  .share-options h3,
+  .qr-code-container h3 {
+    color: #e0e0e0;
+  }
+  
+  .qr-code-container p {
+    color: #bbb;
+  }
+  
+  .qr-code {
+    border-color: #555;
+    background-color: white; // Keep QR code background white for readability
+  }
+}
