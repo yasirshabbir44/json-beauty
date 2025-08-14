@@ -914,12 +914,20 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     try {
-      this.schemaValidationResult = this.jsonService.validateJsonSchema(
+      // Get the validation result from the service
+      const validationResult = this.jsonService.validateJsonSchema(
         this.jsonInput.value || '{}',
         this.schemaInput.value
       );
+      
+      // Ensure errors is always defined to match our expected type
+      this.schemaValidationResult = {
+        isValid: validationResult.isValid,
+        errors: validationResult.errors || [] // Provide empty array if errors is undefined
+      };
 
-      if (this.schemaValidationResult.isValid) {
+      // Check if validation was successful
+      if (this.schemaValidationResult && this.schemaValidationResult.isValid) {
         this.showSuccess('JSON is valid against the schema');
       } else {
         this.showError('JSON does not match the schema');
