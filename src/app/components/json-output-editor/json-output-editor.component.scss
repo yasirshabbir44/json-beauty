@@ -4,14 +4,14 @@
 .tree-view {
   height: 100%;
   overflow: auto;
-  padding: 16px;
+  padding: 12px; /* Reduced from 16px */
   background-color: #ffffff;
 }
 
 .tree-container {
   font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 14px; /* Reduced from 15px */
+  line-height: 1.5; /* Reduced from 1.6 */
   width: 100%;
   overflow-x: auto;
 }
@@ -19,11 +19,11 @@
 .tree-node {
   display: flex;
   align-items: center;
-  padding: 6px 8px;
+  padding: 4px 6px; /* Reduced from 6px 8px */
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 3px; /* Reduced from 4px */
   transition: all 0.2s ease;
-  margin: 2px 0;
+  margin: 1px 0; /* Reduced from 2px 0 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -47,9 +47,9 @@
 }
 
 .tree-children {
-  margin-left: 16px;
+  margin-left: 12px; /* Reduced from 16px */
   border-left: 1px dashed #e0e0e0;
-  padding-left: 8px;
+  padding-left: 6px; /* Reduced from 8px */
   overflow: hidden;
   max-height: 2000px; /* Large enough to contain most content */
   opacity: 1;
@@ -74,18 +74,18 @@
   
   // Limit the maximum nesting level to prevent performance issues
   .tree-children .tree-children .tree-children .tree-children .tree-children {
-    margin-left: 8px;
-    padding-left: 4px;
+    margin-left: 6px; /* Reduced from 8px */
+    padding-left: 3px; /* Reduced from 4px */
   }
 }
 
 .tree-leaf {
   display: flex;
   align-items: center;
-  padding: 6px 8px;
-  margin-left: 24px;
-  border-radius: 4px;
-  margin: 2px 0 2px 24px;
+  padding: 4px 6px; /* Reduced from 6px 8px */
+  margin-left: 18px; /* Reduced from 24px */
+  border-radius: 3px; /* Reduced from 4px */
+  margin: 1px 0 1px 18px; /* Reduced from 2px 0 2px 24px */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -142,14 +142,14 @@
 .yaml-output {
   height: 100%;
   overflow: auto;
-  padding: 16px;
+  padding: 12px; /* Reduced from 16px */
   background-color: #ffffff;
   border-radius: 0 0 8px 8px;
 
   pre {
     font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 14px; /* Reduced from 15px */
+    line-height: 1.5; /* Reduced from 1.6 */
     margin: 0;
     white-space: pre-wrap;
     color: #333333;
@@ -158,12 +158,12 @@
 
 /* Output Format Selector */
 .output-format-selector {
-  margin-left: 16px;
+  margin-left: 12px; /* Reduced from 16px */
 
   .mat-button-toggle-group {
-    border-radius: 4px;
+    border-radius: 3px; /* Reduced from 4px */
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08); /* Reduced shadow */
     border: 1px solid #e0e0e0;
   }
 
@@ -171,8 +171,9 @@
     background-color: #f8f9fa;
     color: #5f6368;
     font-weight: 500;
-    padding: 0 12px;
-    min-width: 60px;
+    padding: 0 8px; /* Reduced from 0 12px */
+    min-width: 50px; /* Reduced from 60px */
+    font-size: 13px; /* Added smaller font size */
     transition: all 0.2s ease;
 
     &.mat-button-toggle-checked {

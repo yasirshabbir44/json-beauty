@@ -6,9 +6,9 @@
   width: 100%;
   flex: 1;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
+  border-radius: 8px; // Reduced from 12px
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08); // Reduced shadow
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   background-color: #ffffff;
   position: relative;
@@ -83,15 +83,15 @@
   // Header styles
   h3 {
     margin: 0;
-    padding: 14px 20px;
+    padding: 10px 16px; // Reduced from 14px 20px
     background: linear-gradient(to right, #f8f9fa, #ffffff);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     align-items: center;
-    font-size: 1.05rem;
+    font-size: 0.95rem; // Reduced from 1.05rem
     font-weight: 600;
     color: #4285F4;
-    height: 54px;
+    height: 42px; // Reduced from 54px
     letter-spacing: 0.3px;
     position: relative;
     
@@ -139,14 +139,14 @@
 // Editor wrapper styles
 .editor-wrapper {
   position: relative;
-  height: 60vh; /* Use viewport height for better screen utilization */
-  min-height: 400px;
-  max-height: 800px;
+  height: 50vh; /* Reduced from 60vh */
+  min-height: 350px; /* Reduced from 400px */
+  max-height: 700px; /* Reduced from 800px */
   border: none;
   overflow: hidden;
   background-color: #ffffff;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 8px 8px; /* Reduced from 12px to match editor-section */
 
   &:focus-within {
     background-color: #f8f9fa;
@@ -154,15 +154,15 @@
   }
   
   @media (max-width: 767px) {
-    height: 50vh;
-    min-height: 300px;
-    max-height: 600px;
+    height: 45vh; /* Reduced from 50vh */
+    min-height: 280px; /* Reduced from 300px */
+    max-height: 550px; /* Reduced from 600px */
   }
   
   @media (max-width: 480px) {
-    height: 40vh;
-    min-height: 250px;
-    max-height: 500px;
+    height: 35vh; /* Reduced from 40vh */
+    min-height: 220px; /* Reduced from 250px */
+    max-height: 450px; /* Reduced from 500px */
   }
 }
 
@@ -170,10 +170,10 @@
 .ace-editor {
   width: 100%;
   height: 100%;
-  font-size: 15px;
+  font-size: 14px; /* Reduced from 15px */
   font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
-  line-height: 1.6;
-  padding: 16px;
+  line-height: 1.5; /* Reduced from 1.6 */
+  padding: 12px; /* Reduced from 16px */
   box-sizing: border-box;
   border-radius: 0 0 8px 8px;
   
@@ -211,27 +211,27 @@
 // Search bar styles
 .search-bar {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px; /* Reduced from 10px */
+  right: 8px; /* Reduced from 10px */
   display: flex;
   align-items: center;
   background-color: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 6px; /* Reduced from 8px */
+  padding: 6px; /* Reduced from 8px */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12); /* Reduced shadow */
   z-index: 10;
   animation: fadeIn 0.3s ease-in-out;
   backdrop-filter: blur(4px);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  max-width: calc(100% - 20px); /* Prevent overflow on small screens */
+  max-width: calc(100% - 16px); /* Prevent overflow on small screens */
   
   mat-form-field {
-    width: 200px;
-    margin-right: 8px;
-    font-size: 14px;
+    width: 180px; /* Reduced from 200px */
+    margin-right: 6px; /* Reduced from 8px */
+    font-size: 13px; /* Reduced from 14px */
     
     @media (max-width: 480px) {
-      width: 150px;
+      width: 140px; /* Reduced from 150px */
     }
   }
   
@@ -241,14 +241,14 @@
     flex-shrink: 0;
     
     button {
-      margin-left: 4px;
+      margin-left: 2px; /* Reduced from 4px */
     }
   }
   
   @media (max-width: 767px) {
-    top: 5px;
-    right: 5px;
-    padding: 6px;
+    top: 4px; /* Reduced from 5px */
+    right: 4px; /* Reduced from 5px */
+    padding: 4px; /* Reduced from 6px */
   }
   
   /* Special styling for tree search */
