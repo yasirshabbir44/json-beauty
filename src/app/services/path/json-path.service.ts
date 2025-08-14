@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IJsonPathService } from '../../interfaces';
+import * as jsonpath from 'jsonpath';
 
 /**
  * Service for JSON path operations
@@ -79,8 +80,11 @@ export class JsonPathService implements IJsonPathService {
     try {
       const jsonObj = JSON.parse(jsonString || '{}');
       
-      // Simple implementation of JSONPath query
-      const result = this.evaluateJsonPath(jsonObj, jsonPath);
+      // Ensure the path starts with $ if not already
+      const normalizedPath = jsonPath.startsWith('$') ? jsonPath : `$${jsonPath}`;
+      
+      // Use the jsonpath library for comprehensive JSONPath support
+      const result = jsonpath.query(jsonObj, normalizedPath);
       
       return {
         result,
@@ -97,51 +101,24 @@ export class JsonPathService implements IJsonPathService {
 
   /**
    * Evaluates a JSON path against a JSON object
+   * This is a legacy method kept for backward compatibility
    * @param obj The JSON object
    * @param path The JSON path
    * @returns The evaluation result
    */
   evaluateJsonPath(obj: any, path: string): any {
-    // Handle root object
-    if (path === '$') {
-      return obj;
-    }
-    
-    // Remove the root symbol if present
-    if (path.startsWith('$.')) {
-      path = path.substring(2);
-    } else if (path.startsWith('$')) {
-      path = path.substring(1);
-    }
-    
-    // Split the path into segments
-    const segments = path.split('.');
-    let current = obj;
-    
-    for (const segment of segments) {
-      if (current === undefined || current === null) {
-        return undefined;
-      }
+    try {
+      // Ensure the path starts with $ if not already
+      const normalizedPath = path.startsWith('$') ? path : `$${path}`;
       
-      // Handle array indices
-      if (segment.includes('[') && segment.includes(']')) {
-        const [name, indexPart] = segment.split('[');
-        const index = parseInt(indexPart.replace(']', ''), 10);
-        
-        if (name) {
-          current = current[name];
-        }
-        
-        if (current === undefined || current === null || !Array.isArray(current)) {
-          return undefined;
-        }
-        
-        current = current[index];
-      } else {
-        current = current[segment];
-      }
+      // Use the jsonpath library for comprehensive JSONPath support
+      const result = jsonpath.query(obj, normalizedPath);
+      
+      // Return the first result or undefined if no results
+      return result.length > 0 ? result[0] : undefined;
+    } catch (error) {
+      console.error('Error evaluating JSONPath:', error);
+      return undefined;
     }
-    
-    return current;
   }
 }

@@ -24,6 +24,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // App Components
 import { AppComponent } from './app.component';
@@ -36,6 +37,7 @@ import { JsonOutputEditorComponent } from './components/json-output-editor/json-
 import { JsonDialogsComponent } from './components/json-dialogs/json-dialogs.component';
 import { JsonStatusComponent } from './components/json-status/json-status.component';
 import { JsonPathsComponent } from './components/json-paths/json-paths.component';
+import { SearchReplaceComponent } from './components/search-replace/search-replace.component';
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
@@ -51,7 +53,8 @@ import { AppRoutingModule } from './app-routing.module';
     JsonOutputEditorComponent,
     JsonDialogsComponent,
     JsonStatusComponent,
-    JsonPathsComponent
+    JsonPathsComponent,
+    SearchReplaceComponent
   ],
   imports: [
     BrowserModule,
@@ -79,7 +82,8 @@ import { AppRoutingModule } from './app-routing.module';
     MatChipsModule,
     MatBadgeModule,
     MatMenuModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]

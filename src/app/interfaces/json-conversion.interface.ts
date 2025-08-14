@@ -46,4 +46,18 @@ export interface IJsonConversionService {
    * @returns The parsed JavaScript object
    */
   parseJSON5(json5String: string): any;
+
+  /**
+   * Converts a JSON string to XML format
+   * @param jsonString The JSON string to convert
+   * @returns The XML string
+   */
+  jsonToXml(jsonString: string): string;
+
+  /**
+   * Converts an XML string to JSON format
+   * @param xmlString The XML string to convert
+   * @returns Promise resolving to the JSON string
+   */
+  xmlToJson(xmlString: string): Promise<string>;
 }

@@ -43,6 +43,10 @@
       <button mat-raised-button color="warn" (click)="convertToCsv.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Convert JSON to CSV">
         <mat-icon>table_chart</mat-icon> To CSV
       </button>
+
+      <button mat-raised-button color="primary" (click)="convertToXml.emit()" [disabled]="!isValidJson" class="action-button" matTooltip="Convert JSON to XML">
+        <mat-icon>code</mat-icon> To XML
+      </button>
     </div>
   </div>
 
@@ -101,6 +105,10 @@
 
       <button mat-raised-button color="warn" (click)="toggleKeyboardShortcuts.emit()" class="action-button" matTooltip="Show keyboard shortcuts">
         <mat-icon>keyboard</mat-icon> Shortcuts
+      </button>
+      
+      <button mat-raised-button color="primary" (click)="toggleSearchReplace.emit()" class="action-button" matTooltip="Search and replace text">
+        <mat-icon>find_replace</mat-icon> Search & Replace
       </button>
     </div>
   </div>

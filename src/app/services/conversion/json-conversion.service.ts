@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { IJsonConversionService } from '../../interfaces';
 import * as yaml from 'js-yaml';
 import * as JSON5 from 'json5';
+// Import from xml2js (our shim will be used due to module resolution)
+import { parseString, Builder } from 'xml2js';
 
 /**
  * Service for JSON conversion operations
@@ -257,5 +259,59 @@ export class JsonConversionService implements IJsonConversionService {
       return `"${value.replace(/"/g, '""')}"`;
     }
     return value;
+  }
+
+  /**
+   * Converts JSON to XML format
+   * @param jsonString The JSON string to convert
+   * @returns The XML string
+   */
+  jsonToXml(jsonString: string): string {
+    try {
+      const jsonObj = JSON.parse(jsonString || '{}');
+      
+      // Create a root element to wrap the JSON
+      const rootObj = { root: jsonObj };
+      
+      // Create a new XML builder with pretty formatting
+      const builder = new Builder({
+        renderOpts: { pretty: true, indent: '  ' },
+        headless: true
+      });
+      
+      // Convert the object to XML
+      return builder.buildObject(rootObj);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error converting JSON to XML: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Converts XML to JSON format
+   * @param xmlString The XML string to convert
+   * @returns The JSON string
+   */
+  xmlToJson(xmlString: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      parseString(xmlString, { explicitArray: false }, (err:any, result:any) => {
+        if (err) {
+          reject(new Error(`Error converting XML to JSON: ${err.message}`));
+          return;
+        }
+        
+        try {
+          // Extract the content from the root element if it exists
+          const jsonObj = result.root || result;
+          
+          // Convert to formatted JSON string
+          const jsonString = JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+          resolve(jsonString);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          reject(new Error(`Error processing XML conversion result: ${errorMessage}`));
+        }
+      });
+    });
   }
 }

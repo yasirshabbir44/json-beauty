@@ -20,6 +20,7 @@
           (download)="downloadOutput()"
           (share)="shareJson()"
           (convertToCsv)="convertToCsv()"
+          (convertToXml)="convertToXml()"
           (toggleTreeView)="toggleTreeView()"
           (toggleOutputFormat)="toggleOutputFormat()"
           (toggleJsonPaths)="toggleJsonPaths()"
@@ -29,6 +30,7 @@
           (toggleJsonCompare)="toggleJsonCompare()"
           (toggleJsonVisualize)="toggleJsonVisualize()"
           (toggleTheme)="toggleTheme()"
+          (toggleSearchReplace)="toggleSearchReplace()"
           (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
           (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()">
         </app-json-toolbar>
@@ -121,6 +123,12 @@
           (toggleJsonPaths)="toggleJsonPaths()">
         </app-json-paths>
 
+        <!-- Search & Replace Component -->
+        <app-search-replace
+          *ngIf="showSearchReplace"
+          [text]="searchReplaceText"
+          (textChanged)="onSearchReplaceTextChanged($event)">
+        </app-search-replace>
 
       </div>
     </mat-card-content>

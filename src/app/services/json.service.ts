@@ -259,4 +259,22 @@ export class JsonService {
   private evaluateJsonPath(obj: any, path: string): any {
     return this.pathService.evaluateJsonPath(obj, path);
   }
+
+  /**
+   * Converts JSON to XML format
+   * @param jsonString The JSON string to convert
+   * @returns The XML string
+   */
+  jsonToXml(jsonString: string): string {
+    return this.conversionService.jsonToXml(jsonString);
+  }
+
+  /**
+   * Converts XML to JSON format
+   * @param xmlString The XML string to convert
+   * @returns Promise resolving to the JSON string
+   */
+  xmlToJson(xmlString: string): Promise<string> {
+    return this.conversionService.xmlToJson(xmlString);
+  }
 }

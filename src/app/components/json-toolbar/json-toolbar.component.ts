@@ -20,6 +20,7 @@ export class JsonToolbarComponent {
   @Output() download = new EventEmitter<void>();
   @Output() share = new EventEmitter<void>();
   @Output() convertToCsv = new EventEmitter<void>();
+  @Output() convertToXml = new EventEmitter<void>();
 
   // Feature toggles
   @Output() toggleTreeView = new EventEmitter<void>();
@@ -37,6 +38,7 @@ export class JsonToolbarComponent {
   @Output() toggleTheme = new EventEmitter<void>();
   @Output() toggleFormattingOptions = new EventEmitter<void>();
   @Output() toggleKeyboardShortcuts = new EventEmitter<void>();
+  @Output() toggleSearchReplace = new EventEmitter<void>();
 
   constructor() {}
 

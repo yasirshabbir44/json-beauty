@@ -98,6 +98,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
   // JSON visualization properties
   showJsonVisualize = false;
   
+  // Search and replace properties
+  showSearchReplace = false;
+  searchReplaceText = '';
+  
   // Maximize/minimize properties
   isInputMaximized = false;
   isOutputMaximized = false;
@@ -757,6 +761,42 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       this.showError(`Error converting JSON to CSV: ${errorMessage}`);
     }
   }
+  
+  /**
+   * Converts JSON to XML and downloads it
+   */
+  convertToXml(): void {
+    if (!this.isValidJson || !this.jsonInput.value) {
+      this.showError('Please enter valid JSON to convert to XML');
+      return;
+    }
+
+    try {
+      // Convert JSON to XML
+      const xmlString = this.jsonService.jsonToXml(this.jsonInput.value);
+      
+      if (!xmlString) {
+        this.showError('Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.');
+        return;
+      }
+
+      // Download the XML
+      const blob = new Blob([xmlString], { type: 'application/xml' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'json-data.xml';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      this.showSuccess('JSON converted to XML and downloaded successfully');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.showError(`Error converting JSON to XML: ${errorMessage}`);
+    }
+  }
 
   copyToClipboard(): void {
     const textToCopy = this.selectedOutputFormat === 'json' 
@@ -1086,6 +1126,28 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       // Initialize visualization if needed
       this.initializeVisualization();
     }
+  }
+  
+  /**
+   * Toggles the search and replace panel
+   */
+  toggleSearchReplace(): void {
+    this.showSearchReplace = !this.showSearchReplace;
+    
+    if (this.showSearchReplace) {
+      // Set the current text for search and replace
+      this.searchReplaceText = this.jsonInput.value || '';
+    }
+  }
+  
+  /**
+   * Handles text changes from the search and replace component
+   * @param newText The updated text
+   */
+  onSearchReplaceTextChanged(newText: string): void {
+    this.searchReplaceText = newText;
+    this.jsonInput.setValue(newText);
+    this.validateJson();
   }
   
   /**
