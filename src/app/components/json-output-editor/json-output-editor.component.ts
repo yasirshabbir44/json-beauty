@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import * as ace from 'ace-builds';
+import { isErrorResponse } from '../../utils/error-handling.util';
+import { JsonValue } from '../../types/json.types';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -39,7 +41,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Input() jsonOutput: FormControl = new FormControl('');
     @Input() yamlOutput: FormControl = new FormControl('');
     @Input() showTreeView: boolean = false;
-    @Input() jsonTreeData: any = null;
+    @Input() jsonTreeData: JsonValue = null;
     @Input() selectedOutputFormat: 'json' | 'yaml' = 'json';
     @Input() selectedViewMode: 'text' | 'tree' | 'table' = 'text';
     @Input() expandedNodes: Set<string> = new Set();
@@ -53,13 +55,45 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() toggleNode = new EventEmitter<string>();
     @Output() treeSearch = new EventEmitter<string>();
 
-    outputEditor: any;
+    outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
 
     constructor(private renderer: Renderer2) { }
 
     ngOnInit(): void {
         // Initialize will be done in ngAfterViewInit
+    }
+    
+    /**
+     * Utility method to safely resize the editor after a short delay
+     * @param delay Time in milliseconds to wait before resizing
+     */
+    private resizeEditorSafely(delay: number = 100): void {
+        if (!this.outputEditor) return;
+        
+        setTimeout(() => {
+            if (this.outputEditor) {
+                this.outputEditor.resize();
+            }
+        }, delay);
+    }
+    
+    /**
+     * Utility method to safely update the editor content and resize
+     * @param content The content to set in the editor
+     * @param cursorPos The cursor position after update (-1 for end of document)
+     */
+    private updateEditorContentSafely(content: string, cursorPos: number = -1): void {
+        if (!this.outputEditor) return;
+        
+        try {
+            this.outputEditor.setValue(content || '', cursorPos);
+            this.outputEditor.renderer.updateFull(true);
+            this.resizeEditorSafely();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error(`Error updating editor content: ${errorMessage}`);
+        }
     }
 
     ngAfterViewInit(): void {
@@ -81,91 +115,73 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @HostListener('document:mozfullscreenchange', ['$event'])
     @HostListener('document:MSFullscreenChange', ['$event'])
     onFullScreenChange(): void {
-        this.isFullScreen = !!(document.fullscreenElement ||
-            (document as any).webkitFullscreenElement ||
-            (document as any).mozFullScreenElement ||
-            (document as any).msFullscreenElement);
+        // Handle different browser implementations of fullscreen API
+        interface FullScreenDocument extends Document {
+            webkitFullscreenElement?: Element;
+            mozFullScreenElement?: Element;
+            msFullscreenElement?: Element;
+        }
+        
+        const doc = document as FullScreenDocument;
+        this.isFullScreen = !!(doc.fullscreenElement ||
+            doc.webkitFullscreenElement ||
+            doc.mozFullScreenElement ||
+            doc.msFullscreenElement);
 
         // Resize editor when exiting fullscreen
-        if (!this.isFullScreen && this.outputEditor) {
-            setTimeout(() => {
-                this.outputEditor.resize();
-            }, 100);
+        if (!this.isFullScreen) {
+            this.resizeEditorSafely();
         }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        console.log('ngOnChanges triggered with changes:', Object.keys(changes).join(', '));
-
         // Update editor theme when isDarkTheme changes
         if (changes['isDarkTheme'] && this.outputEditor) {
-            console.log('Updating editor theme due to isDarkTheme change');
             this.updateOutputEditorTheme();
         }
 
         // Handle changes to selectedOutputFormat
         if (changes['selectedOutputFormat']) {
-            console.log('Output format changed to:', this.selectedOutputFormat);
-
             // If switching to JSON format, ensure the editor is initialized and visible
             if (this.selectedOutputFormat === 'json' && !this.showTreeView) {
-                console.log('Switching to JSON format, ensuring editor is initialized');
-
                 // If editor isn't initialized yet, initialize it
                 if (!this.outputEditor) {
-                    console.log('Editor not initialized, initializing now');
                     setTimeout(() => this.initializeOutputEditor(), 0);
                 } else {
                     // If already initialized, ensure it's properly sized and updated
-                    console.log('Editor already initialized, updating and resizing');
-                    setTimeout(() => {
-                        if (this.outputEditor) {
-                            this.outputEditor.setValue(this.jsonOutput.value || '', -1);
-                            this.outputEditor.renderer.updateFull(true);
-                            this.outputEditor.resize();
-                        }
-                    }, 100);
+                    if (this.outputEditor) {
+                        this.updateEditorContentSafely(this.jsonOutput.value);
+                    }
                 }
             }
         }
 
         // Update editor content when jsonOutput changes
         if (changes['jsonOutput'] && this.outputEditor && !this.showTreeView && this.selectedOutputFormat === 'json') {
-            console.log('Updating editor content due to jsonOutput change');
             try {
                 this.outputEditor.setValue(this.jsonOutput.value || '', -1);
                 this.outputEditor.renderer.updateFull(true);
 
                 // Ensure editor is properly sized after content update
-                setTimeout(() => {
-                    if (this.outputEditor) {
-                        console.log('Resizing editor after content update');
-                        this.outputEditor.resize();
-                    }
-                }, 100);
+                this.resizeEditorSafely();
             } catch (error) {
-                console.error('Error updating editor content:', error);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                console.error(`Error updating editor content: ${errorMessage}`);
             }
         }
 
         // Handle changes to showTreeView
         if (changes['showTreeView']) {
-            console.log('showTreeView changed to:', this.showTreeView);
-
             // If switching from tree view to JSON view, ensure editor is initialized and visible
             if (!this.showTreeView && this.selectedOutputFormat === 'json') {
-                console.log('Switching from tree view to JSON view');
-
                 // Short delay to allow DOM to update before initializing/updating editor
                 setTimeout(() => {
                     if (!this.outputEditor) {
-                        console.log('Editor not initialized, initializing now');
                         this.initializeOutputEditor();
                     } else {
-                        console.log('Editor already initialized, updating and resizing');
                         this.outputEditor.setValue(this.jsonOutput.value || '', -1);
                         this.outputEditor.renderer.updateFull(true);
-                        this.outputEditor.resize();
+                        this.resizeEditorSafely(0);
                     }
                 }, 100);
             }
@@ -173,18 +189,14 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     }
 
     /**
-     * Initializes the output editor separately
+     * Initializes the output editor with proper configuration
      */
     initializeOutputEditor(): void {
-        console.log('Initializing output editor...');
-
         // Check if the output editor element is available
         if (!this.outputEditorElement || !this.outputEditorElement.nativeElement) {
-            console.warn('Output editor element not available, will retry if in JSON mode');
             // If not available and we're in JSON mode without tree view, try again after a delay
             if (!this.showTreeView && this.selectedOutputFormat === 'json') {
                 setTimeout(() => {
-                    console.log('Retrying output editor initialization...');
                     this.initializeOutputEditor();
                 }, 100);
             }
@@ -193,18 +205,24 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
         // If the output editor is already initialized, don't initialize it again
         if (this.outputEditor) {
-            console.log('Output editor already initialized');
             return;
         }
 
+        // Constants for error messages
+        const EDITOR_INIT_ERROR = 'Failed to initialize editor';
+        const ACE_CONFIG_ERROR = 'Failed to configure Ace editor';
+        
         try {
             // Set the basePath for ace editor to load its modes, themes, and extensions
-            console.log('Setting ace editor basePath...');
             ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
 
             // Initialize the output editor
-            console.log('Creating ace editor instance...');
             this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
+            
+            if (!this.outputEditor) {
+                throw new Error(EDITOR_INIT_ERROR);
+            }
+            
             this.updateOutputEditorTheme();
             this.outputEditor.session.setMode('ace/mode/json');
             this.outputEditor.setOptions({
@@ -233,7 +251,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             this.outputEditor.commands.addCommand({
                 name: 'foldAll',
                 bindKey: {win: 'Ctrl-Alt-0', mac: 'Command-Option-0'},
-                exec: (editor: any) => {
+                exec: (editor: AceAjax.Editor) => {
                     editor.getSession().foldAll();
                 }
             });
@@ -241,7 +259,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             this.outputEditor.commands.addCommand({
                 name: 'unfoldAll',
                 bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
-                exec: (editor: any) => {
+                exec: (editor: AceAjax.Editor) => {
                     editor.getSession().unfold();
                 }
             });
@@ -250,31 +268,25 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             this.outputEditor.getSession().setUseWorker(false);
 
             // Force initial render
-            console.log('Forcing initial render...');
             this.outputEditor.renderer.updateFull(true);
 
             // Update the output if we have valid JSON
             if (this.isValidJson && this.jsonOutput.value) {
-                console.log('Setting initial JSON value:', this.jsonOutput.value.substring(0, 50) + '...');
                 this.outputEditor.setValue(this.jsonOutput.value, -1);
 
                 // Ensure editor is visible and properly sized
-                setTimeout(() => {
-                    if (this.outputEditor) {
-                        console.log('Resizing editor after initialization...');
-                        this.outputEditor.resize();
-                    }
-                }, 100);
-            } else {
-                console.warn('No valid JSON to display in output editor');
+                this.resizeEditorSafely();
             }
-
-            console.log('Output editor initialization complete');
         } catch (error) {
-            console.error('Error initializing output editor:', error);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error(`${EDITOR_INIT_ERROR}: ${errorMessage}`);
         }
     }
 
+    /**
+     * Updates the editor theme based on the isDarkTheme setting
+     * Switches between dracula (dark) and github (light) themes
+     */
     updateOutputEditorTheme(): void {
         if (this.outputEditor) {
             this.outputEditor.setTheme(this.isDarkTheme ? 'ace/theme/dracula' : 'ace/theme/github');
@@ -283,6 +295,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     /**
      * Toggles the maximized state of the output section
+     * Emits an event to the parent component to handle the UI changes
      */
     toggleOutputMaximize(): void {
         if (this.isFullScreen) {

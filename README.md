@@ -1,80 +1,94 @@
 # JSON Beauty
 
-A responsive Angular web application for formatting, validating, and manipulating JSON data.
+A powerful Angular application for JSON manipulation, validation, and conversion.
+
+## Overview
+
+JSON Beauty is a comprehensive tool for working with JSON data. It provides a user-friendly interface for:
+
+- Formatting and beautifying JSON
+- Converting between JSON and other formats (YAML, XML, CSV)
+- Validating JSON against schemas
+- Searching and navigating through JSON structures
+- Comparing JSON documents
 
 ## Features
 
-- **JSON Input/Output Editor**: Edit and view JSON in a user-friendly interface
-- **Beautify (Pretty-Print)**: Format JSON with proper indentation for readability
-- **Minify**: Remove all whitespace to reduce JSON size
-- **Validate**: Automatically validate JSON syntax as you type
-- **Lint and Fix**: Sort keys and fix common issues
-- **Format Nested JSON**: Properly format complex nested JSON structures
-- **Syntax Highlighting**: Color-coded JSON for better readability
-- **Auto-Indentation**: Automatically indent JSON as you type
-- **Copy/Download/Export**: Easy options to copy to clipboard or download as a file
+- **JSON Editing**: Advanced editor with syntax highlighting, code folding, and search capabilities
+- **Format Conversion**: Convert between JSON and YAML, XML, CSV, and JSON5
+- **JSON Path**: Query JSON using JSONPath expressions
+- **Search & Replace**: Find and replace values in JSON documents
+- **Dark/Light Themes**: Support for different visual preferences
 
-## Installation
+## Code Organization
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yasirshabbir44/json-beauty.git
-   ```
+The project follows a modular architecture with clear separation of concerns:
 
-2. Navigate to the project directory:
-   ```
-   cd json-beauty
-   ```
+- **Components**: UI elements for user interaction
+- **Services**: Business logic for JSON operations
+- **Interfaces**: Contracts defining service capabilities
+- **Utils**: Shared utility functions
+- **Types**: TypeScript type definitions
 
-   Note: The repository will be cloned into a folder named `json-beauty`. This is the main project folder, not a parent folder.
+## Best Practices
 
-3. Install dependencies:
-   ```
-   npm install
-   ```
+### TypeScript
 
-4. Start the development server:
-   ```
-   npm start
-   ```
+- Use proper type definitions instead of `any`
+- Create interfaces for data structures
+- Use type guards for runtime type checking
+- Add return types to all functions
 
-5. Open your browser and navigate to `http://localhost:4200/`
+### Error Handling
 
-### Running with IntelliJ IDEA
+- Use consistent error handling patterns
+- Provide meaningful error messages
+- Use try-catch blocks for error-prone operations
+- Return standardized error responses
 
-If you're using IntelliJ IDEA, you can run the application directly from the IDE:
+### Code Organization
 
-1. Open the project in IntelliJ IDEA
-2. Click on the run button (green triangle) in the top-right corner of the IDE
-3. Select "Angular CLI Serve" from the dropdown menu
-4. The Angular development server will start, and you can access the application at http://localhost:4200/
+- Follow the Single Responsibility Principle
+- Extract common functionality into shared utilities
+- Avoid code duplication
+- Use meaningful variable and function names
 
-## Usage
+### Documentation
 
-1. Enter or paste your JSON in the input editor
-2. Use the action buttons to beautify, minify, or lint your JSON
-3. View the formatted output in the output section
-4. Copy or download the formatted JSON as needed
+- Add JSDoc comments to all public methods
+- Document complex logic with inline comments
+- Keep documentation up-to-date with code changes
 
-## Technologies Used
+## Development
 
-- Angular 17
-- Angular Material
-- Ace Editor for syntax highlighting
-- TypeScript
-- SCSS for styling
+### Prerequisites
 
-## Responsive Design
+- Node.js (v14+)
+- npm or yarn
 
-The application is fully responsive and works well on:
-- Desktop computers
-- Tablets
-- Mobile phones
+### Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `npm start`
+
+### Building
+
+Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+### Testing
+
+Run `npm test` to execute the unit tests via Karma.
+
+## Contributing
+
+When contributing to this project, please follow these guidelines:
+
+1. Follow the established code style and best practices
+2. Write unit tests for new functionality
+3. Update documentation for any changes
+4. Use meaningful commit messages
 
 ## License
 
-MIT
-
-## Author
-
-Your Name
+This project is licensed under the MIT License - see the LICENSE file for details.

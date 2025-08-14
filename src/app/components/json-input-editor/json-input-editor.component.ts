@@ -1,6 +1,9 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import * as ace from 'ace-builds';
+import { isErrorResponse } from '../../utils/error-handling.util';
+import { isValidJson, formatJson } from '../../utils/json.util';
+import { JsonValidationResult } from '../../types/json.types';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -28,8 +31,12 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
   @Output() jsonInputChange = new EventEmitter<string>();
   @Output() toggleMaximize = new EventEmitter<void>();
   
-  editor: any;
+  editor: AceAjax.Editor | null = null;
   jsonInput = new FormControl('');
+  
+  // Constants for error messages
+  private readonly EDITOR_INIT_ERROR = 'Failed to initialize editor';
+  private readonly EDITOR_NOT_INITIALIZED = 'Editor is not initialized';
 
   constructor() { }
 
@@ -45,59 +52,71 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
   }
 
   initializeEditor(): void {
-    ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
+    try {
+      ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
 
-    // Initialize input editor
-    this.editor = ace.edit(this.editorElement.nativeElement);
-    this.updateEditorTheme();
-    this.editor.session.setMode('ace/mode/json');
-    this.editor.setOptions({
-      enableBasicAutocompletion: true,
-      enableLiveAutocompletion: true,
-      showLineNumbers: true,
-      showGutter: true,
-      highlightActiveLine: true,
-      tabSize: 2,
-      fontSize: '15px',
-      printMarginColumn: 120,
-      showPrintMargin: false,
-      fadeFoldWidgets: false,
-      highlightSelectedWord: true,
-      displayIndentGuides: true,
-      // Enable code folding
-      showFoldWidgets: true,
-      foldStyle: 'markbegin'
-    });
-    
-    // Set up the session for folding
-    const session = this.editor.getSession();
-    session.setFoldStyle('markbegin');
-    session.setUseWrapMode(true);
-    
-    // Add fold/unfold commands to the editor
-    this.editor.commands.addCommand({
-      name: 'foldAll',
-      bindKey: {win: 'Ctrl-Alt-0', mac: 'Command-Option-0'},
-      exec: (editor: any) => {
-        editor.getSession().foldAll();
+      // Initialize input editor
+      this.editor = ace.edit(this.editorElement.nativeElement);
+      this.updateEditorTheme();
+      
+      if (!this.editor) {
+        console.error(this.EDITOR_INIT_ERROR);
+        return;
       }
-    });
-    
-    this.editor.commands.addCommand({
-      name: 'unfoldAll',
-      bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
-      exec: (editor: any) => {
-        editor.getSession().unfold();
-      }
-    });
+      
+      this.editor.session.setMode('ace/mode/json');
+      this.editor.setOptions({
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true,
+        showLineNumbers: true,
+        showGutter: true,
+        highlightActiveLine: true,
+        tabSize: 2,
+        fontSize: '15px',
+        printMarginColumn: 120,
+        showPrintMargin: false,
+        fadeFoldWidgets: false,
+        highlightSelectedWord: true,
+        displayIndentGuides: true,
+        // Enable code folding
+        showFoldWidgets: true,
+        foldStyle: 'markbegin'
+      });
+      
+      // Set up the session for folding
+      const session = this.editor.getSession();
+      session.setFoldStyle('markbegin');
+      session.setUseWrapMode(true);
+      
+      // Add fold/unfold commands to the editor
+      this.editor.commands.addCommand({
+        name: 'foldAll',
+        bindKey: {win: 'Ctrl-Alt-0', mac: 'Command-Option-0'},
+        exec: (editor: AceAjax.Editor) => {
+          editor.getSession().foldAll();
+        }
+      });
+      
+      this.editor.commands.addCommand({
+        name: 'unfoldAll',
+        bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
+        exec: (editor: AceAjax.Editor) => {
+          editor.getSession().unfold();
+        }
+      });
 
-    // Enable real-time syntax error highlighting
-    this.editor.getSession().setUseWorker(true);
+      // Enable real-time syntax error highlighting
+      this.editor.getSession().setUseWorker(true);
 
-    this.editor.on('change', () => {
-      this.jsonInput.setValue(this.editor.getValue());
-      this.jsonInputChange.emit(this.editor.getValue());
-    });
+      this.editor.on('change', () => {
+        if (this.editor) {
+          this.jsonInput.setValue(this.editor.getValue());
+          this.jsonInputChange.emit(this.editor.getValue());
+        }
+      });
+    } catch (error) {
+      console.error(`${this.EDITOR_INIT_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   updateEditorTheme(): void {

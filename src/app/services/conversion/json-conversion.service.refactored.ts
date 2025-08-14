@@ -4,6 +4,9 @@ import * as yaml from 'js-yaml';
 import * as JSON5 from 'json5';
 // Import from xml2js (our shim will be used due to module resolution)
 import { parseString, Builder } from 'xml2js';
+import { safeJsonParse, safeJsonStringify, isEmptyObject, isEmptyArray } from '../../utils/json.util';
+import { ErrorResponse, isErrorResponse, withAsyncErrorHandling } from '../../utils/error-handling.util';
+import { JsonValue } from '../../types/json.types';
 
 /**
  * Type definitions for improved type safety
@@ -47,7 +50,10 @@ export class JsonConversionService implements IJsonConversionService {
    */
   jsonToYaml(jsonString: string): string {
     return this.handleConversionError(() => {
-      const jsonObj = JSON.parse(jsonString || this.DEFAULT_EMPTY_OBJECT);
+      const jsonObj = safeJsonParse(jsonString);
+      if (isErrorResponse(jsonObj)) {
+        throw new Error(jsonObj.message);
+      }
       return this.convertToYaml(jsonObj);
     }, 'JSON to YAML');
   }
@@ -60,10 +66,14 @@ export class JsonConversionService implements IJsonConversionService {
   yamlToJson(yamlString: string): string {
     return this.handleConversionError(() => {
       // Parse YAML string to JavaScript object
-      const obj = yaml.load(yamlString || this.DEFAULT_EMPTY_STRING);
+      const obj = yaml.load(yamlString || this.DEFAULT_EMPTY_STRING) as JsonValue;
       
       // Convert the object to a JSON string with proper indentation
-      return JSON.stringify(obj, null, this.getIndentation());
+      const result = safeJsonStringify(obj, this.indentSize);
+      if (isErrorResponse(result)) {
+        throw new Error(result.message);
+      }
+      return result;
     }, 'YAML to JSON');
   }
 
@@ -195,7 +205,7 @@ export class JsonConversionService implements IJsonConversionService {
           const jsonObj = result[this.XML_ROOT_ELEMENT] || result;
           
           // Convert to formatted JSON string
-          const jsonString = JSON.stringify(jsonObj, null, this.getIndentation());
+          const jsonString = JSON.stringify(jsonObj, null, this.indentSize);
           resolve(jsonString);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
