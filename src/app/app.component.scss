@@ -11,12 +11,12 @@
 
 .main-content {
   flex: 1;
-  padding: 2rem;
+  padding: 0.75rem 1rem; /* Adjusted vertical padding to work better with compact header/footer */
   width: 100%;
-  max-width: 1400px; /* Limit width for very large screens */
+  max-width: 1600px; /* Increased max-width for better utilization on large screens */
   margin: 0 auto;
   box-sizing: border-box;
-  min-height: 70vh; /* Ensure minimum height for content area */
+  min-height: 85vh; /* Further increased minimum height for content area */
   animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -89,19 +89,22 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .main-content {
-    padding: 1rem;
+    padding: 0.5rem 0.75rem; /* Reduced padding for better space utilization */
+    min-height: 88vh; /* Increased min-height for better screen utilization */
   }
 }
 
 @media (max-width: 599px) {
   .main-content {
-    padding: 0.75rem;
+    padding: 0.4rem 0.5rem; /* Reduced padding for better space utilization */
+    min-height: 90vh; /* Increased min-height for better screen utilization */
   }
 }
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 0.5rem;
+    padding: 0.25rem; /* Minimal padding on smallest screens */
+    min-height: 92vh; /* Maximized content height on smallest screens */
   }
 }
 

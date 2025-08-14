@@ -1,9 +1,13 @@
 // Main container styles
 .editor-container {
   width: 100%;
+  height: 100%;
+  min-height: 90vh; /* Ensure container takes up most of the viewport */
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in-out;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 // Card styles
@@ -17,6 +21,10 @@
               background-color 0.3s ease,
               color 0.3s ease,
               border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 85vh; /* Ensure card takes up most of the viewport height */
 
   &:hover {
     box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
@@ -57,6 +65,10 @@
 
   mat-card-content {
     padding: 12px; /* Reduced from 16px */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent overflow issues */
   }
 }
 
@@ -65,6 +77,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px; /* Reduced from 16px */
+  flex: 1;
+  height: 100%;
+  overflow: hidden; /* Prevent overflow issues */
 }
 
 // Editor columns layout
@@ -75,6 +90,8 @@
   margin: 0;
   transition: all 0.2s ease-out;
   position: relative;
+  flex: 1;
+  min-height: 70vh; /* Ensure minimum height for better screen utilization */
 
   @media (max-width: 991px) {
     flex-direction: column;
@@ -83,6 +100,11 @@
 
   @media (max-width: 767px) {
     gap: 8px; /* Reduced from 12px */
+    min-height: 75vh; /* Increase min-height on smaller screens */
+  }
+  
+  @media (max-width: 480px) {
+    min-height: 80vh; /* Further increase min-height on mobile screens */
   }
   
   // Input maximized state

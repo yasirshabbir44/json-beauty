@@ -61,22 +61,42 @@
   // Maximized state
   &.maximized {
     position: fixed;
-    top: 64px; /* Height of the app header */
+    top: 48px; /* Updated to match the new header height */
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 1000;
     width: 100%;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 48px); /* Updated to match the new header height */
     border-radius: 0;
     box-shadow: none;
     overflow: auto;
     transform: translateY(0); /* Ensure transform is consistent with non-maximized state */
     opacity: 1;
     animation: maximize-animation 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    @media (max-width: 768px) {
+      top: 42px; /* Match the header height on medium screens */
+      height: calc(100vh - 42px); /* Match the header height on medium screens */
+    }
+    
+    @media (max-width: 480px) {
+      top: 38px; /* Match the header height on small screens */
+      height: calc(100vh - 38px); /* Match the header height on small screens */
+    }
 
     .editor-wrapper {
-      height: calc(100% - 54px); /* Subtract the height of the section header */
+      height: calc(100vh - 90px); /* Updated to match the new header and section header heights */
+      min-height: auto; /* Override min-height to ensure it fits in the available space */
+      max-height: none; /* Ensure no max-height constraint */
+      
+      @media (max-width: 768px) {
+        height: calc(100vh - 84px); /* Adjusted for medium screens */
+      }
+      
+      @media (max-width: 480px) {
+        height: calc(100vh - 80px); /* Adjusted for small screens */
+      }
     }
   }
 
@@ -139,9 +159,9 @@
 // Editor wrapper styles
 .editor-wrapper {
   position: relative;
-  height: 50vh; /* Reduced from 60vh */
-  min-height: 350px; /* Reduced from 400px */
-  max-height: 700px; /* Reduced from 800px */
+  height: 70vh; /* Increased from 50vh for better screen utilization */
+  min-height: 400px; /* Increased from 350px */
+  max-height: none; /* Removed max-height constraint to allow full screen utilization */
   border: none;
   overflow: hidden;
   background-color: #ffffff;
@@ -154,15 +174,15 @@
   }
   
   @media (max-width: 767px) {
-    height: 45vh; /* Reduced from 50vh */
-    min-height: 280px; /* Reduced from 300px */
-    max-height: 550px; /* Reduced from 600px */
+    height: 65vh; /* Increased from 60vh for better screen utilization */
+    min-height: 350px;
+    max-height: none;
   }
   
   @media (max-width: 480px) {
-    height: 35vh; /* Reduced from 40vh */
-    min-height: 220px; /* Reduced from 250px */
-    max-height: 450px; /* Reduced from 500px */
+    height: 60vh; /* Increased from 50vh for better screen utilization */
+    min-height: 300px;
+    max-height: none;
   }
 }
 
