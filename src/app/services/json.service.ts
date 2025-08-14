@@ -27,18 +27,18 @@ export class JsonService {
   /**
    * Converts JSON to YAML
    * @param jsonString The JSON string to convert
-   * @returns The YAML string
+   * @returns The YAML string or a Promise resolving to the YAML string
    */
-  jsonToYaml(jsonString: string): string {
+  jsonToYaml(jsonString: string): string | Promise<string> {
     return this.conversionService.jsonToYaml(jsonString);
   }
 
   /**
    * Converts YAML to JSON
    * @param yamlString The YAML string to convert
-   * @returns The JSON string
+   * @returns The JSON string or a Promise resolving to the JSON string
    */
-  yamlToJson(yamlString: string): string {
+  yamlToJson(yamlString: string): string | Promise<string> {
     return this.conversionService.yamlToJson(yamlString);
   }
 
@@ -214,9 +214,9 @@ export class JsonService {
   /**
    * Converts JSON to CSV format
    * @param jsonString The JSON string to convert
-   * @returns The CSV string
+   * @returns The CSV string or a Promise resolving to the CSV string
    */
-  jsonToCsv(jsonString: string): string {
+  jsonToCsv(jsonString: string): string | Promise<string> {
     return this.conversionService.jsonToCsv(jsonString);
   }
 
@@ -263,9 +263,9 @@ export class JsonService {
   /**
    * Converts JSON to XML format
    * @param jsonString The JSON string to convert
-   * @returns The XML string
+   * @returns The XML string or a Promise resolving to the XML string
    */
-  jsonToXml(jsonString: string): string {
+  jsonToXml(jsonString: string): string | Promise<string> {
     return this.conversionService.jsonToXml(jsonString);
   }
 

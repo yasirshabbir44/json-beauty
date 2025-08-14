@@ -5,7 +5,6 @@ import { ConverterFactoryService, ConversionType } from './converter-factory.ser
 /**
  * Service for JSON conversion operations
  * Implements the Facade pattern to provide a simplified interface to the conversion subsystem
- * Uses Strategy pattern (via converters) and Factory pattern (via converterFactory)
  */
 @Injectable({
   providedIn: 'root'
@@ -49,9 +48,9 @@ export class JsonConversionService implements IJsonConversionService {
   /**
    * Converts a JSON string to CSV format
    * @param jsonString The JSON string to convert
-   * @returns The CSV string or a Promise resolving to the CSV string
+   * @returns Promise resolving to the CSV string
    */
-  jsonToCsv(jsonString: string): string | Promise<string> {
+  jsonToCsv(jsonString: string): Promise<string> {
     const converter = this.converterFactory.createJsonToFormatConverter(ConversionType.JSON_TO_CSV);
     return converter.convert(jsonString);
   }
@@ -70,25 +69,20 @@ export class JsonConversionService implements IJsonConversionService {
   /**
    * Parses a JSON5 string to a JavaScript object
    * @param json5String The JSON5 string to parse
-   * @returns The parsed JavaScript object or a Promise resolving to the parsed object
+   * @returns The parsed JavaScript object
    */
-  parseJSON5(json5String: string): any | Promise<any> {
+  parseJSON5(json5String: string): any {
     const converter = this.converterFactory.createFormatToJsonConverter(ConversionType.JSON5_TO_JSON);
-    const result = converter.convert(json5String);
-    
-    if (result instanceof Promise) {
-      return result.then(jsonString => JSON.parse(jsonString));
-    } else {
-      return JSON.parse(result);
-    }
+    const jsonString = converter.convert(json5String);
+    return JSON.parse(jsonString);
   }
 
   /**
    * Converts a JSON string to XML format
    * @param jsonString The JSON string to convert
-   * @returns The XML string or a Promise resolving to the XML string
+   * @returns The XML string
    */
-  jsonToXml(jsonString: string): string | Promise<string> {
+  jsonToXml(jsonString: string): string {
     const converter = this.converterFactory.createJsonToFormatConverter(ConversionType.JSON_TO_XML);
     return converter.convert(jsonString);
   }
@@ -102,5 +96,4 @@ export class JsonConversionService implements IJsonConversionService {
     const converter = this.converterFactory.createFormatToJsonConverter(ConversionType.XML_TO_JSON);
     return converter.convert(xmlString) as Promise<string>;
   }
-
 }

@@ -42,6 +42,9 @@ import { SearchReplaceComponent } from './components/search-replace/search-repla
 // Routing
 import { AppRoutingModule } from './app-routing.module';
 
+// Custom Modules
+import { ConvertersModule } from './services/conversion/converters/converters.module';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -64,6 +67,7 @@ import { AppRoutingModule } from './app-routing.module';
     HttpClientModule,
     ClipboardModule,
     AppRoutingModule,
+    ConvertersModule,
     // Angular Material
     MatToolbarModule,
     MatButtonModule,

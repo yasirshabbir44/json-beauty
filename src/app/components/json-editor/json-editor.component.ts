@@ -441,8 +441,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     if (!this.isValidJson) return;
 
     try {
-      const yamlString = this.jsonService.jsonToYaml(this.jsonInput.value || '');
-      this.yamlOutput.setValue(yamlString);
+      const result = this.jsonService.jsonToYaml(this.jsonInput.value || '');
+      
+      const processResult = (yamlString: string) => {
+        this.yamlOutput.setValue(yamlString);
+      };
+      
+      if (result instanceof Promise) {
+        result.then(processResult).catch(error => {
+          console.error('Error converting to YAML:', error);
+        });
+      } else {
+        processResult(result);
+      }
     } catch (e: any) {
       console.error('Error converting to YAML:', e);
     }
@@ -480,16 +491,26 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
       
       try {
         // Convert YAML back to JSON
-        const jsonString = this.jsonService.yamlToJson(this.yamlOutput.value || '');
+        const result = this.jsonService.yamlToJson(this.yamlOutput.value || '');
         
-        // Update the input editor with the converted JSON
-        if (this.jsonInputEditor) {
-          this.jsonInputEditor.setValue(jsonString);
+        const processResult = (jsonString: string) => {
+          // Update the input editor with the converted JSON
+          if (this.jsonInputEditor) {
+            this.jsonInputEditor.setValue(jsonString);
+          }
+          this.jsonInput.setValue(jsonString);
+          
+          // Validate the JSON
+          this.validateJson();
+        };
+        
+        if (result instanceof Promise) {
+          result.then(processResult).catch(error => {
+            this.showError(`Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`);
+          });
+        } else {
+          processResult(result);
         }
-        this.jsonInput.setValue(jsonString);
-        
-        // Validate the JSON
-        this.validateJson();
         
         // Initialize the output editor if switching to JSON mode
         setTimeout(() => {
@@ -737,25 +758,36 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
     try {
       // Convert JSON to CSV
-      const csvString = this.jsonService.jsonToCsv(this.jsonInput.value);
+      const result = this.jsonService.jsonToCsv(this.jsonInput.value);
       
-      if (!csvString) {
-        this.showError('Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.');
-        return;
+      const processResult = (csvString: string) => {
+        if (!csvString) {
+          this.showError('Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.');
+          return;
+        }
+
+        // Download the CSV
+        const blob = new Blob([csvString], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'json-data.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        this.showSuccess('JSON converted to CSV and downloaded successfully');
+      };
+
+      if (result instanceof Promise) {
+        result.then(processResult).catch(error => {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          this.showError(`Error converting JSON to CSV: ${errorMessage}`);
+        });
+      } else {
+        processResult(result);
       }
-
-      // Download the CSV
-      const blob = new Blob([csvString], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'json-data.csv';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      this.showSuccess('JSON converted to CSV and downloaded successfully');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.showError(`Error converting JSON to CSV: ${errorMessage}`);
@@ -773,25 +805,36 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
     try {
       // Convert JSON to XML
-      const xmlString = this.jsonService.jsonToXml(this.jsonInput.value);
+      const result = this.jsonService.jsonToXml(this.jsonInput.value);
       
-      if (!xmlString) {
-        this.showError('Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.');
-        return;
+      const processResult = (xmlString: string) => {
+        if (!xmlString) {
+          this.showError('Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.');
+          return;
+        }
+
+        // Download the XML
+        const blob = new Blob([xmlString], { type: 'application/xml' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'json-data.xml';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        this.showSuccess('JSON converted to XML and downloaded successfully');
+      };
+
+      if (result instanceof Promise) {
+        result.then(processResult).catch(error => {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          this.showError(`Error converting JSON to XML: ${errorMessage}`);
+        });
+      } else {
+        processResult(result);
       }
-
-      // Download the XML
-      const blob = new Blob([xmlString], { type: 'application/xml' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'json-data.xml';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      this.showSuccess('JSON converted to XML and downloaded successfully');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.showError(`Error converting JSON to XML: ${errorMessage}`);
