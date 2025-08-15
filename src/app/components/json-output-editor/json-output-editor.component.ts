@@ -1,20 +1,20 @@
 import {
-    Component,
-    OnInit,
     AfterViewInit,
-    ViewChild,
+    Component,
     ElementRef,
-    Input,
-    Output,
     EventEmitter,
+    HostListener,
+    Input,
     OnChanges,
+    OnInit,
+    Output,
+    Renderer2,
     SimpleChanges,
-    HostListener, Renderer2
+    ViewChild
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import * as ace from 'ace-builds';
-import { isErrorResponse } from '../../utils/error-handling.util';
-import { JsonValue } from '../../types/json.types';
+import {JsonValue} from '../../types/json.types';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';

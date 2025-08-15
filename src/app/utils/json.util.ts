@@ -1,8 +1,8 @@
 /**
  * Utility functions for common JSON operations
  */
-import { ErrorResponse, createErrorResponse } from './error-handling.util';
-import { JsonValue, JsonObject, JsonArray, JsonPrimitive, JsonValidationResult, JsonSchemaType } from '../types/json.types';
+import {createErrorResponse, ErrorResponse} from './error-handling.util';
+import {JsonArray, JsonObject, JsonSchemaType, JsonValidationResult, JsonValue} from '../types/json.types';
 
 /**
  * Safely parses a JSON string

@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as JSON5 from 'json5';
-import { IFormatToJsonConverter } from '../../../interfaces/converters/converter.interface';
+import {IFormatToJsonConverter} from '../../../interfaces/converters/converter.interface';
 
 /**
  * Converter for JSON5 to JSON conversion

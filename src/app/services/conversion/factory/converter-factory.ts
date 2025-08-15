@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IStringConverter, IAsyncStringConverter } from '../../../interfaces/converter.interface';
+import {Injectable} from '@angular/core';
+import {IAsyncStringConverter, IStringConverter} from '../../../interfaces/converter.interface';
 
 /**
  * Enum for supported conversion types

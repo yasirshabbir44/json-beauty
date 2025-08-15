@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { BaseAsyncConverter } from '../base/base-converter';
-import { parseString } from 'xml2js';
+import {Injectable} from '@angular/core';
+import {BaseAsyncConverter} from '../base/base-converter';
+import {parseString} from 'xml2js';
 
 /**
  * Converter for XML to JSON conversion

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IJsonComparisonService } from '../../interfaces';
+import {Injectable} from '@angular/core';
+import {IJsonComparisonService} from '../../interfaces';
 import * as jsondiffpatch from 'jsondiffpatch';
 
 /**

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { SearchReplaceService } from '../../services/search/search-replace.service';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {FormBuilder, FormGroup} from '@angular/forms';
+import {SearchReplaceService} from '../../services/search/search-replace.service';
 
 @Component({
   selector: 'app-search-replace',

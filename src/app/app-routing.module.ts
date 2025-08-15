@@ -1,6 +1,6 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { JsonEditorComponent } from './components/json-editor/json-editor.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {JsonEditorComponent} from './components/json-editor/json-editor.component';
 
 const routes: Routes = [
   // Default route redirects to the main page

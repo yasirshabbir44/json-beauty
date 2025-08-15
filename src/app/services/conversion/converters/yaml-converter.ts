@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as yaml from 'js-yaml';
-import { IJsonToFormatConverter, IFormatToJsonConverter } from '../../../interfaces/converters/converter.interface';
+import {IFormatToJsonConverter, IJsonToFormatConverter} from '../../../interfaces/converters/converter.interface';
 
 /**
  * Base class for YAML converters with common functionality

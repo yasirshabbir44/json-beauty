@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
-import { JsonToYamlConverter, YamlToJsonConverter } from './converters/yaml-converter';
-import { JsonToCsvConverter } from './converters/csv-converter';
-import { JsonToXmlConverter, XmlToJsonConverter } from './converters/xml-converter';
-import { Json5ToJsonConverter } from './converters/json5-converter';
-import { IConverter, IJsonToFormatConverter, IFormatToJsonConverter } from '../../interfaces/converters/converter.interface';
+import {Injectable} from '@angular/core';
+import {JsonToYamlConverter, YamlToJsonConverter} from './converters/yaml-converter';
+import {JsonToCsvConverter} from './converters/csv-converter';
+import {JsonToXmlConverter, XmlToJsonConverter} from './converters/xml-converter';
+import {Json5ToJsonConverter} from './converters/json5-converter';
+import {
+  IConverter,
+  IFormatToJsonConverter,
+  IJsonToFormatConverter
+} from '../../interfaces/converters/converter.interface';
 
 /**
  * Enum for supported conversion types

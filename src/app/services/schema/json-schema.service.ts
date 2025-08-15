@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IJsonSchemaService } from '../../interfaces';
+import {Injectable} from '@angular/core';
+import {IJsonSchemaService} from '../../interfaces';
 import Ajv from 'ajv';
 import * as generateSchemaLib from 'generate-schema';
 

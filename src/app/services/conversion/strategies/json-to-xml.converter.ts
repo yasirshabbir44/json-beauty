@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { BaseConverter } from '../base/base-converter';
-import { Builder } from 'xml2js';
+import {Injectable} from '@angular/core';
+import {BaseConverter} from '../base/base-converter';
+import {Builder} from 'xml2js';
 
 /**
  * Converter for JSON to XML conversion

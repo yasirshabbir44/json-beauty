@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { IJsonConversionService } from '../../interfaces';
-import { ConverterFactoryService, ConversionType } from './converter-factory.service';
+import {Injectable} from '@angular/core';
+import {IJsonConversionService} from '../../interfaces';
+import {ConversionType, ConverterFactoryService} from './converter-factory.service';
 
 /**
  * Service for JSON conversion operations

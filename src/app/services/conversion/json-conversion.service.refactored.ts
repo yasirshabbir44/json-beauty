@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { IJsonConversionService } from '../../interfaces';
+import {Injectable} from '@angular/core';
+import {IJsonConversionService} from '../../interfaces';
 import * as yaml from 'js-yaml';
 import * as JSON5 from 'json5';
 // Import from xml2js (our shim will be used due to module resolution)
-import { parseString, Builder } from 'xml2js';
-import { safeJsonParse, safeJsonStringify, isEmptyObject, isEmptyArray } from '../../utils/json.util';
-import { ErrorResponse, isErrorResponse, withAsyncErrorHandling } from '../../utils/error-handling.util';
-import { JsonValue } from '../../types/json.types';
+import {Builder, parseString} from 'xml2js';
+import {safeJsonParse, safeJsonStringify} from '../../utils/json.util';
+import {isErrorResponse} from '../../utils/error-handling.util';
+import {JsonValue} from '../../types/json.types';
 
 /**
  * Type definitions for improved type safety

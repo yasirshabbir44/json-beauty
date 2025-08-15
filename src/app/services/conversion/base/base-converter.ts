@@ -1,4 +1,4 @@
-import { IStringConverter } from '../../../interfaces/converter.interface';
+import {IStringConverter} from '../../../interfaces/converter.interface';
 
 /**
  * Abstract base class for string converters

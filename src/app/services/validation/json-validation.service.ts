@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IJsonValidationService } from '../../interfaces';
+import {Injectable} from '@angular/core';
+import {IJsonValidationService} from '../../interfaces';
 import Ajv from 'ajv';
 import * as JSON5 from 'json5';
 

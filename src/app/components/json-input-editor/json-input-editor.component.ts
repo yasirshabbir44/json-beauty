@@ -1,9 +1,6 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {FormControl} from '@angular/forms';
 import * as ace from 'ace-builds';
-import { isErrorResponse } from '../../utils/error-handling.util';
-import { isValidJson, formatJson } from '../../utils/json.util';
-import { JsonValidationResult } from '../../types/json.types';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';

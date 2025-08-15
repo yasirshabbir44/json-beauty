@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subscription } from 'rxjs';
-import { VersionHistoryService, JsonVersion } from '../../services/history/version-history.service';
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {FormControl} from '@angular/forms';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {Subscription} from 'rxjs';
+import {JsonVersion, VersionHistoryService} from '../../services/history/version-history.service';
 
 @Component({
   selector: 'app-version-history',

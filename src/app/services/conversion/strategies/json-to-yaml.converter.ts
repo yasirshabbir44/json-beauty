@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BaseConverter } from '../base/base-converter';
-import * as yaml from 'js-yaml';
+import {Injectable} from '@angular/core';
+import {BaseConverter} from '../base/base-converter';
 
 /**
  * Converter for JSON to YAML conversion

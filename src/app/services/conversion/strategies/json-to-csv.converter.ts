@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BaseConverter } from '../base/base-converter';
+import {Injectable} from '@angular/core';
+import {BaseConverter} from '../base/base-converter';
 
 /**
  * Converter for JSON to CSV conversion

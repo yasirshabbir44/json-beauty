@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { JsonValidationService } from './validation/json-validation.service';
-import { JsonFormattingService } from './formatting/json-formatting.service';
-import { JsonConversionService } from './conversion/json-conversion.service';
-import { JsonSchemaService } from './schema/json-schema.service';
-import { JsonComparisonService } from './comparison/json-comparison.service';
-import { JsonPathService } from './path/json-path.service';
+import {Injectable} from '@angular/core';
+import {JsonValidationService} from './validation/json-validation.service';
+import {JsonFormattingService} from './formatting/json-formatting.service';
+import {JsonConversionService} from './conversion/json-conversion.service';
+import {JsonSchemaService} from './schema/json-schema.service';
+import {JsonComparisonService} from './comparison/json-comparison.service';
+import {JsonPathService} from './path/json-path.service';
 
 /**
  * Main JSON service that delegates to specialized services

@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { IJsonConversionService } from '../../interfaces';
-import { ConverterFactory, ConversionType } from './factory/converter-factory';
-import { JsonToYamlConverter } from './strategies/json-to-yaml.converter';
-import { YamlToJsonConverter } from './strategies/yaml-to-json.converter';
-import { JsonToCsvConverter } from './strategies/json-to-csv.converter';
-import { JsonToXmlConverter } from './strategies/json-to-xml.converter';
-import { XmlToJsonConverter } from './strategies/xml-to-json.converter';
-import { Json5ToJsonConverter } from './strategies/json5-to-json.converter';
+import {Injectable} from '@angular/core';
+import {IJsonConversionService} from '../../interfaces';
+import {ConversionType, ConverterFactory} from './factory/converter-factory';
+import {JsonToYamlConverter} from './strategies/json-to-yaml.converter';
+import {YamlToJsonConverter} from './strategies/yaml-to-json.converter';
+import {JsonToCsvConverter} from './strategies/json-to-csv.converter';
+import {JsonToXmlConverter} from './strategies/json-to-xml.converter';
+import {XmlToJsonConverter} from './strategies/xml-to-json.converter';
+import {Json5ToJsonConverter} from './strategies/json5-to-json.converter';
 
 /**
  * Service for JSON conversion operations

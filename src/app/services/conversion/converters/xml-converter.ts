@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { IJsonToFormatConverter, IFormatToJsonConverter } from '../../../interfaces/converters/converter.interface';
-import { parseString, Builder } from 'xml2js';
+import {Injectable} from '@angular/core';
+import {IFormatToJsonConverter, IJsonToFormatConverter} from '../../../interfaces/converters/converter.interface';
+import {Builder, parseString} from 'xml2js';
 
 /**
  * Base class for XML converters with common functionality

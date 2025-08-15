@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IJsonToFormatConverter } from '../../../interfaces/converters/converter.interface';
+import {Injectable} from '@angular/core';
+import {IJsonToFormatConverter} from '../../../interfaces/converters/converter.interface';
 
 /**
  * Converter for JSON to CSV conversion

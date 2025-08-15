@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { IJsonPathService } from '../../interfaces';
+import {Injectable} from '@angular/core';
+import {IJsonPathService} from '../../interfaces';
 import * as jsonpath from 'jsonpath';
 
 /**
