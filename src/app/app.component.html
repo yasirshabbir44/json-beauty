@@ -19,13 +19,5 @@
         <router-outlet></router-outlet>
     </div>
 
-    <!-- Loading Indicator -->
-    <app-loading-indicator 
-        [isLoading]="loadingState.isLoading"
-        [message]="loadingState.message"
-        [progress]="loadingState.progress"
-        [overlay]="true">
-    </app-loading-indicator>
-
     <app-footer [copyright]="'JSON Beauty - A powerful JSON formatter, validator, and beautifier'"></app-footer>
 </div>
