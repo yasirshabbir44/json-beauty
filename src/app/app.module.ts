@@ -25,40 +25,19 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 
 // App Components
 import {AppComponent} from './app.component';
-import {JsonEditorComponent} from './components/json-editor/json-editor.component';
 import {HeaderComponent} from './components/header/header.component';
 import {FooterComponent} from './components/footer/footer.component';
-import {JsonToolbarComponent} from './components/json-toolbar/json-toolbar.component';
-import {JsonInputEditorComponent} from './components/json-input-editor/json-input-editor.component';
-import {JsonOutputEditorComponent} from './components/json-output-editor/json-output-editor.component';
-import {JsonDialogsComponent} from './components/json-dialogs/json-dialogs.component';
-import {JsonStatusComponent} from './components/json-status/json-status.component';
-import {JsonPathsComponent} from './components/json-paths/json-paths.component';
-import {SearchReplaceComponent} from './components/search-replace/search-replace.component';
-import {VersionHistoryComponent} from './components/version-history/version-history.component';
-import {ShareDialogComponent} from './components/share-dialog/share-dialog.component';
 
 // Routing
 import {AppRoutingModule} from './app-routing.module';
 
 // Custom Modules
 import {ConvertersModule} from './services/conversion/converters/converters.module';
+import {SharedModule} from './modules/shared/shared.module';
 
 @NgModule({
     declarations: [
-        AppComponent,
-        JsonEditorComponent,
-        HeaderComponent,
-        FooterComponent,
-        JsonToolbarComponent,
-        JsonInputEditorComponent,
-        JsonOutputEditorComponent,
-        JsonDialogsComponent,
-        JsonStatusComponent,
-        JsonPathsComponent,
-        SearchReplaceComponent,
-        VersionHistoryComponent,
-        ShareDialogComponent
+        AppComponent
     ],
     imports: [
         BrowserModule,
@@ -69,6 +48,7 @@ import {ConvertersModule} from './services/conversion/converters/converters.modu
         ClipboardModule,
         AppRoutingModule,
         ConvertersModule,
+        SharedModule,
         // Angular Material
         MatButtonModule,
         MatIconModule,

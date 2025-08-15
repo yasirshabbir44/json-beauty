@@ -1,0 +1,136 @@
+<div class="json-visualization-container">
+  <div class="json-tree" *ngIf="visualizationData">
+    <div class="json-node">
+      <div class="node-content">
+        <span class="node-toggle" (click)="toggleNode('root')" *ngIf="isExpandable(visualizationData)">
+          <mat-icon>{{ isNodeExpanded('root') ? 'expand_more' : 'chevron_right' }}</mat-icon>
+        </span>
+        <span class="node-key">root</span>
+        <span class="node-type" *ngIf="isObject(visualizationData)">Object</span>
+        <span class="node-type" *ngIf="isArray(visualizationData)">Array[{{ visualizationData.length }}]</span>
+      </div>
+      
+      <div class="node-children" *ngIf="isNodeExpanded('root')">
+        <!-- Object properties -->
+        <ng-container *ngIf="isObject(visualizationData)">
+          <div class="json-node" *ngFor="let key of getObjectKeys(visualizationData)">
+            <div class="node-content">
+              <span class="node-toggle" (click)="toggleNode('root.' + key)" *ngIf="isExpandable(visualizationData[key])">
+                <mat-icon>{{ isNodeExpanded('root.' + key) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+              </span>
+              <span class="node-key">{{ key }}</span>
+              <span class="node-colon">:</span>
+              
+              <!-- Value display based on type -->
+              <ng-container *ngIf="!isExpandable(visualizationData[key])">
+                <span class="node-value" [ngClass]="{
+                  'string-value': isString(visualizationData[key]),
+                  'number-value': isNumber(visualizationData[key]),
+                  'boolean-value': isBoolean(visualizationData[key]),
+                  'null-value': visualizationData[key] === null
+                }">{{ formatValue(visualizationData[key]) }}</span>
+              </ng-container>
+              
+              <!-- Type indicators for expandable values -->
+              <ng-container *ngIf="isExpandable(visualizationData[key])">
+                <span class="node-type" *ngIf="isObject(visualizationData[key])">Object</span>
+                <span class="node-type" *ngIf="isArray(visualizationData[key])">Array[{{ visualizationData[key].length }}]</span>
+              </ng-container>
+            </div>
+            
+            <!-- Recursive rendering for nested objects and arrays -->
+            <div class="node-children" *ngIf="isNodeExpanded('root.' + key) && isObject(visualizationData[key])">
+              <div class="json-node" *ngFor="let childKey of getObjectKeys(visualizationData[key])">
+                <div class="node-content">
+                  <span class="node-toggle" (click)="toggleNode('root.' + key + '.' + childKey)" *ngIf="isExpandable(visualizationData[key][childKey])">
+                    <mat-icon>{{ isNodeExpanded('root.' + key + '.' + childKey) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  </span>
+                  <span class="node-key">{{ childKey }}</span>
+                  <span class="node-colon">:</span>
+                  
+                  <!-- Value display for nested properties -->
+                  <ng-container *ngIf="!isExpandable(visualizationData[key][childKey])">
+                    <span class="node-value" [ngClass]="{
+                      'string-value': isString(visualizationData[key][childKey]),
+                      'number-value': isNumber(visualizationData[key][childKey]),
+                      'boolean-value': isBoolean(visualizationData[key][childKey]),
+                      'null-value': visualizationData[key][childKey] === null
+                    }">{{ formatValue(visualizationData[key][childKey]) }}</span>
+                  </ng-container>
+                  
+                  <!-- Type indicators for nested expandable values -->
+                  <ng-container *ngIf="isExpandable(visualizationData[key][childKey])">
+                    <span class="node-type" *ngIf="isObject(visualizationData[key][childKey])">Object</span>
+                    <span class="node-type" *ngIf="isArray(visualizationData[key][childKey])">Array[{{ visualizationData[key][childKey].length }}]</span>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Array items rendering -->
+            <div class="node-children" *ngIf="isNodeExpanded('root.' + key) && isArray(visualizationData[key])">
+              <div class="json-node" *ngFor="let item of visualizationData[key]; let i = index">
+                <div class="node-content">
+                  <span class="node-toggle" (click)="toggleNode('root.' + key + '.' + i)" *ngIf="isExpandable(item)">
+                    <mat-icon>{{ isNodeExpanded('root.' + key + '.' + i) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+                  </span>
+                  <span class="node-key">[{{ i }}]</span>
+                  <span class="node-colon">:</span>
+                  
+                  <!-- Value display for array items -->
+                  <ng-container *ngIf="!isExpandable(item)">
+                    <span class="node-value" [ngClass]="{
+                      'string-value': isString(item),
+                      'number-value': isNumber(item),
+                      'boolean-value': isBoolean(item),
+                      'null-value': item === null
+                    }">{{ formatValue(item) }}</span>
+                  </ng-container>
+                  
+                  <!-- Type indicators for array items -->
+                  <ng-container *ngIf="isExpandable(item)">
+                    <span class="node-type" *ngIf="isObject(item)">Object</span>
+                    <span class="node-type" *ngIf="isArray(item)">Array[{{ item.length }}]</span>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        
+        <!-- Array items at root level -->
+        <ng-container *ngIf="isArray(visualizationData)">
+          <div class="json-node" *ngFor="let item of visualizationData; let i = index">
+            <div class="node-content">
+              <span class="node-toggle" (click)="toggleNode('root.' + i)" *ngIf="isExpandable(item)">
+                <mat-icon>{{ isNodeExpanded('root.' + i) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+              </span>
+              <span class="node-key">[{{ i }}]</span>
+              <span class="node-colon">:</span>
+              
+              <!-- Value display for root array items -->
+              <ng-container *ngIf="!isExpandable(item)">
+                <span class="node-value" [ngClass]="{
+                  'string-value': isString(item),
+                  'number-value': isNumber(item),
+                  'boolean-value': isBoolean(item),
+                  'null-value': item === null
+                }">{{ formatValue(item) }}</span>
+              </ng-container>
+              
+              <!-- Type indicators for root array items -->
+              <ng-container *ngIf="isExpandable(item)">
+                <span class="node-type" *ngIf="isObject(item)">Object</span>
+                <span class="node-type" *ngIf="isArray(item)">Array[{{ item.length }}]</span>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  
+  <div class="no-data-message" *ngIf="!visualizationData">
+    <p>No valid JSON data to visualize.</p>
+  </div>
+</div>

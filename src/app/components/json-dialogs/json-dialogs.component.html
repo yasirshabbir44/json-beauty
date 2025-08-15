@@ -131,36 +131,13 @@
 
 <!-- JSON Comparison Dialog -->
 <div *ngIf="showJsonCompare" class="overlay-dialog">
-    <mat-card class="dialog-card comparison-dialog">
-        <mat-card-header>
-            <mat-card-title>JSON Comparison</mat-card-title>
-            <button (click)="closeJsonCompare()" class="close-btn" mat-icon-button>
-                <mat-icon>close</mat-icon>
-            </button>
-        </mat-card-header>
-        <mat-card-content>
-            <p class="comparison-description">Enter JSON to compare with your current JSON:</p>
-            <textarea [formControl]="compareJsonInput" class="comparison-textarea"
-                      placeholder="Enter JSON to compare..."></textarea>
-
-            <button (click)="onCompareJson()" color="primary" mat-raised-button>
-                Compare
-            </button>
-
-            <div *ngIf="jsonDiffResult" class="comparison-result">
-                <h4>Comparison Result:</h4>
-                <div *ngIf="!jsonDiffResult.hasChanges" class="no-differences">
-                    <mat-icon color="primary">check_circle</mat-icon>
-                    <span>No differences found. The JSON documents are identical.</span>
-                </div>
-                <div *ngIf="jsonDiffResult.hasChanges" class="has-differences">
-                    <mat-icon color="warn">compare</mat-icon>
-                    <span>Differences found between the JSON documents.</span>
-                    <div [innerHTML]="jsonDiffResult.htmlDiff" class="diff-visualization"></div>
-                </div>
-            </div>
-        </mat-card-content>
-    </mat-card>
+    <app-json-comparison
+        [jsonData]="jsonData"
+        [compareJsonInput]="compareJsonInput"
+        [jsonDiffResult]="jsonDiffResult"
+        (close)="closeJsonCompare()"
+        (compareComplete)="onCompareComplete($event)">
+    </app-json-comparison>
 </div>
 
 <!-- JSON Visualization Dialog -->
@@ -176,12 +153,7 @@
             <p class="visualization-description">Visualize your JSON data:</p>
 
             <div class="visualization-container">
-                <p class="coming-soon">
-                    <mat-icon>construction</mat-icon>
-                    JSON visualization feature is coming soon!
-                </p>
-                <p>This feature will allow you to visualize your JSON data in various formats, such as charts, graphs,
-                    and tables.</p>
+                <app-json-visualization [jsonData]="jsonData"></app-json-visualization>
             </div>
         </mat-card-content>
     </mat-card>

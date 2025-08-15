@@ -42,6 +42,7 @@ export class JsonDialogsComponent {
 
     // JSON visualization dialog
     @Input() showJsonVisualize: boolean = false;
+    @Input() jsonData: any = null;
     @Output() toggleJsonVisualize = new EventEmitter<void>();
 
     constructor() {
@@ -111,6 +112,16 @@ export class JsonDialogsComponent {
      */
     onCompareJson(): void {
         this.compareJson.emit();
+    }
+
+    /**
+     * Handles the comparison complete event from the JsonComparisonComponent
+     * @param result The comparison result
+     */
+    onCompareComplete(result: { delta: any, htmlDiff: string, hasChanges: boolean } | null): void {
+        if (result) {
+            this.jsonDiffResult = result;
+        }
     }
 
     /**
