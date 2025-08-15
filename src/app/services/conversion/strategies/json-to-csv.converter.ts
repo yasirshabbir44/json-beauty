@@ -16,25 +16,25 @@ export class JsonToCsvConverter extends BaseConverter {
      */
     async convert(jsonString: string): Promise<string> {
         return Promise.resolve(this.handleConversionError(() => {
+            // Parse JSON with fallback to empty array
             const jsonObj = JSON.parse(jsonString || this.DEFAULT_EMPTY_ARRAY);
-
-            // If it's not an array, wrap it in an array
+            
+            // Ensure we're working with an array
             const jsonArray = Array.isArray(jsonObj) ? jsonObj : [jsonObj];
-
+            
+            // Handle empty array case
             if (jsonArray.length === 0) {
                 return this.DEFAULT_EMPTY_STRING;
             }
-
-            // Handle different JSON structures
-            if (typeof jsonArray[0] !== 'object' || jsonArray[0] === null) {
-                // Simple array of primitives
+            
+            // Handle primitive array case
+            const isPrimitiveArray = typeof jsonArray[0] !== 'object' || jsonArray[0] === null;
+            if (isPrimitiveArray) {
                 return jsonArray.map(item => this.escapeCsvValue(String(item))).join('\n');
             }
-
-            // For array of objects, extract headers
+            
+            // Handle object array case - extract headers and generate content
             const headers = this.extractCsvHeaders(jsonArray);
-
-            // Generate CSV content
             return this.generateCsvContent(jsonArray, headers);
         }, 'JSON to CSV'));
     }
@@ -64,23 +64,25 @@ export class JsonToCsvConverter extends BaseConverter {
      * @returns The CSV string
      */
     private generateCsvContent(jsonArray: any[], headers: string[]): string {
+        // Return empty string if no headers
         if (headers.length === 0) {
             return this.DEFAULT_EMPTY_STRING;
         }
 
-        // Create header row
-        const headerRow = headers.map(header => this.escapeCsvValue(header)).join(',');
+        // Create header row with escaped values
+        const headerRow = headers
+            .map(header => this.escapeCsvValue(header))
+            .join(',');
 
-        // Create data rows
-        const rows = jsonArray.map(item => {
-            return headers.map(header => {
-                const value = this.getNestedValue(item, header);
-                return this.formatCsvValue(value);
-            }).join(',');
-        });
+        // Create data rows by mapping each item and header
+        const dataRows = jsonArray.map(item => 
+            headers
+                .map(header => this.formatCsvValue(this.getNestedValue(item, header)))
+                .join(',')
+        );
 
         // Combine header and data rows
-        return [headerRow, ...rows].join('\n');
+        return [headerRow, ...dataRows].join('\n');
     }
 
     /**
@@ -90,46 +92,50 @@ export class JsonToCsvConverter extends BaseConverter {
      * @param keys The set to store keys
      */
     private collectKeys(obj: any, prefix: string, keys: Set<string>): void {
+        // Early return for non-objects
         if (!obj || typeof obj !== 'object') {
             return;
         }
 
-        for (const key of Object.keys(obj)) {
-            const value = obj[key];
+        // Process each key in the object
+        Object.entries(obj).forEach(([key, value]) => {
             const newKey = prefix ? `${prefix}.${key}` : key;
-
-            if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-                // Recursively collect keys from nested objects
+            
+            // Check if value is a non-array object that needs recursive processing
+            const isNestedObject = value !== null && 
+                                  typeof value === 'object' && 
+                                  !Array.isArray(value);
+            
+            if (isNestedObject) {
+                // Recursively process nested objects
                 this.collectKeys(value, newKey, keys);
             } else {
-                // Add the key to the set
+                // Add leaf node key to the set
                 keys.add(newKey);
             }
-        }
+        });
     }
 
     /**
      * Gets a nested value from an object using a dot-notation path
      * @param obj The object to get the value from
      * @param path The path to the value
-     * @returns The value at the path
+     * @returns The value at the path or undefined if path doesn't exist
      */
     private getNestedValue(obj: any, path: string): any {
+        // Return the object itself if no path is provided
         if (!path) {
             return obj;
         }
 
-        const parts = path.split('.');
-        let current = obj;
-
-        for (const part of parts) {
+        // Use reduce to navigate through the object path
+        return path.split('.').reduce((current, part) => {
+            // Return undefined if we can't navigate further
             if (current === null || current === undefined || typeof current !== 'object') {
                 return undefined;
             }
-            current = current[part];
-        }
-
-        return current;
+            return current[part];
+        }, obj);
     }
 
     /**
@@ -143,9 +149,7 @@ export class JsonToCsvConverter extends BaseConverter {
         }
 
         if (typeof value === 'object') {
-            if (Array.isArray(value)) {
-                return this.escapeCsvValue(JSON.stringify(value));
-            }
+            // Handle both arrays and objects with a single line
             return this.escapeCsvValue(JSON.stringify(value));
         }
 
@@ -153,20 +157,24 @@ export class JsonToCsvConverter extends BaseConverter {
     }
 
     /**
-     * Escapes a value for CSV output
+     * Escapes a value for CSV output according to RFC 4180
      * @param value The value to escape
      * @returns The escaped string
      */
     private escapeCsvValue(value: string): string {
+        // Handle empty values
         if (!value) {
             return this.DEFAULT_EMPTY_STRING;
         }
 
-        // If the value contains commas, newlines, or quotes, wrap it in quotes and escape any quotes
-        if (value.includes(',') || value.includes('\n') || value.includes('"')) {
-            return `"${value.replace(/"/g, '""')}"`;
-        }
-
-        return value;
+        // Check if value needs escaping (contains commas, newlines, or quotes)
+        const needsEscaping = value.includes(',') || 
+                             value.includes('\n') || 
+                             value.includes('"');
+        
+        // If escaping is needed, wrap in quotes and double any existing quotes
+        return needsEscaping 
+            ? `"${value.replace(/"/g, '""')}"`
+            : value;
     }
 }
