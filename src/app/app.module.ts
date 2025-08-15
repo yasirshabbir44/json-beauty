@@ -6,7 +6,6 @@ import {HttpClientModule} from '@angular/common/http';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 
 // Angular Material Modules
-import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
@@ -21,8 +20,6 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatChipsModule} from '@angular/material/chips';
-import {MatBadgeModule} from '@angular/material/badge';
-import {MatMenuModule} from '@angular/material/menu';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 
@@ -73,7 +70,6 @@ import {ConvertersModule} from './services/conversion/converters/converters.modu
         AppRoutingModule,
         ConvertersModule,
         // Angular Material
-        MatToolbarModule,
         MatButtonModule,
         MatIconModule,
         MatCardModule,
@@ -88,8 +84,6 @@ import {ConvertersModule} from './services/conversion/converters/converters.modu
         MatSlideToggleModule,
         MatDialogModule,
         MatChipsModule,
-        MatBadgeModule,
-        MatMenuModule,
         MatButtonToggleModule,
         MatCheckboxModule
     ],
