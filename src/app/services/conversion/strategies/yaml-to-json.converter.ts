@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BaseConverter} from '../base/base-converter';
 import * as yaml from 'js-yaml';
+import {ConverterConstants} from '../../../constants/converter.constants';
 
 /**
  * Converter for YAML to JSON conversion
@@ -21,7 +22,7 @@ export class YamlToJsonConverter extends BaseConverter {
             const obj = yaml.load(yamlString || this.DEFAULT_EMPTY_STRING);
 
             // Convert the object to a JSON string with proper indentation
-            return JSON.stringify(obj, null, this.getIndentation());
-        }, 'YAML to JSON');
+            return JSON.stringify(obj, ConverterConstants.JSON_NULL_REPLACER, this.getIndentation());
+        }, ConverterConstants.OP_YAML_TO_JSON);
     }
 }

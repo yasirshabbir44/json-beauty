@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BaseConverter} from '../base/base-converter';
 import * as JSON5 from 'json5';
+import {ConverterConstants} from '../../../constants/converter.constants';
 
 /**
  * Converter for JSON5 to JSON conversion
@@ -21,7 +22,7 @@ export class Json5ToJsonConverter extends BaseConverter {
             const obj = JSON5.parse(json5String || this.DEFAULT_EMPTY_OBJECT);
 
             // Convert the object to a formatted JSON string
-            return JSON.stringify(obj, null, this.getIndentation());
-        }, 'JSON5 to JSON');
+            return JSON.stringify(obj, ConverterConstants.JSON_NULL_REPLACER, this.getIndentation());
+        }, ConverterConstants.OP_JSON5_TO_JSON);
     }
 }
