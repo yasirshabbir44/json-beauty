@@ -1,6 +1,7 @@
 import {Component, OnInit, Renderer2} from '@angular/core';
 import {AppConstants} from './constants/app.constants';
-import {LoadingService, LoadingState} from './services/loading/loading.service';
+import {CSPService} from './services/security/csp.service';
+import {SecurityUtilsService} from './services/security/security-utils.service';
 
 @Component({
     selector: 'app-root',
@@ -11,24 +12,22 @@ export class AppComponent implements OnInit {
     title = 'JSON Beauty';
     currentYear: number = new Date().getFullYear();
     isDarkMode = false;
-    loadingState: LoadingState = {
-        isLoading: false,
-        message: '',
-        progress: 0,
-        operation: ''
-    };
 
     constructor(
         private renderer: Renderer2,
-        private loadingService: LoadingService
+        private cspService: CSPService,
+        private securityUtils: SecurityUtilsService
     ) {
-        // Subscribe to loading state changes
-        this.loadingService.loading$.subscribe(state => {
-            this.loadingState = state;
-        });
     }
 
     ngOnInit(): void {
+        // Initialize Content Security Policy
+        this.cspService.initializeCSP();
+        this.cspService.listenForViolations();
+        
+        // Initialize CSRF protection
+        this.securityUtils.initializeCSRFProtection();
+        
         // Check if user has a theme preference stored
         const savedTheme = localStorage.getItem(AppConstants.THEME_STORAGE_KEY);
         if (savedTheme) {
