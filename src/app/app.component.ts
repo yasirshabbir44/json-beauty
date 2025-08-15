@@ -1,5 +1,7 @@
 import {Component, OnInit, Renderer2} from '@angular/core';
 import {AppConstants} from './constants/app.constants';
+import {CSPService} from './services/security/csp.service';
+import {SecurityUtilsService} from './services/security/security-utils.service';
 
 @Component({
     selector: 'app-root',
@@ -11,10 +13,21 @@ export class AppComponent implements OnInit {
     currentYear: number = new Date().getFullYear();
     isDarkMode = false;
 
-    constructor(private renderer: Renderer2) {
+    constructor(
+        private renderer: Renderer2,
+        private cspService: CSPService,
+        private securityUtils: SecurityUtilsService
+    ) {
     }
 
     ngOnInit(): void {
+        // Initialize Content Security Policy
+        this.cspService.initializeCSP();
+        this.cspService.listenForViolations();
+        
+        // Initialize CSRF protection
+        this.securityUtils.initializeCSRFProtection();
+        
         // Check if user has a theme preference stored
         const savedTheme = localStorage.getItem(AppConstants.THEME_STORAGE_KEY);
         if (savedTheme) {

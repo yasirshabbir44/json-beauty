@@ -33,6 +33,7 @@ import {AppRoutingModule} from './app-routing.module';
 
 // Custom Modules
 import {ConvertersModule} from './services/conversion/converters/converters.module';
+import {SecurityModule} from './services/security/security.module';
 import {SharedModule} from './modules/shared/shared.module';
 
 @NgModule({
@@ -48,6 +49,7 @@ import {SharedModule} from './modules/shared/shared.module';
         ClipboardModule,
         AppRoutingModule,
         ConvertersModule,
+        SecurityModule,
         SharedModule,
         // Angular Material
         MatButtonModule,

@@ -4,6 +4,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
 import {JsonService} from '../../services/json.service';
 import {VersionHistoryService} from '../../services/history/version-history.service';
+import {InputSanitizationService} from '../../services/security/input-sanitization.service';
+import {SecurityUtilsService} from '../../services/security/security-utils.service';
 import {ShareDialogComponent} from '../share-dialog/share-dialog.component';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
@@ -109,7 +111,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         private snackBar: MatSnackBar,
         private jsonService: JsonService,
         private versionHistoryService: VersionHistoryService,
-        private dialog: MatDialog
+        private dialog: MatDialog,
+        private sanitizationService: InputSanitizationService,
+        private securityUtils: SecurityUtilsService
     ) {
         // Listen for dark mode changes
         document.body.addEventListener('DOMSubtreeModified', () => {
@@ -947,32 +951,51 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         const file = event.target.files[0];
         if (!file) return;
 
+        // Validate file before processing
+        const allowedTypes = ['application/json', 'text/plain', 'text/json', 'application/x-javascript'];
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!this.securityUtils.validateFile(file, allowedTypes, maxFileSize)) {
+            this.showError(`Invalid file: Only JSON files up to 5MB are allowed`);
+            event.target.value = '';
+            return;
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const content = e.target?.result as string;
 
-                // Try to parse the file content to validate it's JSON
-                JSON.parse(content);
+                // Sanitize the file content before processing
+                const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'json';
+                const sanitizedContent = this.sanitizationService.sanitizeFileContent(content, fileExtension);
+
+                // Try to parse the sanitized content to validate it's JSON
+                JSON.parse(sanitizedContent);
 
                 // Set the input editor value
                 if (this.jsonInputEditor) {
-                    this.jsonInputEditor.setValue(content);
+                    this.jsonInputEditor.setValue(sanitizedContent);
                 }
 
-                this.jsonInput.setValue(content);
+                this.jsonInput.setValue(sanitizedContent);
                 this.validateJson();
                 this.updateOutput();
 
-                this.showSuccess(`File "${file.name}" imported successfully`);
+                // Sanitize file name before displaying in UI
+                const sanitizedFileName = this.sanitizationService.sanitizeString(file.name);
+                this.showSuccess(`File "${sanitizedFileName}" imported successfully`);
             } catch (error) {
-                this.showError(`Error importing file: ${error instanceof Error ? error.message : String(error)}`);
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                // Sanitize error message before displaying
+                const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+                this.showError(`Error importing file: ${sanitizedError}`);
             }
 
             // Reset the file input so the same file can be selected again
             event.target.value = '';
         };
-
+        
         reader.onerror = () => {
             this.showError('Error reading file');
             event.target.value = '';
@@ -1365,8 +1388,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         }
 
         try {
+            // Sanitize the JSON input before minifying
+            const sanitizedInput = this.sanitizationService.sanitizeJsonInput(this.jsonInput.value || '{}');
+            
             // Compress the JSON to make the URL shorter
-            const jsonString = this.jsonService.minifyJson(this.jsonInput.value || '{}');
+            const jsonString = this.jsonService.minifyJson(sanitizedInput);
 
             // Encode the JSON for the URL
             const encodedJson = encodeURIComponent(jsonString);
@@ -1374,13 +1400,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             // Create the URL with the JSON data as a query parameter
             const baseUrl = window.location.href.split('?')[0];
             const shareableUrl = `${baseUrl}?json=${encodedJson}`;
+            
+            // Sanitize the URL
+            const sanitizedUrl = this.sanitizationService.sanitizeUrl(shareableUrl);
 
             // Open the share dialog
             this.dialog.open(ShareDialogComponent, {
                 width: '550px',
                 data: {
-                    shareableUrl: shareableUrl,
-                    jsonContent: this.jsonInput.value
+                    shareableUrl: sanitizedUrl,
+                    jsonContent: sanitizedInput
                 }
             });
 
@@ -1388,7 +1417,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             this.saveVersion('Shared version');
 
         } catch (error) {
-            this.showError(`Error generating shareable URL: ${error instanceof Error ? error.message : String(error)}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            // Sanitize error message before displaying
+            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            this.showError(`Error generating shareable URL: ${sanitizedError}`);
         }
     }
 
@@ -1404,17 +1436,20 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             if (jsonParam) {
                 // Decode the JSON data
                 const decodedJson = decodeURIComponent(jsonParam);
+                
+                // Sanitize the decoded JSON before processing
+                const sanitizedJson = this.sanitizationService.sanitizeJsonInput(decodedJson);
 
                 // Try to parse the JSON to validate it
-                JSON.parse(decodedJson);
+                JSON.parse(sanitizedJson);
 
                 // Set the input value
-                this.jsonInput.setValue(decodedJson);
+                this.jsonInput.setValue(sanitizedJson);
 
                 // Set the input editor value after it's initialized
                 setTimeout(() => {
                     if (this.jsonInputEditor) {
-                        this.jsonInputEditor.setValue(decodedJson);
+                        this.jsonInputEditor.setValue(sanitizedJson);
                     }
 
                     // Beautify the JSON for better readability
@@ -1424,7 +1459,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
                 }, 100);
             }
         } catch (error) {
-            this.showError(`Error loading JSON from URL: ${error instanceof Error ? error.message : String(error)}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            // Sanitize error message before displaying
+            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            this.showError(`Error loading JSON from URL: ${sanitizedError}`);
         }
     }
 
@@ -1490,14 +1528,18 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     private showSuccess(message: string): void {
-        this.snackBar.open(message, 'Close', {
+        // Sanitize message before displaying
+        const sanitizedMessage = this.sanitizationService.sanitizeString(message);
+        this.snackBar.open(sanitizedMessage, 'Close', {
             duration: 3000,
             panelClass: 'success-snackbar'
         });
     }
 
     private showError(message: string): void {
-        this.snackBar.open(message, 'Close', {
+        // Sanitize message before displaying
+        const sanitizedMessage = this.sanitizationService.sanitizeString(message);
+        this.snackBar.open(sanitizedMessage, 'Close', {
             duration: 5000,
             panelClass: 'error-snackbar'
         });

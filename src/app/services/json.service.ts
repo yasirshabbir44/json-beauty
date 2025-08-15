@@ -5,6 +5,7 @@ import {JsonConversionService} from './conversion/json-conversion.service';
 import {JsonSchemaService} from './schema/json-schema.service';
 import {JsonComparisonService} from './comparison/json-comparison.service';
 import {JsonPathService} from './path/json-path.service';
+import {InputSanitizationService} from './security/input-sanitization.service';
 
 /**
  * Main JSON service that delegates to specialized services
@@ -21,7 +22,8 @@ export class JsonService {
         private conversionService: JsonConversionService,
         private schemaService: JsonSchemaService,
         private comparisonService: JsonComparisonService,
-        private pathService: JsonPathService
+        private pathService: JsonPathService,
+        private sanitizationService: InputSanitizationService
     ) {
     }
 
@@ -31,7 +33,9 @@ export class JsonService {
      * @returns The YAML string or a Promise resolving to the YAML string
      */
     jsonToYaml(jsonString: string): string | Promise<string> {
-        return this.conversionService.jsonToYaml(jsonString);
+        // Sanitize the JSON input before conversion
+        const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.conversionService.jsonToYaml(sanitizedJson);
     }
 
     /**
@@ -40,7 +44,9 @@ export class JsonService {
      * @returns The JSON string or a Promise resolving to the JSON string
      */
     yamlToJson(yamlString: string): string | Promise<string> {
-        return this.conversionService.yamlToJson(yamlString);
+        // Sanitize the YAML input before conversion
+        const sanitizedYaml = this.sanitizationService.sanitizeFileContent(yamlString, 'yaml');
+        return this.conversionService.yamlToJson(sanitizedYaml);
     }
 
     /**
@@ -49,7 +55,9 @@ export class JsonService {
      * @returns Array of path strings
      */
     findJsonPaths(jsonString: string): string[] {
-        return this.pathService.findJsonPaths(jsonString);
+        // Sanitize the JSON input before finding paths
+        const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.pathService.findJsonPaths(sanitizedJson);
     }
 
     /**
@@ -58,10 +66,12 @@ export class JsonService {
      * @returns An object with validation result and error message if any
      */
     validateJson(jsonString: string): { isValid: boolean; errorMessage: string } {
+        // We don't sanitize here as validation needs to check the raw input
+        // But we ensure the error message is safe
         const result = this.validationService.validateJson(jsonString);
         return {
             isValid: result.isValid,
-            errorMessage: result.error || ''
+            errorMessage: this.sanitizationService.sanitizeString(result.error || '')
         };
     }
 
@@ -178,7 +188,9 @@ export class JsonService {
      * @returns The CSV string or a Promise resolving to the CSV string
      */
     jsonToCsv(jsonString: string): string | Promise<string> {
-        return this.conversionService.jsonToCsv(jsonString);
+        // Sanitize the JSON input before conversion
+        const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.conversionService.jsonToCsv(sanitizedJson);
     }
 
     /**
@@ -198,7 +210,11 @@ export class JsonService {
      */
     queryJsonPath(jsonString: string, jsonPath: string): string {
         try {
-            const result = this.pathService.queryJsonPath(jsonString, jsonPath);
+            // Sanitize both the JSON input and the JSONPath expression
+            const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
+            const sanitizedPath = this.sanitizationService.sanitizeString(jsonPath);
+            
+            const result = this.pathService.queryJsonPath(sanitizedJson, sanitizedPath);
 
             if (result.error) {
                 throw new Error(result.error);
@@ -207,7 +223,9 @@ export class JsonService {
             return JSON.stringify(result.result, null, 2);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            throw new Error(`Error querying JSON path: ${errorMessage}`);
+            // Sanitize error message before returning
+            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            throw new Error(`Error querying JSON path: ${sanitizedError}`);
         }
     }
 
@@ -217,7 +235,9 @@ export class JsonService {
      * @returns The XML string or a Promise resolving to the XML string
      */
     jsonToXml(jsonString: string): string | Promise<string> {
-        return this.conversionService.jsonToXml(jsonString);
+        // Sanitize the JSON input before conversion
+        const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.conversionService.jsonToXml(sanitizedJson);
     }
 
     /**
@@ -226,7 +246,9 @@ export class JsonService {
      * @returns Promise resolving to the JSON string
      */
     xmlToJson(xmlString: string): Promise<string> {
-        return this.conversionService.xmlToJson(xmlString);
+        // Sanitize the XML input before conversion
+        const sanitizedXml = this.sanitizationService.sanitizeFileContent(xmlString, 'xml');
+        return this.conversionService.xmlToJson(sanitizedXml);
     }
 
     /**
