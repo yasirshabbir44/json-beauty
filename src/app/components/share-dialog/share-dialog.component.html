@@ -1,52 +1,52 @@
 <h2 mat-dialog-title>Share JSON</h2>
 
 <mat-dialog-content>
-  <div class="share-content">
-    <p class="share-description">
-      Share your JSON with others using the link below. They can view and edit the content.
-    </p>
-    
-    <div class="url-container">
-      <mat-form-field appearance="outline" class="url-field">
-        <mat-label>Shareable URL</mat-label>
-        <input matInput [value]="data.shareableUrl" readonly #urlInput>
-        <button mat-icon-button matSuffix (click)="copyUrl()" matTooltip="Copy URL">
-          <mat-icon>content_copy</mat-icon>
-        </button>
-      </mat-form-field>
+    <div class="share-content">
+        <p class="share-description">
+            Share your JSON with others using the link below. They can view and edit the content.
+        </p>
+
+        <div class="url-container">
+            <mat-form-field appearance="outline" class="url-field">
+                <mat-label>Shareable URL</mat-label>
+                <input #urlInput [value]="data.shareableUrl" matInput readonly>
+                <button (click)="copyUrl()" mat-icon-button matSuffix matTooltip="Copy URL">
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <div class="share-options">
+            <h3>Share Options</h3>
+
+            <div class="option-buttons">
+                <button (click)="copyUrl()" color="primary" mat-raised-button>
+                    <mat-icon>link</mat-icon>
+                    Copy Link
+                </button>
+
+                <button (click)="copyJson()" color="accent" mat-raised-button>
+                    <mat-icon>code</mat-icon>
+                    Copy JSON
+                </button>
+
+                <button (click)="openInNewTab()" color="warn" mat-raised-button>
+                    <mat-icon>open_in_new</mat-icon>
+                    Open in New Tab
+                </button>
+            </div>
+        </div>
+
+        <div class="qr-code-container">
+            <h3>QR Code</h3>
+            <p>Scan this QR code to open the JSON on a mobile device:</p>
+            <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(data.shareableUrl)"
+                 alt="QR Code for shared JSON"
+                 class="qr-code">
+        </div>
     </div>
-    
-    <div class="share-options">
-      <h3>Share Options</h3>
-      
-      <div class="option-buttons">
-        <button mat-raised-button color="primary" (click)="copyUrl()">
-          <mat-icon>link</mat-icon>
-          Copy Link
-        </button>
-        
-        <button mat-raised-button color="accent" (click)="copyJson()">
-          <mat-icon>code</mat-icon>
-          Copy JSON
-        </button>
-        
-        <button mat-raised-button color="warn" (click)="openInNewTab()">
-          <mat-icon>open_in_new</mat-icon>
-          Open in New Tab
-        </button>
-      </div>
-    </div>
-    
-    <div class="qr-code-container">
-      <h3>QR Code</h3>
-      <p>Scan this QR code to open the JSON on a mobile device:</p>
-      <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(data.shareableUrl)" 
-           alt="QR Code for shared JSON" 
-           class="qr-code">
-    </div>
-  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Close</button>
+    <button (click)="close()" mat-button>Close</button>
 </mat-dialog-actions>

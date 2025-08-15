@@ -31,8 +31,8 @@ import 'ace-builds/src-noconflict/ext-linking';
     styleUrls: ['./json-output-editor.component.scss']
 })
 export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChanges {
-    @ViewChild('outputEditor', { static: false }) outputEditorElement!: ElementRef;
-    @ViewChild('editorSection', { static: false }) editorSectionElement!: ElementRef;
+    @ViewChild('outputEditor', {static: false}) outputEditorElement!: ElementRef;
+    @ViewChild('editorSection', {static: false}) editorSectionElement!: ElementRef;
 
     @Input() isDarkTheme: boolean = false;
     @Input() isMaximized: boolean = false;
@@ -58,42 +58,11 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
 
-    constructor(private renderer: Renderer2) { }
+    constructor(private renderer: Renderer2) {
+    }
 
     ngOnInit(): void {
         // Initialize will be done in ngAfterViewInit
-    }
-    
-    /**
-     * Utility method to safely resize the editor after a short delay
-     * @param delay Time in milliseconds to wait before resizing
-     */
-    private resizeEditorSafely(delay: number = 100): void {
-        if (!this.outputEditor) return;
-        
-        setTimeout(() => {
-            if (this.outputEditor) {
-                this.outputEditor.resize();
-            }
-        }, delay);
-    }
-    
-    /**
-     * Utility method to safely update the editor content and resize
-     * @param content The content to set in the editor
-     * @param cursorPos The cursor position after update (-1 for end of document)
-     */
-    private updateEditorContentSafely(content: string, cursorPos: number = -1): void {
-        if (!this.outputEditor) return;
-        
-        try {
-            this.outputEditor.setValue(content || '', cursorPos);
-            this.outputEditor.renderer.updateFull(true);
-            this.resizeEditorSafely();
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error(`Error updating editor content: ${errorMessage}`);
-        }
     }
 
     ngAfterViewInit(): void {
@@ -121,7 +90,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             mozFullScreenElement?: Element;
             msFullscreenElement?: Element;
         }
-        
+
         const doc = document as FullScreenDocument;
         this.isFullScreen = !!(doc.fullscreenElement ||
             doc.webkitFullscreenElement ||
@@ -211,18 +180,18 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         // Constants for error messages
         const EDITOR_INIT_ERROR = 'Failed to initialize editor';
         const ACE_CONFIG_ERROR = 'Failed to configure Ace editor';
-        
+
         try {
             // Set the basePath for ace editor to load its modes, themes, and extensions
             ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
 
             // Initialize the output editor
             this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
-            
+
             if (!this.outputEditor) {
                 throw new Error(EDITOR_INIT_ERROR);
             }
-            
+
             this.updateOutputEditorTheme();
             this.outputEditor.session.setMode('ace/mode/json');
             this.outputEditor.setOptions({
@@ -241,12 +210,12 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 showFoldWidgets: true,
                 foldStyle: 'markbegin'
             });
-            
+
             // Set up the session for folding
             const session = this.outputEditor.getSession();
             session.setFoldStyle('markbegin');
             session.setUseWrapMode(true);
-            
+
             // Add fold/unfold commands to the editor
             this.outputEditor.commands.addCommand({
                 name: 'foldAll',
@@ -255,7 +224,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                     editor.getSession().foldAll();
                 }
             });
-            
+
             this.outputEditor.commands.addCommand({
                 name: 'unfoldAll',
                 bindKey: {win: 'Ctrl-Alt-Shift-0', mac: 'Command-Option-Shift-0'},
@@ -306,58 +275,12 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     }
 
     /**
-     * Enter full screen mode
-     */
-    private enterFullScreen(): void {
-        const element = this.editorSectionElement.nativeElement;
-
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if ((element as any).webkitRequestFullscreen) {
-            (element as any).webkitRequestFullscreen();
-        } else if ((element as any).mozRequestFullScreen) {
-            (element as any).mozRequestFullScreen();
-        } else if ((element as any).msRequestFullscreen) {
-            (element as any).msRequestFullscreen();
-        }
-
-        // Add fullscreen class for styling
-        this.renderer.addClass(element, 'fullscreen-mode');
-
-        // Resize editor after entering fullscreen
-        setTimeout(() => {
-            if (this.outputEditor) {
-                this.outputEditor.resize();
-            }
-        }, 100);
-    }
-
-    /**
-     * Exit full screen mode
-     */
-    private exitFullScreen(): void {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if ((document as any).webkitExitFullscreen) {
-            (document as any).webkitExitFullscreen();
-        } else if ((document as any).mozCancelFullScreen) {
-            (document as any).mozCancelFullScreen();
-        } else if ((document as any).msExitFullscreen) {
-            (document as any).msExitFullscreen();
-        }
-
-        // Remove fullscreen class
-        const element = this.editorSectionElement.nativeElement;
-        this.renderer.removeClass(element, 'fullscreen-mode');
-    }
-
-    /**
      * Toggles the output format between JSON and YAML
      */
     onToggleOutputFormat(): void {
         this.toggleOutputFormat.emit();
     }
-    
+
     /**
      * Handles toggling between different view modes (text, tree, table)
      */
@@ -433,10 +356,6 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     }
 
     /**
-     * Tree View Helper Methods
-     */
-
-    /**
      * Gets the keys of an object
      * @param obj The object to get keys from
      * @returns Array of keys
@@ -473,6 +392,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     isString(value: any): boolean {
         return typeof value === 'string';
     }
+
+    /**
+     * Tree View Helper Methods
+     */
 
     /**
      * Checks if a value is a number
@@ -535,5 +458,83 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      */
     clearTreeSearch(): void {
         this.treeSearch.emit('');
+    }
+
+    /**
+     * Utility method to safely resize the editor after a short delay
+     * @param delay Time in milliseconds to wait before resizing
+     */
+    private resizeEditorSafely(delay: number = 100): void {
+        if (!this.outputEditor) return;
+
+        setTimeout(() => {
+            if (this.outputEditor) {
+                this.outputEditor.resize();
+            }
+        }, delay);
+    }
+
+    /**
+     * Utility method to safely update the editor content and resize
+     * @param content The content to set in the editor
+     * @param cursorPos The cursor position after update (-1 for end of document)
+     */
+    private updateEditorContentSafely(content: string, cursorPos: number = -1): void {
+        if (!this.outputEditor) return;
+
+        try {
+            this.outputEditor.setValue(content || '', cursorPos);
+            this.outputEditor.renderer.updateFull(true);
+            this.resizeEditorSafely();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            console.error(`Error updating editor content: ${errorMessage}`);
+        }
+    }
+
+    /**
+     * Enter full screen mode
+     */
+    private enterFullScreen(): void {
+        const element = this.editorSectionElement.nativeElement;
+
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if ((element as any).webkitRequestFullscreen) {
+            (element as any).webkitRequestFullscreen();
+        } else if ((element as any).mozRequestFullScreen) {
+            (element as any).mozRequestFullScreen();
+        } else if ((element as any).msRequestFullscreen) {
+            (element as any).msRequestFullscreen();
+        }
+
+        // Add fullscreen class for styling
+        this.renderer.addClass(element, 'fullscreen-mode');
+
+        // Resize editor after entering fullscreen
+        setTimeout(() => {
+            if (this.outputEditor) {
+                this.outputEditor.resize();
+            }
+        }, 100);
+    }
+
+    /**
+     * Exit full screen mode
+     */
+    private exitFullScreen(): void {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+            (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+            (document as any).msExitFullscreen();
+        }
+
+        // Remove fullscreen class
+        const element = this.editorSectionElement.nativeElement;
+        this.renderer.removeClass(element, 'fullscreen-mode');
     }
 }

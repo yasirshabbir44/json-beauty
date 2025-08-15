@@ -1,51 +1,53 @@
 <div class="search-replace-container">
-  <form [formGroup]="searchForm" class="search-replace-form">
-    <div class="search-row">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input matInput formControlName="searchPattern" placeholder="Enter search text">
-        <button mat-icon-button matSuffix (click)="search()" matTooltip="Search">
-          <mat-icon>search</mat-icon>
-        </button>
-      </mat-form-field>
-      
-      <div class="search-controls">
-        <button mat-icon-button (click)="findPrevious()" matTooltip="Previous match" [disabled]="searchResults.length === 0">
-          <mat-icon>arrow_upward</mat-icon>
-        </button>
-        <button mat-icon-button (click)="findNext()" matTooltip="Next match" [disabled]="searchResults.length === 0">
-          <mat-icon>arrow_downward</mat-icon>
-        </button>
-        <span class="match-count" *ngIf="searchResults.length > 0">
+    <form [formGroup]="searchForm" class="search-replace-form">
+        <div class="search-row">
+            <mat-form-field appearance="outline" class="search-field">
+                <mat-label>Search</mat-label>
+                <input formControlName="searchPattern" matInput placeholder="Enter search text">
+                <button (click)="search()" mat-icon-button matSuffix matTooltip="Search">
+                    <mat-icon>search</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <div class="search-controls">
+                <button (click)="findPrevious()" [disabled]="searchResults.length === 0" mat-icon-button
+                        matTooltip="Previous match">
+                    <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button (click)="findNext()" [disabled]="searchResults.length === 0" mat-icon-button
+                        matTooltip="Next match">
+                    <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <span *ngIf="searchResults.length > 0" class="match-count">
           {{ currentResultIndex + 1 }} of {{ searchResults.length }}
         </span>
-      </div>
-    </div>
-    
-    <div class="replace-row">
-      <mat-form-field appearance="outline" class="replace-field">
-        <mat-label>Replace</mat-label>
-        <input matInput formControlName="replacePattern" placeholder="Enter replacement text">
-      </mat-form-field>
-      
-      <div class="replace-controls">
-        <button mat-raised-button color="primary" (click)="replace()" [disabled]="searchResults.length === 0">
-          Replace
-        </button>
-        <button mat-raised-button color="accent" (click)="replaceAll()" [disabled]="searchResults.length === 0">
-          Replace All
-        </button>
-      </div>
-    </div>
-    
-    <div class="options-row">
-      <mat-checkbox formControlName="isRegex" color="primary">Regex</mat-checkbox>
-      <mat-checkbox formControlName="isCaseSensitive" color="primary">Case sensitive</mat-checkbox>
-      <mat-checkbox formControlName="isWholeWord" color="primary">Whole word</mat-checkbox>
-      
-      <span class="replacement-count" *ngIf="totalReplacements > 0">
+            </div>
+        </div>
+
+        <div class="replace-row">
+            <mat-form-field appearance="outline" class="replace-field">
+                <mat-label>Replace</mat-label>
+                <input formControlName="replacePattern" matInput placeholder="Enter replacement text">
+            </mat-form-field>
+
+            <div class="replace-controls">
+                <button (click)="replace()" [disabled]="searchResults.length === 0" color="primary" mat-raised-button>
+                    Replace
+                </button>
+                <button (click)="replaceAll()" [disabled]="searchResults.length === 0" color="accent" mat-raised-button>
+                    Replace All
+                </button>
+            </div>
+        </div>
+
+        <div class="options-row">
+            <mat-checkbox color="primary" formControlName="isRegex">Regex</mat-checkbox>
+            <mat-checkbox color="primary" formControlName="isCaseSensitive">Case sensitive</mat-checkbox>
+            <mat-checkbox color="primary" formControlName="isWholeWord">Whole word</mat-checkbox>
+
+            <span *ngIf="totalReplacements > 0" class="replacement-count">
         {{ totalReplacements }} replacement(s) made
       </span>
-    </div>
-  </form>
+        </div>
+    </form>
 </div>

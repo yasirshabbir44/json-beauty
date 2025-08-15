@@ -36,16 +36,16 @@
     border-radius: 0;
     box-shadow: none;
     overflow: auto;
-    
+
     @media (max-width: 768px) {
       top: 42px;
       height: calc(100vh - 42px);
     }
-    
+
     .editor-wrapper {
       height: calc(100vh - 90px);
       min-height: auto;
-      
+
       @media (max-width: 768px) {
         height: calc(100vh - 84px);
       }
@@ -80,7 +80,7 @@
     .maximize-btn {
       color: #5f6368;
       margin-left: 8px;
-      
+
       &:hover {
         color: #4285F4;
       }
@@ -97,7 +97,7 @@
   overflow: hidden;
   background-color: #fff;
   border-radius: 0 0 8px 8px;
-  
+
   @media (max-width: 767px) {
     height: 65vh;
     min-height: 350px;
@@ -113,7 +113,7 @@
   line-height: 1.5;
   padding: 12px;
   box-sizing: border-box;
-  
+
   &.output-editor {
     background-color: #f8f9fa;
   }
@@ -132,22 +132,22 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
   z-index: 10;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  
+
   mat-form-field {
     width: 180px;
     margin-right: 6px;
     font-size: 13px;
   }
-  
+
   .search-actions {
     display: flex;
     align-items: center;
-    
+
     button {
       margin-left: 2px;
     }
   }
-  
+
   &.tree-search-field {
     background-color: rgba(232, 240, 254, 0.95);
     border-color: rgba(26, 115, 232, 0.2);
@@ -212,7 +212,7 @@
   .tree-icon {
     color: #5f6368;
     margin-right: 8px;
-    
+
     &.expanded {
       transform: rotate(90deg);
     }
@@ -226,7 +226,7 @@
   overflow: hidden;
   max-height: 2000px;
   opacity: 1;
-  
+
   &.collapsed {
     max-height: 0;
     opacity: 0;
@@ -308,7 +308,7 @@
 .json-table {
   width: 100%;
   border-collapse: collapse;
-  
+
   th {
     text-align: left;
     padding: 8px 12px;
@@ -320,53 +320,62 @@
     top: 0;
     z-index: 10;
   }
-  
+
   td {
     padding: 6px 12px;
     border-bottom: 1px solid #f1f3f4;
     vertical-align: top;
-    
+
     &.key-cell {
       font-weight: 500;
       color: #4285F4;
       display: flex;
       align-items: center;
-      
+
       .indent {
         display: inline-block;
       }
-      
+
       .tree-icon {
         color: #5f6368;
         margin-right: 8px;
-        
+
         &.expanded {
           transform: rotate(90deg);
         }
       }
     }
-    
+
     &.type-cell {
       color: #5f6368;
       width: 100px;
     }
-    
+
     &.value-cell {
       font-family: 'Fira Code', 'Roboto Mono', monospace;
-      
-      &.string-value { color: #0d904f; }
-      &.number-value { color: #1a73e8; }
-      &.boolean-value { color: #9334e6; }
-      &.null-value { 
+
+      &.string-value {
+        color: #0d904f;
+      }
+
+      &.number-value {
+        color: #1a73e8;
+      }
+
+      &.boolean-value {
+        color: #9334e6;
+      }
+
+      &.null-value {
         color: #d93025;
         font-style: italic;
       }
     }
   }
-  
+
   tr.expandable {
     cursor: pointer;
-    
+
     &:hover {
       background-color: rgba(66, 133, 244, 0.08);
     }
@@ -408,12 +417,12 @@
     padding: 0 8px;
     min-width: 40px;
     font-size: 13px;
-    
+
     &.mat-button-toggle-checked {
       background-color: #e8f0fe;
       color: #1a73e8;
     }
-    
+
     &:hover:not(.mat-button-toggle-checked) {
       background-color: #f1f3f4;
     }
@@ -426,7 +435,7 @@
     background-color: #2d2d2d;
     color: #e0e0e0;
   }
-  
+
   .yaml-output pre {
     color: #e0e0e0;
   }

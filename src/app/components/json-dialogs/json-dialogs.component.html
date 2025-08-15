@@ -1,186 +1,188 @@
 <!-- Keyboard Shortcuts Dialog -->
 <div *ngIf="showKeyboardShortcuts" class="overlay-dialog">
-  <mat-card class="dialog-card">
-    <mat-card-header>
-      <mat-card-title>Keyboard Shortcuts</mat-card-title>
-      <button mat-icon-button (click)="closeKeyboardShortcuts()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="shortcuts-list">
-        <div *ngFor="let shortcut of keyboardShortcuts" class="shortcut-item">
-          <span class="shortcut-key">{{ shortcut.key }}</span>
-          <span class="shortcut-action">{{ shortcut.action }}</span>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    <mat-card class="dialog-card">
+        <mat-card-header>
+            <mat-card-title>Keyboard Shortcuts</mat-card-title>
+            <button (click)="closeKeyboardShortcuts()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="shortcuts-list">
+                <div *ngFor="let shortcut of keyboardShortcuts" class="shortcut-item">
+                    <span class="shortcut-key">{{ shortcut.key }}</span>
+                    <span class="shortcut-action">{{ shortcut.action }}</span>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>
 
 <!-- Formatting Options Dialog -->
 <div *ngIf="showFormattingOptions" class="overlay-dialog">
-  <mat-card class="dialog-card">
-    <mat-card-header>
-      <mat-card-title>Formatting Options</mat-card-title>
-      <button mat-icon-button (click)="closeFormattingOptions()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="formatting-options">
-        <mat-form-field appearance="fill">
-          <mat-label>Indent Size</mat-label>
-          <mat-select [(ngModel)]="indentSize">
-            <mat-option [value]="2">2 spaces</mat-option>
-            <mat-option [value]="4">4 spaces</mat-option>
-            <mat-option [value]="8">8 spaces</mat-option>
-          </mat-select>
-        </mat-form-field>
+    <mat-card class="dialog-card">
+        <mat-card-header>
+            <mat-card-title>Formatting Options</mat-card-title>
+            <button (click)="closeFormattingOptions()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <div class="formatting-options">
+                <mat-form-field appearance="fill">
+                    <mat-label>Indent Size</mat-label>
+                    <mat-select [(ngModel)]="indentSize">
+                        <mat-option [value]="2">2 spaces</mat-option>
+                        <mat-option [value]="4">4 spaces</mat-option>
+                        <mat-option [value]="8">8 spaces</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-        <mat-form-field appearance="fill">
-          <mat-label>Indent Character</mat-label>
-          <mat-select [(ngModel)]="indentChar">
-            <mat-option value=" ">Space</mat-option>
-            <mat-option value="\t">Tab</mat-option>
-          </mat-select>
-        </mat-form-field>
+                <mat-form-field appearance="fill">
+                    <mat-label>Indent Character</mat-label>
+                    <mat-select [(ngModel)]="indentChar">
+                        <mat-option value=" ">Space</mat-option>
+                        <mat-option value="\t">Tab</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-        <button mat-raised-button color="primary" (click)="onApplyFormatting()">
-          Apply Formatting
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
+                <button (click)="onApplyFormatting()" color="primary" mat-raised-button>
+                    Apply Formatting
+                </button>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>
 
 <!-- Schema Validation Dialog -->
 <div *ngIf="showSchemaEditor" class="overlay-dialog">
-  <mat-card class="dialog-card schema-dialog">
-    <mat-card-header>
-      <mat-card-title>JSON Schema Validation</mat-card-title>
-      <button mat-icon-button (click)="closeSchemaEditor()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="schema-description">Enter a JSON Schema to validate your JSON against:</p>
-      <textarea [formControl]="schemaInput" class="schema-textarea" placeholder="Enter JSON Schema..."></textarea>
+    <mat-card class="dialog-card schema-dialog">
+        <mat-card-header>
+            <mat-card-title>JSON Schema Validation</mat-card-title>
+            <button (click)="closeSchemaEditor()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="schema-description">Enter a JSON Schema to validate your JSON against:</p>
+            <textarea [formControl]="schemaInput" class="schema-textarea" placeholder="Enter JSON Schema..."></textarea>
 
-      <button mat-raised-button color="primary" (click)="onValidateJsonSchema()">
-        Validate
-      </button>
+            <button (click)="onValidateJsonSchema()" color="primary" mat-raised-button>
+                Validate
+            </button>
 
-      <div *ngIf="schemaValidationResult" class="validation-result">
-        <div *ngIf="schemaValidationResult.isValid" class="valid-result">
-          <mat-icon color="primary">check_circle</mat-icon>
-          <span>JSON is valid against the schema</span>
-        </div>
-        <div *ngIf="!schemaValidationResult.isValid" class="invalid-result">
-          <mat-icon color="warn">error</mat-icon>
-          <span>JSON does not match the schema</span>
-          <div class="error-details">
-            <div *ngFor="let error of schemaValidationResult.errors" class="error-item">
-              <span>{{ error.message }}</span>
-              <span *ngIf="error.dataPath">at {{ error.dataPath }}</span>
+            <div *ngIf="schemaValidationResult" class="validation-result">
+                <div *ngIf="schemaValidationResult.isValid" class="valid-result">
+                    <mat-icon color="primary">check_circle</mat-icon>
+                    <span>JSON is valid against the schema</span>
+                </div>
+                <div *ngIf="!schemaValidationResult.isValid" class="invalid-result">
+                    <mat-icon color="warn">error</mat-icon>
+                    <span>JSON does not match the schema</span>
+                    <div class="error-details">
+                        <div *ngFor="let error of schemaValidationResult.errors" class="error-item">
+                            <span>{{ error.message }}</span>
+                            <span *ngIf="error.dataPath">at {{ error.dataPath }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+        </mat-card-content>
+    </mat-card>
 </div>
 
 <!-- JSON Path Query Dialog -->
 <div *ngIf="showJsonPathQueryDialog" class="overlay-dialog">
-  <mat-card class="dialog-card">
-    <mat-card-header>
-      <mat-card-title>JSONPath Query</mat-card-title>
-      <button mat-icon-button (click)="closeJsonPathQuery()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="query-description">Enter a JSONPath expression to query your JSON data:</p>
-      <mat-form-field appearance="fill" class="full-width">
-        <mat-label>JSONPath Query</mat-label>
-        <input matInput [formControl]="jsonPathQuery" placeholder="e.g. $.store.book[0].title">
-      </mat-form-field>
-      
-      <div class="query-examples">
-        <p><strong>Examples:</strong></p>
-        <ul>
-          <li><code>$</code> - Root object</li>
-          <li><code>$.store</code> - The store object</li>
-          <li><code>$.store.book[0]</code> - First book in the store</li>
-          <li><code>$.store.book[0].title</code> - Title of the first book</li>
-        </ul>
-      </div>
+    <mat-card class="dialog-card">
+        <mat-card-header>
+            <mat-card-title>JSONPath Query</mat-card-title>
+            <button (click)="closeJsonPathQuery()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="query-description">Enter a JSONPath expression to query your JSON data:</p>
+            <mat-form-field appearance="fill" class="full-width">
+                <mat-label>JSONPath Query</mat-label>
+                <input [formControl]="jsonPathQuery" matInput placeholder="e.g. $.store.book[0].title">
+            </mat-form-field>
 
-      <button mat-raised-button color="primary" (click)="onExecuteJsonPathQuery()">
-        Execute Query
-      </button>
+            <div class="query-examples">
+                <p><strong>Examples:</strong></p>
+                <ul>
+                    <li><code>$</code> - Root object</li>
+                    <li><code>$.store</code> - The store object</li>
+                    <li><code>$.store.book[0]</code> - First book in the store</li>
+                    <li><code>$.store.book[0].title</code> - Title of the first book</li>
+                </ul>
+            </div>
 
-      <div *ngIf="jsonPathQueryResult" class="query-result">
-        <h4>Query Result:</h4>
-        <pre>{{ jsonPathQueryResult }}</pre>
-      </div>
-    </mat-card-content>
-  </mat-card>
+            <button (click)="onExecuteJsonPathQuery()" color="primary" mat-raised-button>
+                Execute Query
+            </button>
+
+            <div *ngIf="jsonPathQueryResult" class="query-result">
+                <h4>Query Result:</h4>
+                <pre>{{ jsonPathQueryResult }}</pre>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>
 
 <!-- JSON Comparison Dialog -->
 <div *ngIf="showJsonCompare" class="overlay-dialog">
-  <mat-card class="dialog-card comparison-dialog">
-    <mat-card-header>
-      <mat-card-title>JSON Comparison</mat-card-title>
-      <button mat-icon-button (click)="closeJsonCompare()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="comparison-description">Enter JSON to compare with your current JSON:</p>
-      <textarea [formControl]="compareJsonInput" class="comparison-textarea" placeholder="Enter JSON to compare..."></textarea>
+    <mat-card class="dialog-card comparison-dialog">
+        <mat-card-header>
+            <mat-card-title>JSON Comparison</mat-card-title>
+            <button (click)="closeJsonCompare()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="comparison-description">Enter JSON to compare with your current JSON:</p>
+            <textarea [formControl]="compareJsonInput" class="comparison-textarea"
+                      placeholder="Enter JSON to compare..."></textarea>
 
-      <button mat-raised-button color="primary" (click)="onCompareJson()">
-        Compare
-      </button>
+            <button (click)="onCompareJson()" color="primary" mat-raised-button>
+                Compare
+            </button>
 
-      <div *ngIf="jsonDiffResult" class="comparison-result">
-        <h4>Comparison Result:</h4>
-        <div *ngIf="!jsonDiffResult.hasChanges" class="no-differences">
-          <mat-icon color="primary">check_circle</mat-icon>
-          <span>No differences found. The JSON documents are identical.</span>
-        </div>
-        <div *ngIf="jsonDiffResult.hasChanges" class="has-differences">
-          <mat-icon color="warn">compare</mat-icon>
-          <span>Differences found between the JSON documents.</span>
-          <div class="diff-visualization" [innerHTML]="jsonDiffResult.htmlDiff"></div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+            <div *ngIf="jsonDiffResult" class="comparison-result">
+                <h4>Comparison Result:</h4>
+                <div *ngIf="!jsonDiffResult.hasChanges" class="no-differences">
+                    <mat-icon color="primary">check_circle</mat-icon>
+                    <span>No differences found. The JSON documents are identical.</span>
+                </div>
+                <div *ngIf="jsonDiffResult.hasChanges" class="has-differences">
+                    <mat-icon color="warn">compare</mat-icon>
+                    <span>Differences found between the JSON documents.</span>
+                    <div [innerHTML]="jsonDiffResult.htmlDiff" class="diff-visualization"></div>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>
 
 <!-- JSON Visualization Dialog -->
 <div *ngIf="showJsonVisualize" class="overlay-dialog">
-  <mat-card class="dialog-card visualization-dialog">
-    <mat-card-header>
-      <mat-card-title>JSON Visualization</mat-card-title>
-      <button mat-icon-button (click)="closeJsonVisualize()" class="close-btn">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <p class="visualization-description">Visualize your JSON data:</p>
-      
-      <div class="visualization-container">
-        <p class="coming-soon">
-          <mat-icon>construction</mat-icon>
-          JSON visualization feature is coming soon!
-        </p>
-        <p>This feature will allow you to visualize your JSON data in various formats, such as charts, graphs, and tables.</p>
-      </div>
-    </mat-card-content>
-  </mat-card>
+    <mat-card class="dialog-card visualization-dialog">
+        <mat-card-header>
+            <mat-card-title>JSON Visualization</mat-card-title>
+            <button (click)="closeJsonVisualize()" class="close-btn" mat-icon-button>
+                <mat-icon>close</mat-icon>
+            </button>
+        </mat-card-header>
+        <mat-card-content>
+            <p class="visualization-description">Visualize your JSON data:</p>
+
+            <div class="visualization-container">
+                <p class="coming-soon">
+                    <mat-icon>construction</mat-icon>
+                    JSON visualization feature is coming soon!
+                </p>
+                <p>This feature will allow you to visualize your JSON data in various formats, such as charts, graphs,
+                    and tables.</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>

@@ -1,16 +1,16 @@
 <!-- JSON Paths Section -->
 <div *ngIf="showJsonPaths && isValidJson" class="json-paths-section">
-  <h3>
-    <mat-icon>route</mat-icon>
-    <span>JSON Paths</span>
-    <div class="spacer"></div>
-    <button mat-icon-button (click)="closeJsonPaths()" class="close-btn">
-      <mat-icon>close</mat-icon>
-    </button>
-  </h3>
-  <div class="paths-container">
-    <mat-chip-set>
-      <mat-chip *ngFor="let path of jsonPaths" color="primary" selected>{{ path }}</mat-chip>
-    </mat-chip-set>
-  </div>
+    <h3>
+        <mat-icon>route</mat-icon>
+        <span>JSON Paths</span>
+        <div class="spacer"></div>
+        <button (click)="closeJsonPaths()" class="close-btn" mat-icon-button>
+            <mat-icon>close</mat-icon>
+        </button>
+    </h3>
+    <div class="paths-container">
+        <mat-chip-set>
+            <mat-chip *ngFor="let path of jsonPaths" color="primary" selected>{{ path }}</mat-chip>
+        </mat-chip-set>
+    </div>
 </div>

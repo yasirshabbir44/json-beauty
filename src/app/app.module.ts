@@ -48,52 +48,53 @@ import {AppRoutingModule} from './app-routing.module';
 import {ConvertersModule} from './services/conversion/converters/converters.module';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    JsonEditorComponent,
-    HeaderComponent,
-    FooterComponent,
-    JsonToolbarComponent,
-    JsonInputEditorComponent,
-    JsonOutputEditorComponent,
-    JsonDialogsComponent,
-    JsonStatusComponent,
-    JsonPathsComponent,
-    SearchReplaceComponent,
-    VersionHistoryComponent,
-    ShareDialogComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    ClipboardModule,
-    AppRoutingModule,
-    ConvertersModule,
-    // Angular Material
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    MatTabsModule,
-    MatDividerModule,
-    MatExpansionModule,
-    MatSlideToggleModule,
-    MatDialogModule,
-    MatChipsModule,
-    MatBadgeModule,
-    MatMenuModule,
-    MatButtonToggleModule,
-    MatCheckboxModule
-  ],
-  providers: [],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        JsonEditorComponent,
+        HeaderComponent,
+        FooterComponent,
+        JsonToolbarComponent,
+        JsonInputEditorComponent,
+        JsonOutputEditorComponent,
+        JsonDialogsComponent,
+        JsonStatusComponent,
+        JsonPathsComponent,
+        SearchReplaceComponent,
+        VersionHistoryComponent,
+        ShareDialogComponent
+    ],
+    imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
+        FormsModule,
+        ReactiveFormsModule,
+        HttpClientModule,
+        ClipboardModule,
+        AppRoutingModule,
+        ConvertersModule,
+        // Angular Material
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatSnackBarModule,
+        MatTooltipModule,
+        MatTabsModule,
+        MatDividerModule,
+        MatExpansionModule,
+        MatSlideToggleModule,
+        MatDialogModule,
+        MatChipsModule,
+        MatBadgeModule,
+        MatMenuModule,
+        MatButtonToggleModule,
+        MatCheckboxModule
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

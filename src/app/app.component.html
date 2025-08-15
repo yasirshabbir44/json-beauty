@@ -1,19 +1,23 @@
 <div class="app-container">
-  <app-header [title]="title" subtitle="Format • Validate • Transform">
-    <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'" aria-label="Toggle Theme" class="theme-toggle-btn">
-      <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-    </button>
-    <a mat-button href="https://github.com/yasirshabbir44/json-beauty" target="_blank" aria-label="GitHub Repository" class="github-link">
-      <mat-icon>code</mat-icon> GitHub
-    </a>
-    <button mat-icon-button aria-label="Help" matTooltip="Help" class="help-btn">
-      <mat-icon>help_outline</mat-icon>
-    </button>
-  </app-header>
+    <app-header [title]="title" subtitle="Format • Validate • Transform">
+        <button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+                aria-label="Toggle Theme" class="theme-toggle-btn"
+                mat-icon-button>
+            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+        <a aria-label="GitHub Repository" class="github-link" href="https://github.com/yasirshabbir44/json-beauty"
+           mat-button target="_blank">
+            <mat-icon>code</mat-icon>
+            GitHub
+        </a>
+        <button aria-label="Help" class="help-btn" mat-icon-button matTooltip="Help">
+            <mat-icon>help_outline</mat-icon>
+        </button>
+    </app-header>
 
-  <div class="main-content">
-    <router-outlet></router-outlet>
-  </div>
+    <div class="main-content">
+        <router-outlet></router-outlet>
+    </div>
 
-  <app-footer [copyright]="'JSON Beauty - A powerful JSON formatter, validator, and beautifier'"></app-footer>
+    <app-footer [copyright]="'JSON Beauty - A powerful JSON formatter, validator, and beautifier'"></app-footer>
 </div>

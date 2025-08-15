@@ -6,10 +6,10 @@
  * Standard error response interface
  */
 export interface ErrorResponse {
-  message: string;
-  details?: string;
-  code?: string;
-  originalError?: unknown;
+    message: string;
+    details?: string;
+    code?: string;
+    originalError?: unknown;
 }
 
 /**
@@ -19,13 +19,13 @@ export interface ErrorResponse {
  * @returns A standardized error response
  */
 export function createErrorResponse(error: unknown, operation: string): ErrorResponse {
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  
-  return {
-    message: `Error during ${operation}: ${errorMessage}`,
-    details: error instanceof Error ? error.stack : undefined,
-    originalError: error
-  };
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    return {
+        message: `Error during ${operation}: ${errorMessage}`,
+        details: error instanceof Error ? error.stack : undefined,
+        originalError: error
+    };
 }
 
 /**
@@ -35,16 +35,16 @@ export function createErrorResponse(error: unknown, operation: string): ErrorRes
  * @returns The wrapped function with error handling
  */
 export function withErrorHandling<T, Args extends any[]>(
-  fn: (...args: Args) => T,
-  operation: string
+    fn: (...args: Args) => T,
+    operation: string
 ): (...args: Args) => T | ErrorResponse {
-  return (...args: Args) => {
-    try {
-      return fn(...args);
-    } catch (error) {
-      return createErrorResponse(error, operation);
-    }
-  };
+    return (...args: Args) => {
+        try {
+            return fn(...args);
+        } catch (error) {
+            return createErrorResponse(error, operation);
+        }
+    };
 }
 
 /**
@@ -54,16 +54,16 @@ export function withErrorHandling<T, Args extends any[]>(
  * @returns The wrapped async function with error handling
  */
 export function withAsyncErrorHandling<T, Args extends any[]>(
-  fn: (...args: Args) => Promise<T>,
-  operation: string
+    fn: (...args: Args) => Promise<T>,
+    operation: string
 ): (...args: Args) => Promise<T | ErrorResponse> {
-  return async (...args: Args) => {
-    try {
-      return await fn(...args);
-    } catch (error) {
-      return createErrorResponse(error, operation);
-    }
-  };
+    return async (...args: Args) => {
+        try {
+            return await fn(...args);
+        } catch (error) {
+            return createErrorResponse(error, operation);
+        }
+    };
 }
 
 /**
@@ -72,7 +72,7 @@ export function withAsyncErrorHandling<T, Args extends any[]>(
  * @returns True if the result is an error response
  */
 export function isErrorResponse(result: unknown): result is ErrorResponse {
-  return result !== null && 
-         typeof result === 'object' && 
-         'message' in (result as object);
+    return result !== null &&
+        typeof result === 'object' &&
+        'message' in (result as object);
 }

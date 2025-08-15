@@ -10,11 +10,11 @@ import {JsonArray, JsonObject, JsonSchemaType, JsonValidationResult, JsonValue} 
  * @returns The parsed object or an error response
  */
 export function safeJsonParse(jsonString: string): JsonValue | ErrorResponse {
-  try {
-    return JSON.parse(jsonString || '{}') as JsonValue;
-  } catch (error) {
-    return createErrorResponse(error, 'JSON parsing');
-  }
+    try {
+        return JSON.parse(jsonString || '{}') as JsonValue;
+    } catch (error) {
+        return createErrorResponse(error, 'JSON parsing');
+    }
 }
 
 /**
@@ -24,11 +24,11 @@ export function safeJsonParse(jsonString: string): JsonValue | ErrorResponse {
  * @returns The JSON string or an error response
  */
 export function safeJsonStringify(obj: JsonValue, indent: number = 2): string | ErrorResponse {
-  try {
-    return JSON.stringify(obj, null, indent);
-  } catch (error) {
-    return createErrorResponse(error, 'JSON stringification');
-  }
+    try {
+        return JSON.stringify(obj, null, indent);
+    } catch (error) {
+        return createErrorResponse(error, 'JSON stringification');
+    }
 }
 
 /**
@@ -37,25 +37,25 @@ export function safeJsonStringify(obj: JsonValue, indent: number = 2): string | 
  * @returns A validation result object
  */
 export function isValidJson(jsonString: string): JsonValidationResult {
-  try {
-    if (!jsonString.trim()) {
-      return { 
-        valid: false, 
-        message: 'Empty JSON string',
-        errors: ['Empty JSON string']
-      };
+    try {
+        if (!jsonString.trim()) {
+            return {
+                valid: false,
+                message: 'Empty JSON string',
+                errors: ['Empty JSON string']
+            };
+        }
+
+        JSON.parse(jsonString);
+        return {valid: true};
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+            valid: false,
+            message: errorMessage,
+            errors: [errorMessage]
+        };
     }
-    
-    JSON.parse(jsonString);
-    return { valid: true };
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return { 
-      valid: false, 
-      message: errorMessage,
-      errors: [errorMessage]
-    };
-  }
 }
 
 /**
@@ -65,12 +65,12 @@ export function isValidJson(jsonString: string): JsonValidationResult {
  * @returns The formatted JSON string or an error response
  */
 export function formatJson(jsonString: string, indent: number = 2): string | ErrorResponse {
-  try {
-    const obj = JSON.parse(jsonString || '{}') as JsonValue;
-    return JSON.stringify(obj, null, indent);
-  } catch (error) {
-    return createErrorResponse(error, 'JSON formatting');
-  }
+    try {
+        const obj = JSON.parse(jsonString || '{}') as JsonValue;
+        return JSON.stringify(obj, null, indent);
+    } catch (error) {
+        return createErrorResponse(error, 'JSON formatting');
+    }
 }
 
 /**
@@ -79,12 +79,12 @@ export function formatJson(jsonString: string, indent: number = 2): string | Err
  * @returns The type of the value as a string
  */
 export function getJsonValueType(value: JsonValue): JsonSchemaType {
-  if (value === null) return 'null';
-  if (Array.isArray(value)) return 'array';
-  if (typeof value === 'number') {
-    return Number.isInteger(value) ? 'integer' : 'number';
-  }
-  return typeof value as JsonSchemaType;
+    if (value === null) return 'null';
+    if (Array.isArray(value)) return 'array';
+    if (typeof value === 'number') {
+        return Number.isInteger(value) ? 'integer' : 'number';
+    }
+    return typeof value as JsonSchemaType;
 }
 
 /**
@@ -93,7 +93,7 @@ export function getJsonValueType(value: JsonValue): JsonSchemaType {
  * @returns True if the object is empty
  */
 export function isEmptyObject(obj: JsonObject): boolean {
-  return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length === 0;
+    return obj !== null && typeof obj === 'object' && !Array.isArray(obj) && Object.keys(obj).length === 0;
 }
 
 /**
@@ -102,5 +102,5 @@ export function isEmptyObject(obj: JsonObject): boolean {
  * @returns True if the array is empty
  */
 export function isEmptyArray(arr: JsonArray): boolean {
-  return Array.isArray(arr) && arr.length === 0;
+    return Array.isArray(arr) && arr.length === 0;
 }

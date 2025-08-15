@@ -4,15 +4,15 @@
  * related to comparing JSON data
  */
 export interface IJsonComparisonService {
-  /**
-   * Compares two JSON strings and returns the differences
-   * @param leftJsonString The first JSON string
-   * @param rightJsonString The second JSON string
-   * @returns Object containing comparison results
-   */
-  compareJson(leftJsonString: string, rightJsonString: string): { 
-    hasDifferences: boolean; 
-    differences: any; 
-    formattedDiff?: string;
-  };
+    /**
+     * Compares two JSON strings and returns the differences
+     * @param leftJsonString The first JSON string
+     * @param rightJsonString The second JSON string
+     * @returns Object containing comparison results
+     */
+    compareJson(leftJsonString: string, rightJsonString: string): {
+        hasDifferences: boolean;
+        differences: any;
+        formattedDiff?: string;
+    };
 }

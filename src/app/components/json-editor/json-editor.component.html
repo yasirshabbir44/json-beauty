@@ -1,142 +1,142 @@
-<div class="editor-container" [class.dark-theme]="isDarkTheme">
-  <mat-card class="editor-card">
-    <mat-card-header>
-      <mat-icon color="primary">code</mat-icon>
-      <mat-card-title>JSON Editor</mat-card-title>
-      <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
-    </mat-card-header>
+<div [class.dark-theme]="isDarkTheme" class="editor-container">
+    <mat-card class="editor-card">
+        <mat-card-header>
+            <mat-icon color="primary">code</mat-icon>
+            <mat-card-title>JSON Editor</mat-card-title>
+            <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
+        </mat-card-header>
 
-    <mat-card-content class="p-1">
-      <div class="editor-layout">
-        <!-- Toolbar Component -->
-        <app-json-toolbar 
-          [isValidJson]="isValidJson"
-          (beautify)="beautifyJson()"
-          (minify)="minifyJson()"
-          (lint)="lintJson()"
-          (clear)="clearEditor()"
-          (import)="importFile($event)"
-          (copy)="copyToClipboard()"
-          (download)="downloadOutput()"
-          (downloadText)="downloadText()"
-          (share)="shareJson()"
-          (convertToCsv)="convertToCsv()"
-          (convertToXml)="convertToXml()"
-          (toggleTreeView)="toggleTreeView()"
-          (toggleOutputFormat)="toggleOutputFormat()"
-          (toggleJsonPaths)="toggleJsonPaths()"
-          (toggleSchemaEditor)="toggleSchemaEditor()"
-          (generateSchema)="generateJsonSchema()"
-          (toggleJsonPathQuery)="toggleJsonPathQuery()"
-          (toggleJsonCompare)="toggleJsonCompare()"
-          (toggleJsonVisualize)="toggleJsonVisualize()"
-          (toggleTheme)="toggleTheme()"
-          (toggleSearchReplace)="toggleSearchReplace()"
-          (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
-          (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()">
-        </app-json-toolbar>
+        <mat-card-content class="p-1">
+            <div class="editor-layout">
+                <!-- Toolbar Component -->
+                <app-json-toolbar
+                        (beautify)="beautifyJson()"
+                        (clear)="clearEditor()"
+                        (convertToCsv)="convertToCsv()"
+                        (convertToXml)="convertToXml()"
+                        (copy)="copyToClipboard()"
+                        (download)="downloadOutput()"
+                        (downloadText)="downloadText()"
+                        (generateSchema)="generateJsonSchema()"
+                        (import)="importFile($event)"
+                        (lint)="lintJson()"
+                        (minify)="minifyJson()"
+                        (share)="shareJson()"
+                        (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
+                        (toggleJsonCompare)="toggleJsonCompare()"
+                        (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                        (toggleJsonPaths)="toggleJsonPaths()"
+                        (toggleJsonVisualize)="toggleJsonVisualize()"
+                        (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
+                        (toggleOutputFormat)="toggleOutputFormat()"
+                        (toggleSchemaEditor)="toggleSchemaEditor()"
+                        (toggleSearchReplace)="toggleSearchReplace()"
+                        (toggleTheme)="toggleTheme()"
+                        (toggleTreeView)="toggleTreeView()"
+                        [isValidJson]="isValidJson">
+                </app-json-toolbar>
 
-        <!-- Dialogs Component -->
-        <app-json-dialogs
-          [showKeyboardShortcuts]="showKeyboardShortcuts"
-          [keyboardShortcuts]="keyboardShortcuts"
-          (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
-          
-          [showFormattingOptions]="showFormattingOptions"
-          [indentSize]="indentSize"
-          [indentChar]="indentChar"
-          (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
-          (applyFormatting)="applyFormatting()"
-          
-          [showSchemaEditor]="showSchemaEditor"
-          [schemaInput]="schemaInput"
-          [schemaValidationResult]="schemaValidationResult"
-          (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
-          (validateJsonSchema)="validateJsonSchema()"
-          
-          [showJsonPathQueryDialog]="showJsonPathQueryDialog"
-          [jsonPathQuery]="jsonPathQuery"
-          [jsonPathQueryResult]="jsonPathQueryResult"
-          (toggleJsonPathQuery)="toggleJsonPathQuery()"
-          (executeJsonPathQuery)="executeJsonPathQuery()"
-          
-          [showJsonCompare]="showJsonCompare"
-          [compareJsonInput]="compareJsonInput"
-          [jsonDiffResult]="jsonDiffResult"
-          (toggleJsonCompare)="toggleJsonCompare()"
-          (compareJson)="compareJson()"
-          
-          [showJsonVisualize]="showJsonVisualize"
-          (toggleJsonVisualize)="toggleJsonVisualize()">
-        </app-json-dialogs>
+                <!-- Dialogs Component -->
+                <app-json-dialogs
+                        (applyFormatting)="applyFormatting()"
+                        (compareJson)="compareJson()"
+                        (executeJsonPathQuery)="executeJsonPathQuery()"
 
+                        (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
+                        (toggleJsonCompare)="toggleJsonCompare()"
+                        (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                        (toggleJsonVisualize)="toggleJsonVisualize()"
+                        (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
 
+                        (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
+                        (validateJsonSchema)="validateJsonSchema()"
+                        [compareJsonInput]="compareJsonInput"
+                        [indentChar]="indentChar"
+                        [indentSize]="indentSize"
 
-        <div class="editor-columns" [class.input-maximized]="isInputMaximized" [class.output-maximized]="isOutputMaximized">
-          <!-- Input Editor Component -->
-          <app-json-input-editor
-            [isDarkTheme]="isDarkTheme"
-            [isMaximized]="isInputMaximized"
-            [showInputSearchBar]="showInputSearchBar"
-            [isValidJson]="isValidJson"
-            [errorMessage]="errorMessage"
-            (jsonInputChange)="onJsonInputChange($event)"
-            (toggleMaximize)="toggleInputMaximize()">
-          </app-json-input-editor>
+                        [jsonDiffResult]="jsonDiffResult"
+                        [jsonPathQueryResult]="jsonPathQueryResult"
+                        [jsonPathQuery]="jsonPathQuery"
+                        [keyboardShortcuts]="keyboardShortcuts"
+                        [schemaInput]="schemaInput"
 
-          <!-- Output Editor Component -->
-          <app-json-output-editor
-            [isDarkTheme]="isDarkTheme"
-            [isMaximized]="isOutputMaximized"
-            [showOutputSearchBar]="showOutputSearchBar"
-            [isValidJson]="isValidJson"
-            [jsonOutput]="jsonOutput"
-            [yamlOutput]="yamlOutput"
-            [showTreeView]="showTreeView"
-            [jsonTreeData]="jsonTreeData"
-            [selectedOutputFormat]="selectedOutputFormat"
-            [selectedViewMode]="selectedViewMode"
-            [expandedNodes]="expandedNodes"
-            [treeSearchResults]="treeSearchResults"
-            [showTreeSearchBar]="showTreeSearchBar"
-            [treeSearchHighlighted]="treeSearchHighlighted"
-            (toggleMaximize)="toggleOutputMaximize()"
-            (toggleOutputFormat)="toggleOutputFormat()"
-            (toggleViewMode)="handleViewModeChange($event)"
-            (toggleNode)="toggleNode($event)"
-            (treeSearch)="searchInTree($event)">
-          </app-json-output-editor>
-        </div>
-        <!-- Status Component -->
-        <app-json-status
-          [isValidJson]="isValidJson"
-          [jsonSize]="getJsonSize()"
-          [showTreeView]="showTreeView"
-          [selectedOutputFormat]="selectedOutputFormat">
-        </app-json-status>
+                        [schemaValidationResult]="schemaValidationResult"
+                        [showFormattingOptions]="showFormattingOptions"
+                        [showJsonCompare]="showJsonCompare"
+                        [showJsonPathQueryDialog]="showJsonPathQueryDialog"
+                        [showJsonVisualize]="showJsonVisualize"
+
+                        [showKeyboardShortcuts]="showKeyboardShortcuts"
+                        [showSchemaEditor]="showSchemaEditor">
+                </app-json-dialogs>
 
 
-        <!-- JSON Paths Component -->
-        <app-json-paths
-          [showJsonPaths]="showJsonPaths"
-          [isValidJson]="isValidJson"
-          [jsonPaths]="jsonPaths"
-          (toggleJsonPaths)="toggleJsonPaths()">
-        </app-json-paths>
+                <div [class.input-maximized]="isInputMaximized" [class.output-maximized]="isOutputMaximized"
+                     class="editor-columns">
+                    <!-- Input Editor Component -->
+                    <app-json-input-editor
+                            (jsonInputChange)="onJsonInputChange($event)"
+                            (toggleMaximize)="toggleInputMaximize()"
+                            [errorMessage]="errorMessage"
+                            [isDarkTheme]="isDarkTheme"
+                            [isMaximized]="isInputMaximized"
+                            [isValidJson]="isValidJson"
+                            [showInputSearchBar]="showInputSearchBar">
+                    </app-json-input-editor>
 
-        <!-- Search & Replace Component -->
-        <app-search-replace
-          *ngIf="showSearchReplace"
-          [text]="searchReplaceText"
-          (textChanged)="onSearchReplaceTextChanged($event)">
-        </app-search-replace>
+                    <!-- Output Editor Component -->
+                    <app-json-output-editor
+                            (toggleMaximize)="toggleOutputMaximize()"
+                            (toggleNode)="toggleNode($event)"
+                            (toggleOutputFormat)="toggleOutputFormat()"
+                            (toggleViewMode)="handleViewModeChange($event)"
+                            (treeSearch)="searchInTree($event)"
+                            [expandedNodes]="expandedNodes"
+                            [isDarkTheme]="isDarkTheme"
+                            [isMaximized]="isOutputMaximized"
+                            [isValidJson]="isValidJson"
+                            [jsonOutput]="jsonOutput"
+                            [jsonTreeData]="jsonTreeData"
+                            [selectedOutputFormat]="selectedOutputFormat"
+                            [selectedViewMode]="selectedViewMode"
+                            [showOutputSearchBar]="showOutputSearchBar"
+                            [showTreeSearchBar]="showTreeSearchBar"
+                            [showTreeView]="showTreeView"
+                            [treeSearchHighlighted]="treeSearchHighlighted"
+                            [treeSearchResults]="treeSearchResults"
+                            [yamlOutput]="yamlOutput">
+                    </app-json-output-editor>
+                </div>
+                <!-- Status Component -->
+                <app-json-status
+                        [isValidJson]="isValidJson"
+                        [jsonSize]="getJsonSize()"
+                        [selectedOutputFormat]="selectedOutputFormat"
+                        [showTreeView]="showTreeView">
+                </app-json-status>
 
-        <!-- Version History Component -->
-        <app-version-history
-          (versionSelected)="loadVersionContent($event)">
-        </app-version-history>
 
-      </div>
-    </mat-card-content>
-  </mat-card>
+                <!-- JSON Paths Component -->
+                <app-json-paths
+                        (toggleJsonPaths)="toggleJsonPaths()"
+                        [isValidJson]="isValidJson"
+                        [jsonPaths]="jsonPaths"
+                        [showJsonPaths]="showJsonPaths">
+                </app-json-paths>
+
+                <!-- Search & Replace Component -->
+                <app-search-replace
+                        (textChanged)="onSearchReplaceTextChanged($event)"
+                        *ngIf="showSearchReplace"
+                        [text]="searchReplaceText">
+                </app-search-replace>
+
+                <!-- Version History Component -->
+                <app-version-history
+                        (versionSelected)="loadVersionContent($event)">
+                </app-version-history>
+
+            </div>
+        </mat-card-content>
+    </mat-card>
 </div>

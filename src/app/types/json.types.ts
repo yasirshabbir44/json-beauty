@@ -5,19 +5,19 @@
 /**
  * Represents any valid JSON value
  */
-export type JsonValue = 
-  | string
-  | number
-  | boolean
-  | null
-  | JsonObject
-  | JsonArray;
+export type JsonValue =
+    | string
+    | number
+    | boolean
+    | null
+    | JsonObject
+    | JsonArray;
 
 /**
  * Represents a JSON object
  */
 export interface JsonObject {
-  [key: string]: JsonValue;
+    [key: string]: JsonValue;
 }
 
 /**
@@ -43,50 +43,50 @@ export type JsonPath = JsonPathSegment[];
 /**
  * Represents a JSON schema type
  */
-export type JsonSchemaType = 
-  | 'string'
-  | 'number'
-  | 'integer'
-  | 'boolean'
-  | 'object'
-  | 'array'
-  | 'null';
+export type JsonSchemaType =
+    | 'string'
+    | 'number'
+    | 'integer'
+    | 'boolean'
+    | 'object'
+    | 'array'
+    | 'null';
 
 /**
  * Represents a JSON conversion result
  */
 export interface JsonConversionResult<T> {
-  data?: T;
-  error?: string;
-  success: boolean;
+    data?: T;
+    error?: string;
+    success: boolean;
 }
 
 /**
  * Represents a JSON validation result
  */
 export interface JsonValidationResult {
-  valid: boolean;
-  errors?: string[];
-  message?: string;
+    valid: boolean;
+    errors?: string[];
+    message?: string;
 }
 
 /**
  * Represents a JSON comparison result
  */
 export interface JsonComparisonResult {
-  equal: boolean;
-  differences?: {
-    path: string;
-    left: JsonValue;
-    right: JsonValue;
-  }[];
+    equal: boolean;
+    differences?: {
+        path: string;
+        left: JsonValue;
+        right: JsonValue;
+    }[];
 }
 
 /**
  * Represents a JSON search result
  */
 export interface JsonSearchResult {
-  path: string;
-  value: JsonValue;
-  parent?: JsonObject | JsonArray;
+    path: string;
+    value: JsonValue;
+    parent?: JsonObject | JsonArray;
 }
