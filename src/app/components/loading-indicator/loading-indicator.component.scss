@@ -1,0 +1,116 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  
+  &.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    padding: 0;
+  }
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  
+  .overlay & {
+    background-color: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    
+    :host-context(.dark-theme) & {
+      background-color: #303030;
+      color: white;
+    }
+  }
+}
+
+.spinner {
+  display: flex;
+  justify-content: center;
+}
+
+.message {
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  color: #616161;
+  
+  :host-context(.dark-theme) & {
+    color: #e0e0e0;
+  }
+}
+
+.progress-container {
+  width: 100%;
+  max-width: 300px;
+  position: relative;
+  
+  mat-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+}
+
+.progress-text {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 12px;
+  color: #616161;
+  
+  :host-context(.dark-theme) & {
+    color: #e0e0e0;
+  }
+}
+
+/* Animation for indeterminate spinner */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.spinner ::ng-deep .mat-progress-spinner circle {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Custom colors for progress indicators */
+:host-context(.dark-theme) {
+  .spinner ::ng-deep .mat-progress-spinner circle,
+  .progress-container ::ng-deep .mat-progress-bar-fill::after {
+    stroke: #7b1fa2 !important; /* Purple for dark theme */
+  }
+  
+  .progress-container ::ng-deep .mat-progress-bar-buffer {
+    background-color: rgba(123, 31, 162, 0.2) !important;
+  }
+}
+
+:host-context(:not(.dark-theme)) {
+  .spinner ::ng-deep .mat-progress-spinner circle,
+  .progress-container ::ng-deep .mat-progress-bar-fill::after {
+    stroke: #3f51b5 !important; /* Indigo for light theme */
+  }
+  
+  .progress-container ::ng-deep .mat-progress-bar-buffer {
+    background-color: rgba(63, 81, 181, 0.2) !important;
+  }
+}

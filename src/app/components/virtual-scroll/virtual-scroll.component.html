@@ -1,0 +1,85 @@
+<div class="virtual-scroll-container" #container>
+  <!-- Search bar -->
+  <div class="search-bar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (input)="filterData(searchText)" placeholder="Search items...">
+      <button *ngIf="searchText" matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-icon matPrefix>search</mat-icon>
+    </mat-form-field>
+    
+    <div class="actions">
+      <button mat-icon-button (click)="expandAll()" matTooltip="Expand All" [disabled]="!expandable">
+        <mat-icon>unfold_more</mat-icon>
+      </button>
+      <button mat-icon-button (click)="collapseAll()" matTooltip="Collapse All" [disabled]="!expandable">
+        <mat-icon>unfold_less</mat-icon>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Virtual scroll viewport -->
+  <cdk-virtual-scroll-viewport 
+    [itemSize]="itemHeight" 
+    [minBufferPx]="itemHeight * bufferSize"
+    [maxBufferPx]="itemHeight * bufferSize * 2"
+    [style.height.px]="viewportHeight">
+    
+    <div *cdkVirtualFor="let item of filteredData; let i = index; trackBy: trackByIndex" 
+         class="virtual-scroll-item" 
+         [class.expanded]="isExpanded(i)"
+         [ngClass]="getItemClass(item)">
+      
+      <!-- Item content -->
+      <div class="item-content">
+        <!-- Expand/collapse button for objects and arrays -->
+        <button *ngIf="isItemExpandable(item)" 
+                mat-icon-button 
+                class="expand-button"
+                (click)="toggleExpand(i)">
+          <mat-icon>{{ isExpanded(i) ? 'expand_more' : 'chevron_right' }}</mat-icon>
+        </button>
+        
+        <!-- Spacer for non-expandable items -->
+        <div *ngIf="!isItemExpandable(item)" class="expand-spacer"></div>
+        
+        <!-- Key/index -->
+        <div class="item-key" *ngIf="showIndices || keyField">{{ getKey(item, i) }}</div>
+        
+        <!-- Value -->
+        <div class="item-value" [ngClass]="getItemType(item)">
+          {{ getDisplayValue(item) }}
+        </div>
+      </div>
+      
+      <!-- Expanded content for objects and arrays -->
+      <div *ngIf="isExpanded(i) && isItemExpandable(item)" class="expanded-content">
+        <div *ngIf="Array.isArray(item)" class="array-content">
+          <div *ngFor="let subItem of item; let j = index" class="sub-item">
+            <div class="sub-item-key">{{ j }}</div>
+            <div class="sub-item-value" [ngClass]="getItemType(subItem)">
+              {{ formatValue(subItem) }}
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!Array.isArray(item) && item !== null" class="object-content">
+          <div *ngFor="let key of Object.keys(item)" class="sub-item">
+            <div class="sub-item-key">{{ key }}</div>
+            <div class="sub-item-value" [ngClass]="getItemType(item[key])">
+              {{ formatValue(item[key]) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Empty state -->
+    <div *ngIf="filteredData.length === 0" class="empty-state">
+      <mat-icon>search_off</mat-icon>
+      <p>No items found</p>
+    </div>
+  </cdk-virtual-scroll-viewport>
+</div>

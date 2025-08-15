@@ -1,0 +1,26 @@
+<div class="loading-container" [class.overlay]="overlay" *ngIf="isLoading">
+  <div class="loading-content">
+    <!-- Spinner -->
+    <div class="spinner" *ngIf="showSpinner">
+      <mat-spinner diameter="40" *ngIf="!showProgress"></mat-spinner>
+      <mat-progress-spinner 
+        *ngIf="showProgress" 
+        [value]="progress" 
+        diameter="40" 
+        mode="determinate">
+      </mat-progress-spinner>
+    </div>
+    
+    <!-- Message -->
+    <div class="message">{{ message }}</div>
+    
+    <!-- Progress bar -->
+    <div class="progress-container" *ngIf="showProgress">
+      <mat-progress-bar 
+        [value]="progress" 
+        mode="determinate">
+      </mat-progress-bar>
+      <div class="progress-text">{{ progressPercentage }}</div>
+    </div>
+  </div>
+</div>

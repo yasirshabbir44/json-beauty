@@ -1,0 +1,123 @@
+<div class="json-pagination-container">
+  <!-- Pagination controls -->
+  <div class="pagination-controls">
+    <div class="page-info">
+      {{ getDisplayedRange() }}
+    </div>
+    <div class="page-actions">
+      <button 
+        class="page-button" 
+        [disabled]="currentPage === 0" 
+        (click)="firstPage()"
+        title="First page">
+        ⟪
+      </button>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage === 0" 
+        (click)="previousPage()"
+        title="Previous page">
+        ⟨
+      </button>
+      <span class="page-number">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage >= totalPages - 1" 
+        (click)="nextPage()"
+        title="Next page">
+        ⟩
+      </button>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage >= totalPages - 1" 
+        (click)="lastPage()"
+        title="Last page">
+        ⟫
+      </button>
+    </div>
+    <div class="page-size-selector">
+      <label for="pageSize">Items per page:</label>
+      <select 
+        id="pageSize" 
+        [ngModel]="pageSize" 
+        (ngModelChange)="changePageSize($event)">
+        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Array items display -->
+  <div class="array-items-container">
+    <table class="array-items-table">
+      <thead>
+        <tr>
+          <th class="index-column">Index</th>
+          <th class="type-column">Type</th>
+          <th class="value-column">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of displayedItems; let i = index">
+          <td class="index-column">{{ currentPage * pageSize + i }}</td>
+          <td class="type-column">{{ getItemType(item) }}</td>
+          <td class="value-column">
+            <ng-container *ngIf="isExpandable(item); else simpleValue">
+              <div class="expandable-value">
+                {{ formatValue(item) }}
+                <button class="expand-button" title="Expand">▼</button>
+              </div>
+            </ng-container>
+            <ng-template #simpleValue>
+              <div class="simple-value" [ngClass]="getItemType(item)">
+                {{ formatValue(item) }}
+              </div>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state message -->
+  <div *ngIf="displayedItems.length === 0" class="empty-state">
+    No items to display
+  </div>
+
+  <!-- Bottom pagination controls for large datasets -->
+  <div *ngIf="totalItems > pageSize" class="pagination-controls bottom-controls">
+    <div class="page-info">
+      {{ getDisplayedRange() }}
+    </div>
+    <div class="page-actions">
+      <button 
+        class="page-button" 
+        [disabled]="currentPage === 0" 
+        (click)="firstPage()"
+        title="First page">
+        ⟪
+      </button>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage === 0" 
+        (click)="previousPage()"
+        title="Previous page">
+        ⟨
+      </button>
+      <span class="page-number">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage >= totalPages - 1" 
+        (click)="nextPage()"
+        title="Next page">
+        ⟩
+      </button>
+      <button 
+        class="page-button" 
+        [disabled]="currentPage >= totalPages - 1" 
+        (click)="lastPage()"
+        title="Last page">
+        ⟫
+      </button>
+    </div>
+  </div>
+</div>
