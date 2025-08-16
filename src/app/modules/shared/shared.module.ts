@@ -24,6 +24,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { JsonDialogsComponent } from '../../components/json-dialogs/json-dialogs.component';
 import { SearchReplaceComponent } from '../../components/search-replace/search-replace.component';
+import { JsonSearchReplaceComponent } from '../../components/json-search-replace/json-search-replace.component';
 import { LoadingIndicatorComponent } from '../../components/loading-indicator/loading-indicator.component';
 import { JsonPaginationComponent } from '../../components/json-pagination/json-pagination.component';
 import { VirtualScrollComponent } from '../../components/virtual-scroll/virtual-scroll.component';
@@ -43,6 +44,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     HeaderComponent,
     FooterComponent,
     SearchReplaceComponent,
+    JsonSearchReplaceComponent,
     LoadingIndicatorComponent,
     JsonPaginationComponent,
     VirtualScrollComponent,
@@ -104,6 +106,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     HeaderComponent,
     FooterComponent,
     SearchReplaceComponent,
+    JsonSearchReplaceComponent,
     LoadingIndicatorComponent,
     JsonPaginationComponent,
     VirtualScrollComponent,

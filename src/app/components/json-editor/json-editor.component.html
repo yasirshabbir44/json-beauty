@@ -126,11 +126,11 @@
                 </app-json-paths>
 
                 <!-- Search & Replace Component -->
-                <app-search-replace
+                <app-json-search-replace
                         (textChanged)="onSearchReplaceTextChanged($event)"
                         *ngIf="showSearchReplace"
                         [text]="searchReplaceText">
-                </app-search-replace>
+                </app-json-search-replace>
 
                 <!-- Version History Component -->
                 <app-version-history
