@@ -28,18 +28,18 @@ $json-beauty-primary: (
   )
 );
 
-// Define a custom accent palette
+// Define a custom accent palette (green for confirmation actions)
 $json-beauty-accent: (
-  50: #fce4ec,
-  100: #f8bbd0,
-  200: #f48fb1,
-  300: #f06292,
-  400: #ec407a,
-  500: #e91e63,  // Accent color
-  600: #d81b60,
-  700: #c2185b,
-  800: #ad1457,
-  900: #880e4f,
+  50: #e8f5e9,
+  100: #c8e6c9,
+  200: #a5d6a7,
+  300: #81c784,
+  400: #66bb6a,
+  500: #4caf50,  // Accent color (green)
+  600: #43a047,
+  700: #388e3c,
+  800: #2e7d32,
+  900: #1b5e20,
   contrast: (
     50: rgba(0, 0, 0, 0.87),
     100: rgba(0, 0, 0, 0.87),
@@ -300,6 +300,399 @@ $json-beauty-theme: mat.define-light-theme((
 
     &:hover {
       background: #777;
+    }
+  }
+}
+
+// Solarized theme
+.solarized-theme {
+  $solarized-primary: mat.define-palette((
+    50: #e4f1f5,
+    100: #bcdce6,
+    200: #8fc5d6,
+    300: #62aec5,
+    400: #419db8,
+    500: #268bd2, // Solarized blue
+    600: #2280c3,
+    700: #1c72b0,
+    800: #17649e,
+    900: #0e4b7d,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: white,
+      500: white,
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $solarized-accent: mat.define-palette((
+    50: #e7f3e2,
+    100: #c4e2b7,
+    200: #9ccf88,
+    300: #74bc59,
+    400: #56ad36,
+    500: #859900, // Solarized green
+    600: #7a8c00,
+    700: #6c7c00,
+    800: #5f6c00,
+    900: #455100,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: rgba(0, 0, 0, 0.87),
+      500: white,
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $solarized-warn: mat.define-palette((
+    50: #fde9e7,
+    100: #fac9c3,
+    200: #f6a59c,
+    300: #f28174,
+    400: #ef6656,
+    500: #dc322f, // Solarized red
+    600: #cc2e2c,
+    700: #b82927,
+    800: #a42322,
+    900: #811a19,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: rgba(0, 0, 0, 0.87),
+      500: white,
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $solarized-theme: mat.define-light-theme((
+    color: (
+      primary: $solarized-primary,
+      accent: $solarized-accent,
+      warn: $solarized-warn,
+    ),
+  ));
+
+  @include mat.all-component-colors($solarized-theme);
+
+  // Solarized light theme colors
+  background-color: #fdf6e3; // Solarized base3
+  color: #657b83; // Solarized base00
+
+  .app-header {
+    background-color: #eee8d5 !important; // Solarized base2
+    border-bottom: 1px solid #93a1a1 !important; // Solarized base1
+  }
+
+  .main-content {
+    background-color: #fdf6e3; // Solarized base3
+  }
+
+  .app-footer {
+    background-color: #eee8d5; // Solarized base2
+    border-top: 1px solid #93a1a1; // Solarized base1
+
+    .copyright {
+      color: #657b83; // Solarized base00
+    }
+
+    .footer-link {
+      color: #268bd2; // Solarized blue
+
+      &:hover {
+        color: #2aa198; // Solarized cyan
+      }
+    }
+  }
+
+  .mat-card-title {
+    color: #586e75 !important; // Solarized base01
+  }
+
+  .mat-card-subtitle {
+    color: #657b83 !important; // Solarized base00
+  }
+
+  .editor-card, .features-card {
+    background-color: #eee8d5; // Solarized base2
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 1px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #93a1a1; // Solarized base1
+
+    &:hover {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 4px 8px 3px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    mat-card-header {
+      background: #eee8d5; // Solarized base2
+      border-bottom: 1px solid #93a1a1; // Solarized base1
+    }
+  }
+
+  .actions-section {
+    background-color: #eee8d5; // Solarized base2
+    border: 1px solid #93a1a1; // Solarized base1
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1), 0 1px 3px 1px rgba(0, 0, 0, 0.05);
+
+    &::before {
+      background: #268bd2; // Solarized blue
+    }
+  }
+
+  .editor-section h3 {
+    color: #268bd2; // Solarized blue
+
+    &:after {
+      background-color: #268bd2; // Solarized blue
+    }
+
+    .section-icon {
+      color: #268bd2; // Solarized blue
+    }
+  }
+
+  .feature-tip {
+    background-color: rgba(38, 139, 210, 0.1); // Light Solarized blue background
+    border-left: 4px solid #268bd2; // Solarized blue
+
+    span {
+      color: #657b83; // Solarized base00
+    }
+
+    mat-icon {
+      color: #268bd2; // Solarized blue
+    }
+  }
+
+  // Custom scrollbar for Solarized theme
+  ::-webkit-scrollbar-track {
+    background: #eee8d5; // Solarized base2
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #93a1a1; // Solarized base1
+
+    &:hover {
+      background: #839496; // Solarized base0
+    }
+  }
+}
+
+// Monokai theme
+.monokai-theme {
+  $monokai-primary: mat.define-palette((
+    50: #e4f2fe,
+    100: #bce0fd,
+    200: #90ccfc,
+    300: #64b8fa,
+    400: #42a9f9,
+    500: #66d9ef, // Monokai blue
+    600: #1f99f7,
+    700: #1a8ff3,
+    800: #1585f0,
+    900: #0c74e9,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: rgba(0, 0, 0, 0.87),
+      500: rgba(0, 0, 0, 0.87),
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $monokai-accent: mat.define-palette((
+    50: #e8f5e9,
+    100: #c8e6c9,
+    200: #a5d6a7,
+    300: #81c784,
+    400: #66bb6a,
+    500: #a6e22e, // Monokai green
+    600: #43a047,
+    700: #388e3c,
+    800: #2e7d32,
+    900: #1b5e20,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: rgba(0, 0, 0, 0.87),
+      500: rgba(0, 0, 0, 0.87),
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $monokai-warn: mat.define-palette((
+    50: #ffebee,
+    100: #ffcdd2,
+    200: #ef9a9a,
+    300: #e57373,
+    400: #ef5350,
+    500: #f92672, // Monokai pink/red
+    600: #e53935,
+    700: #d32f2f,
+    800: #c62828,
+    900: #b71c1c,
+    contrast: (
+      50: rgba(0, 0, 0, 0.87),
+      100: rgba(0, 0, 0, 0.87),
+      200: rgba(0, 0, 0, 0.87),
+      300: rgba(0, 0, 0, 0.87),
+      400: rgba(0, 0, 0, 0.87),
+      500: white,
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+    )
+  ));
+
+  $monokai-theme: mat.define-dark-theme((
+    color: (
+      primary: $monokai-primary,
+      accent: $monokai-accent,
+      warn: $monokai-warn,
+    ),
+  ));
+
+  @include mat.all-component-colors($monokai-theme);
+
+  // Monokai theme styles
+  background-color: #272822; // Monokai background
+  color: #f8f8f2; // Monokai foreground
+
+  .app-header {
+    background-color: #1e1f1c !important; // Darker Monokai background
+    border-bottom: 1px solid #3e3d32 !important; // Monokai border
+  }
+
+  .main-content {
+    background-color: #272822; // Monokai background
+  }
+
+  .app-footer {
+    background-color: #1e1f1c; // Darker Monokai background
+    border-top: 1px solid #3e3d32; // Monokai border
+
+    .copyright {
+      color: #a59f85; // Monokai comment color
+    }
+
+    .footer-link {
+      color: #66d9ef; // Monokai blue
+
+      &:hover {
+        color: #a6e22e; // Monokai green
+      }
+    }
+  }
+
+  .mat-card-title {
+    color: #f8f8f2 !important; // Monokai foreground
+  }
+
+  .mat-card-subtitle {
+    color: #a59f85 !important; // Monokai comment color
+  }
+
+  .editor-card, .features-card {
+    background-color: #1e1f1c; // Darker Monokai background
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #3e3d32; // Monokai border
+
+    &:hover {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 3px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    mat-card-header {
+      background: #1e1f1c; // Darker Monokai background
+      border-bottom: 1px solid #3e3d32; // Monokai border
+    }
+  }
+
+  .actions-section {
+    background-color: #1e1f1c; // Darker Monokai background
+    border: 1px solid #3e3d32; // Monokai border
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+
+    &::before {
+      background: #66d9ef; // Monokai blue
+    }
+  }
+
+  .editor-section h3 {
+    color: #66d9ef; // Monokai blue
+
+    &:after {
+      background-color: #66d9ef; // Monokai blue
+    }
+
+    .section-icon {
+      color: #66d9ef; // Monokai blue
+    }
+  }
+
+  .feature-tip {
+    background-color: rgba(102, 217, 239, 0.1); // Light Monokai blue background
+    border-left: 4px solid #66d9ef; // Monokai blue
+
+    span {
+      color: #a59f85; // Monokai comment color
+    }
+
+    mat-icon {
+      color: #66d9ef; // Monokai blue
+    }
+  }
+
+  .mat-tab-group {
+    .mat-tab-header {
+      background-color: #1e1f1c; // Darker Monokai background
+      border-bottom: 1px solid #3e3d32; // Monokai border
+    }
+
+    .tab-content {
+      background-color: #272822; // Monokai background
+
+      p {
+        color: #f8f8f2; // Monokai foreground
+      }
+    }
+  }
+
+  // Custom scrollbar for Monokai theme
+  ::-webkit-scrollbar-track {
+    background: #1e1f1c; // Darker Monokai background
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #3e3d32; // Monokai border
+
+    &:hover {
+      background: #49483e; // Lighter Monokai border
     }
   }
 }

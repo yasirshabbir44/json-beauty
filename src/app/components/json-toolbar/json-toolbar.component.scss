@@ -201,6 +201,13 @@
   }
 }
 
+/* Warn action styling for menu items */
+.warn-action {
+  span {
+    color: #EA4335;
+  }
+}
+
 /* Dark Theme Styles */
 :host-context(.dark-theme) {
   .toolbar-container {
@@ -257,6 +264,10 @@
     
     &[disabled] {
       color: rgba(255, 255, 255, 0.5);
+    }
+    
+    &.warn-action {
+      color: #EA4335;
     }
   }
 }

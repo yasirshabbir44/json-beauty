@@ -119,3 +119,42 @@
     background-color: #202124; // Google's dark theme background
   }
 }
+
+.active-theme {
+  background-color: rgba(0, 0, 0, 0.04);
+  font-weight: 500;
+  
+  mat-icon {
+    color: #4285F4; // Google blue for active theme indicator
+  }
+}
+
+:host-context(.dark-theme) {
+  .active-theme {
+    background-color: rgba(255, 255, 255, 0.1);
+    
+    mat-icon {
+      color: #4285F4; // Google blue for active theme indicator
+    }
+  }
+}
+
+:host-context(.solarized-theme) {
+  .active-theme {
+    background-color: rgba(38, 139, 210, 0.1); // Light Solarized blue
+    
+    mat-icon {
+      color: #268bd2; // Solarized blue
+    }
+  }
+}
+
+:host-context(.monokai-theme) {
+  .active-theme {
+    background-color: rgba(102, 217, 239, 0.1); // Light Monokai blue
+    
+    mat-icon {
+      color: #66d9ef; // Monokai blue
+    }
+  }
+}

@@ -1,10 +1,21 @@
 <div class="app-container">
     <app-header [title]="title" subtitle="Format • Validate • Transform">
-        <button (click)="toggleTheme()" [matTooltip]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                aria-label="Toggle Theme" class="theme-toggle-btn"
+        <button [matMenuTriggerFor]="themeMenu" [matTooltip]="'Change Theme'"
+                aria-label="Change Theme" class="theme-toggle-btn"
                 mat-icon-button>
-            <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+            <mat-icon>palette</mat-icon>
         </button>
+        <mat-menu #themeMenu="matMenu">
+            <button *ngFor="let theme of themeOptions" 
+                    (click)="setTheme(theme.value)" 
+                    mat-menu-item 
+                    [class.active-theme]="currentTheme === theme.value">
+                <mat-icon>{{ theme.value === 'light' ? 'light_mode' : 
+                             theme.value === 'dark' ? 'dark_mode' : 
+                             'color_lens' }}</mat-icon>
+                <span>{{ theme.label }}</span>
+            </button>
+        </mat-menu>
         <a aria-label="GitHub Repository" class="github-link" href="https://github.com/yasirshabbir44/json-beauty"
            mat-button target="_blank">
             <mat-icon>code</mat-icon>

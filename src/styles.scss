@@ -14,7 +14,7 @@ body {
   background-color: #f8f9fa;
   color: #202124;
   line-height: 1.6;
-  font-size: 16px;
+  font-size: 17px; /* Increased from 16px for better readability */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -39,7 +39,7 @@ h6 { font-size: 1rem; margin-bottom: 0.5rem; }
 p {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: #5f6368;
+  color: #3c4043; /* Darker than previous #5f6368 for better contrast */
   line-height: 1.7;
 }
 
