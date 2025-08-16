@@ -2,11 +2,30 @@
     <div class="toolbar-section">
         <h3 class="toolbar-title">Actions</h3>
         <div class="toolbar-buttons">
-            <button (click)="beautify.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Format JSON with proper indentation">
+            <button [matMenuTriggerFor]="actionsMenu" class="action-button" color="primary"
+                    mat-raised-button matTooltip="JSON Actions">
                 <mat-icon>format_align_left</mat-icon>
-                Beautify
+                Actions
+                <mat-icon>arrow_drop_down</mat-icon>
             </button>
+            <mat-menu #actionsMenu="matMenu">
+                <button (click)="beautify.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>format_align_left</mat-icon>
+                    <span>Beautify</span>
+                </button>
+                <button (click)="minify.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>compress</mat-icon>
+                    <span>Minify</span>
+                </button>
+                <button (click)="lint.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>build</mat-icon>
+                    <span>Lint & Fix</span>
+                </button>
+                <button (click)="clear.emit()" mat-menu-item>
+                    <mat-icon>delete_outline</mat-icon>
+                    <span>Clear</span>
+                </button>
+            </mat-menu>
 
             <button (click)="onImportClick(fileInput)" class="action-button" color="primary" mat-raised-button
                     matTooltip="Import JSON from file">
@@ -14,151 +33,134 @@
                 Import
             </button>
             <input #fileInput (change)="onFileSelected($event)" accept=".json,.txt" style="display: none" type="file">
-
-            <button (click)="minify.emit()" [disabled]="!isValidJson" class="action-button" color="accent"
-                    mat-raised-button matTooltip="Compress JSON by removing whitespace">
-                <mat-icon>compress</mat-icon>
-                Minify
-            </button>
-
-            <button (click)="lint.emit()" [disabled]="!isValidJson" class="action-button" color="warn" mat-raised-button
-                    matTooltip="Fix JSON issues and sort keys">
-                <mat-icon>build</mat-icon>
-                Lint & Fix
-            </button>
-
-            <button (click)="clear.emit()" class="action-button" mat-stroked-button matTooltip="Clear editor content">
-                <mat-icon>delete_outline</mat-icon>
-                Clear
-            </button>
         </div>
     </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Export</h3>
         <div class="toolbar-buttons">
-            <button (click)="copy.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Copy to clipboard">
-                <mat-icon>content_copy</mat-icon>
-                Copy
-            </button>
-
-            <button (click)="download.emit()" [disabled]="!isValidJson" class="action-button" color="accent"
-                    mat-raised-button matTooltip="Download as JSON file">
+            <button [matMenuTriggerFor]="exportMenu" class="action-button" color="primary"
+                    mat-raised-button matTooltip="Export Options">
                 <mat-icon>download</mat-icon>
-                Download JSON
+                Export
+                <mat-icon>arrow_drop_down</mat-icon>
             </button>
-
-            <button (click)="downloadText.emit()" [disabled]="!isValidJson" class="action-button" color="accent"
-                    mat-raised-button matTooltip="Download as text file">
-                <mat-icon>description</mat-icon>
-                Download TXT
-            </button>
-
-            <button (click)="share.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Generate shareable URL">
-                <mat-icon>share</mat-icon>
-                Share
-            </button>
-
-            <button (click)="convertToCsv.emit()" [disabled]="!isValidJson" class="action-button" color="warn"
-                    mat-raised-button matTooltip="Convert JSON to CSV">
-                <mat-icon>table_chart</mat-icon>
-                To CSV
-            </button>
-
-            <button (click)="convertToXml.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Convert JSON to XML">
-                <mat-icon>code</mat-icon>
-                To XML
-            </button>
+            <mat-menu #exportMenu="matMenu">
+                <button (click)="copy.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>content_copy</mat-icon>
+                    <span>Copy</span>
+                </button>
+                <button (click)="download.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>download</mat-icon>
+                    <span>JSON</span>
+                </button>
+                <button (click)="downloadText.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>description</mat-icon>
+                    <span>TXT</span>
+                </button>
+                <button (click)="convertToCsv.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>table_chart</mat-icon>
+                    <span>CSV</span>
+                </button>
+                <button (click)="convertToXml.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>code</mat-icon>
+                    <span>XML</span>
+                </button>
+                <button (click)="share.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>share</mat-icon>
+                    <span>Share</span>
+                </button>
+            </mat-menu>
         </div>
     </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Features</h3>
         <div class="toolbar-buttons">
-            <button (click)="toggleTreeView.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Toggle tree view">
+            <button [matMenuTriggerFor]="featuresMenu" class="action-button" color="primary"
+                    mat-raised-button matTooltip="JSON Features">
                 <mat-icon>account_tree</mat-icon>
-                Tree View
+                Features
+                <mat-icon>arrow_drop_down</mat-icon>
             </button>
-
-            <button (click)="toggleOutputFormat.emit()" [disabled]="!isValidJson" class="action-button" color="accent"
-                    mat-raised-button matTooltip="Toggle between JSON and YAML">
-                <mat-icon>swap_horiz</mat-icon>
-                JSON/YAML
-            </button>
-
-            <button (click)="toggleJsonPaths.emit()" [disabled]="!isValidJson" class="action-button" color="warn"
-                    mat-raised-button matTooltip="Show JSON paths">
-                <mat-icon>route</mat-icon>
-                Paths
-            </button>
-
-            <button (click)="toggleSchemaEditor.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Validate against JSON schema">
-                <mat-icon>check_circle</mat-icon>
-                Validate
-            </button>
+            <mat-menu #featuresMenu="matMenu">
+                <button (click)="toggleTreeView.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>account_tree</mat-icon>
+                    <span>Tree View</span>
+                </button>
+                <button (click)="toggleOutputFormat.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>swap_horiz</mat-icon>
+                    <span>JSON/YAML</span>
+                </button>
+                <button (click)="toggleJsonPaths.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>route</mat-icon>
+                    <span>Paths</span>
+                </button>
+                <button (click)="toggleSchemaEditor.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>check_circle</mat-icon>
+                    <span>Validate</span>
+                </button>
+            </mat-menu>
         </div>
     </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Advanced</h3>
         <div class="toolbar-buttons">
-            <button (click)="generateSchema.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Generate JSON schema from data">
+            <button [matMenuTriggerFor]="advancedMenu" class="action-button" color="primary"
+                    mat-raised-button matTooltip="Advanced Features">
                 <mat-icon>schema</mat-icon>
-                Generate Schema
+                Advanced
+                <mat-icon>arrow_drop_down</mat-icon>
             </button>
-
-            <button (click)="toggleJsonPathQuery.emit()" [disabled]="!isValidJson" class="action-button" color="accent"
-                    mat-raised-button matTooltip="Query JSON using JSONPath">
-                <mat-icon>search</mat-icon>
-                JSONPath Query
-            </button>
-
-            <button (click)="toggleJsonCompare.emit()" [disabled]="!isValidJson" class="action-button" color="warn"
-                    mat-raised-button matTooltip="Compare two JSON documents">
-                <mat-icon>compare</mat-icon>
-                Compare
-            </button>
-
-            <button (click)="toggleJsonVisualize.emit()" [disabled]="!isValidJson" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Visualize JSON data">
-                <mat-icon>bar_chart</mat-icon>
-                Visualize
-            </button>
+            <mat-menu #advancedMenu="matMenu">
+                <button (click)="generateSchema.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>schema</mat-icon>
+                    <span>Generate Schema</span>
+                </button>
+                <button (click)="toggleJsonPathQuery.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>search</mat-icon>
+                    <span>JSONPath Query</span>
+                </button>
+                <button (click)="toggleJsonCompare.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>compare</mat-icon>
+                    <span>Compare</span>
+                </button>
+                <button (click)="toggleJsonVisualize.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>bar_chart</mat-icon>
+                    <span>Visualize</span>
+                </button>
+            </mat-menu>
         </div>
     </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Settings</h3>
         <div class="toolbar-buttons">
-            <button (click)="toggleTheme.emit()" class="action-button" color="primary" mat-raised-button
-                    matTooltip="Toggle light/dark theme">
-                <mat-icon>brightness_medium</mat-icon>
-                Theme
-            </button>
-
-            <button (click)="toggleFormattingOptions.emit()" class="action-button" color="accent" mat-raised-button
-                    matTooltip="Customize formatting options">
+            <button [matMenuTriggerFor]="settingsMenu" class="action-button" color="primary"
+                    mat-raised-button matTooltip="Settings and Options">
                 <mat-icon>settings</mat-icon>
-                Options
+                Settings
+                <mat-icon>arrow_drop_down</mat-icon>
             </button>
-
-            <button (click)="toggleKeyboardShortcuts.emit()" class="action-button" color="warn" mat-raised-button
-                    matTooltip="Show keyboard shortcuts">
-                <mat-icon>keyboard</mat-icon>
-                Shortcuts
-            </button>
-
-            <button (click)="toggleSearchReplace.emit()" class="action-button" color="primary" mat-raised-button
-                    matTooltip="Search and replace text">
-                <mat-icon>find_replace</mat-icon>
-                Search & Replace
-            </button>
+            <mat-menu #settingsMenu="matMenu">
+                <button (click)="toggleTheme.emit()" mat-menu-item>
+                    <mat-icon>brightness_medium</mat-icon>
+                    <span>Theme</span>
+                </button>
+                <button (click)="toggleFormattingOptions.emit()" mat-menu-item>
+                    <mat-icon>settings</mat-icon>
+                    <span>Options</span>
+                </button>
+                <button (click)="toggleKeyboardShortcuts.emit()" mat-menu-item>
+                    <mat-icon>keyboard</mat-icon>
+                    <span>Shortcuts</span>
+                </button>
+                <button (click)="toggleSearchReplace.emit()" mat-menu-item>
+                    <mat-icon>find_replace</mat-icon>
+                    <span>Search & Replace</span>
+                </button>
+            </mat-menu>
         </div>
     </div>
 </div>

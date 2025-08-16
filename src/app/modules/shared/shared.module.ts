@@ -18,6 +18,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatMenuModule } from '@angular/material/menu';
 
 // Components
 import { HeaderComponent } from '../../components/header/header.component';
@@ -71,7 +72,8 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     MatDialogModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatMenuModule
   ],
   providers: [
     ErrorHandlingService,
@@ -101,6 +103,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
+    MatMenuModule,
     
     // Components
     HeaderComponent,
