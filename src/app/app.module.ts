@@ -35,6 +35,7 @@ import {AppRoutingModule} from './app-routing.module';
 import {ConvertersModule} from './services/conversion/converters/converters.module';
 import {SecurityModule} from './services/security/security.module';
 import {SharedModule} from './modules/shared/shared.module';
+import {WorkerModule} from './services/worker/worker.module';
 
 @NgModule({
     declarations: [
@@ -51,6 +52,7 @@ import {SharedModule} from './modules/shared/shared.module';
         ConvertersModule,
         SecurityModule,
         SharedModule,
+        WorkerModule,
         // Angular Material
         MatButtonModule,
         MatIconModule,

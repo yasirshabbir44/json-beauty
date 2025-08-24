@@ -9,7 +9,7 @@
             <button *ngFor="let theme of themeOptions" 
                     (click)="setTheme(theme.value)" 
                     mat-menu-item 
-                    [class.active-theme]="currentTheme === theme.value">
+                    [class.active-theme]="getCurrentTheme() === theme.value">
                 <mat-icon>{{ theme.value === 'light' ? 'light_mode' : 
                              theme.value === 'dark' ? 'dark_mode' : 
                              'color_lens' }}</mat-icon>

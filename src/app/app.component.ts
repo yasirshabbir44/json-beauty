@@ -1,8 +1,12 @@
-import {Component, OnInit, Renderer2} from '@angular/core';
-import {AppConstants} from './constants/app.constants';
+import {Component, OnInit} from '@angular/core';
 import {CSPService} from './services/security/csp.service';
 import {SecurityUtilsService} from './services/security/security-utils.service';
+import {ThemeService, ThemeOption} from './services/theme/theme.service';
 
+/**
+ * Main application component
+ * Follows Single Responsibility Principle by delegating theme management to ThemeService
+ */
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -11,21 +15,17 @@ import {SecurityUtilsService} from './services/security/security-utils.service';
 export class AppComponent implements OnInit {
     title = 'JSON Beauty';
     currentYear: number = new Date().getFullYear();
-    currentTheme = AppConstants.THEME_LIGHT;
     
     // Theme options for the dropdown
-    themeOptions = [
-        { value: AppConstants.THEME_LIGHT, label: 'Light' },
-        { value: AppConstants.THEME_DARK, label: 'Dark' },
-        { value: AppConstants.THEME_SOLARIZED, label: 'Solarized' },
-        { value: AppConstants.THEME_MONOKAI, label: 'Monokai' }
-    ];
+    themeOptions: ThemeOption[] = [];
 
     constructor(
-        private renderer: Renderer2,
         private cspService: CSPService,
-        private securityUtils: SecurityUtilsService
+        private securityUtils: SecurityUtilsService,
+        private themeService: ThemeService
     ) {
+        // Get theme options from the theme service
+        this.themeOptions = this.themeService.getThemeOptions();
     }
 
     ngOnInit(): void {
@@ -36,60 +36,40 @@ export class AppComponent implements OnInit {
         // Initialize CSRF protection
         this.securityUtils.initializeCSRFProtection();
         
-        // Check if user has a theme preference stored
-        const savedTheme = localStorage.getItem(AppConstants.THEME_STORAGE_KEY);
-        if (savedTheme) {
-            this.currentTheme = savedTheme;
-            this.applyTheme();
-        } else {
-            // Check if user prefers dark mode at OS level
-            const prefersDark = window.matchMedia(AppConstants.PREFERS_DARK_MEDIA_QUERY).matches;
-            if (prefersDark) {
-                this.currentTheme = AppConstants.THEME_DARK;
-                this.applyTheme();
-            }
-        }
+        // Theme initialization is now handled by the ThemeService
     }
 
-    // For backward compatibility with the simple toggle button
+    /**
+     * Toggle between light and dark themes
+     * Delegates to ThemeService
+     */
     toggleTheme(): void {
-        // Toggle between light and dark only
-        this.currentTheme = this.isDarkTheme() ? AppConstants.THEME_LIGHT : AppConstants.THEME_DARK;
-        this.applyTheme();
-        localStorage.setItem(AppConstants.THEME_STORAGE_KEY, this.currentTheme);
+        this.themeService.toggleTheme();
     }
     
-    // Set a specific theme
+    /**
+     * Set a specific theme
+     * Delegates to ThemeService
+     * @param theme The theme to set
+     */
     setTheme(theme: string): void {
-        this.currentTheme = theme;
-        this.applyTheme();
-        localStorage.setItem(AppConstants.THEME_STORAGE_KEY, theme);
+        this.themeService.setTheme(theme);
     }
     
-    // Helper method to check if current theme is dark
+    /**
+     * Check if current theme is dark
+     * Delegates to ThemeService
+     * @returns True if current theme is dark
+     */
     isDarkTheme(): boolean {
-        return this.currentTheme === AppConstants.THEME_DARK || 
-               this.currentTheme === AppConstants.THEME_MONOKAI;
+        return this.themeService.isDarkTheme();
     }
-
-    private applyTheme(): void {
-        // Remove all theme classes first
-        this.renderer.removeClass(document.body, AppConstants.DARK_THEME_CLASS);
-        this.renderer.removeClass(document.body, AppConstants.SOLARIZED_THEME_CLASS);
-        this.renderer.removeClass(document.body, AppConstants.MONOKAI_THEME_CLASS);
-        
-        // Apply the appropriate theme class
-        switch (this.currentTheme) {
-            case AppConstants.THEME_DARK:
-                this.renderer.addClass(document.body, AppConstants.DARK_THEME_CLASS);
-                break;
-            case AppConstants.THEME_SOLARIZED:
-                this.renderer.addClass(document.body, AppConstants.SOLARIZED_THEME_CLASS);
-                break;
-            case AppConstants.THEME_MONOKAI:
-                this.renderer.addClass(document.body, AppConstants.MONOKAI_THEME_CLASS);
-                break;
-            // Light theme is the default, no class needed
-        }
+    
+    /**
+     * Get the current theme
+     * @returns Current theme value
+     */
+    getCurrentTheme(): string {
+        return this.themeService.getCurrentTheme();
     }
 }
