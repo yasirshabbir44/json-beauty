@@ -56,6 +56,11 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() treeSearch = new EventEmitter<string>();
     @Output() copy = new EventEmitter<void>();
     
+    // Features-related event emitters
+    @Output() toggleTreeView = new EventEmitter<void>();
+    @Output() toggleJsonPaths = new EventEmitter<void>();
+    @Output() toggleSchemaEditor = new EventEmitter<void>();
+    
     // Export-related event emitters
     @Output() download = new EventEmitter<void>();
     @Output() downloadText = new EventEmitter<void>();
@@ -294,6 +299,27 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      */
     onToggleViewMode(): void {
         this.toggleViewMode.emit(this.selectedViewMode);
+    }
+    
+    /**
+     * Toggles the tree view
+     */
+    onToggleTreeView(): void {
+        this.toggleTreeView.emit();
+    }
+    
+    /**
+     * Toggles JSON paths view
+     */
+    onToggleJsonPaths(): void {
+        this.toggleJsonPaths.emit();
+    }
+    
+    /**
+     * Toggles the schema editor for validation
+     */
+    onToggleSchemaEditor(): void {
+        this.toggleSchemaEditor.emit();
     }
 
     /**

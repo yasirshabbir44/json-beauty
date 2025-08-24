@@ -18,35 +18,6 @@
     </div>
 
 
-    <div class="toolbar-section">
-        <h3 class="toolbar-title">Features</h3>
-        <div class="toolbar-buttons">
-            <button [matMenuTriggerFor]="featuresMenu" class="action-button" color="primary"
-                    mat-raised-button matTooltip="JSON Features">
-                <mat-icon>account_tree</mat-icon>
-                Features
-                <mat-icon>arrow_drop_down</mat-icon>
-            </button>
-            <mat-menu #featuresMenu="matMenu">
-                <button (click)="toggleTreeView.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>account_tree</mat-icon>
-                    <span>Tree View</span>
-                </button>
-                <button (click)="toggleOutputFormat.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>swap_horiz</mat-icon>
-                    <span>JSON/YAML</span>
-                </button>
-                <button (click)="toggleJsonPaths.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>route</mat-icon>
-                    <span>Paths</span>
-                </button>
-                <button (click)="toggleSchemaEditor.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>check_circle</mat-icon>
-                    <span>Validate</span>
-                </button>
-            </mat-menu>
-        </div>
-    </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Advanced</h3>

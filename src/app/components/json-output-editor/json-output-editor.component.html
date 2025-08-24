@@ -27,6 +27,30 @@
             <mat-icon>content_copy</mat-icon>
         </button>
         
+        <!-- Features Dropdown -->
+        <button [matMenuTriggerFor]="featuresMenu" *ngIf="isValidJson"
+                class="features-btn" mat-icon-button matTooltip="JSON Features">
+            <mat-icon>account_tree</mat-icon>
+        </button>
+        <mat-menu #featuresMenu="matMenu">
+            <button (click)="onToggleTreeView()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>account_tree</mat-icon>
+                <span>Tree View</span>
+            </button>
+            <button (click)="onToggleOutputFormat()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>swap_horiz</mat-icon>
+                <span>JSON/YAML</span>
+            </button>
+            <button (click)="onToggleJsonPaths()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>route</mat-icon>
+                <span>Paths</span>
+            </button>
+            <button (click)="onToggleSchemaEditor()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>check_circle</mat-icon>
+                <span>Validate</span>
+            </button>
+        </mat-menu>
+        
         <!-- Export Dropdown -->
         <button [matMenuTriggerFor]="exportMenu" *ngIf="isValidJson" 
                 class="export-btn" mat-icon-button matTooltip="Export Options">
