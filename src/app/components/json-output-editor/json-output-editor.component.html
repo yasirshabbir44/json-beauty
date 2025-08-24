@@ -26,6 +26,35 @@
                 class="copy-btn" mat-icon-button>
             <mat-icon>content_copy</mat-icon>
         </button>
+        
+        <!-- Export Dropdown -->
+        <button [matMenuTriggerFor]="exportMenu" *ngIf="isValidJson" 
+                class="export-btn" mat-icon-button matTooltip="Export Options">
+            <mat-icon>download</mat-icon>
+        </button>
+        <mat-menu #exportMenu="matMenu">
+            <button (click)="download.emit()" mat-menu-item>
+                <mat-icon>download</mat-icon>
+                <span>JSON</span>
+            </button>
+            <button (click)="downloadText.emit()" mat-menu-item>
+                <mat-icon>description</mat-icon>
+                <span>TXT</span>
+            </button>
+            <button (click)="convertToCsv.emit()" mat-menu-item>
+                <mat-icon>table_chart</mat-icon>
+                <span>CSV</span>
+            </button>
+            <button (click)="convertToXml.emit()" mat-menu-item>
+                <mat-icon>code</mat-icon>
+                <span>XML</span>
+            </button>
+            <button (click)="share.emit()" mat-menu-item>
+                <mat-icon>share</mat-icon>
+                <span>Share</span>
+            </button>
+        </mat-menu>
+        
         <button (click)="toggleOutputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'"
                 class="maximize-btn" mat-icon-button>
             <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>

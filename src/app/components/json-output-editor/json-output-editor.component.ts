@@ -55,6 +55,13 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() toggleNode = new EventEmitter<string>();
     @Output() treeSearch = new EventEmitter<string>();
     @Output() copy = new EventEmitter<void>();
+    
+    // Export-related event emitters
+    @Output() download = new EventEmitter<void>();
+    @Output() downloadText = new EventEmitter<void>();
+    @Output() convertToCsv = new EventEmitter<void>();
+    @Output() convertToXml = new EventEmitter<void>();
+    @Output() share = new EventEmitter<void>();
 
     outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
