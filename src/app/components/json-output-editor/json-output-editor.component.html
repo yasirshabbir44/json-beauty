@@ -22,6 +22,10 @@
             </mat-button-toggle-group>
         </div>
         <div class="spacer"></div>
+        <button (click)="copy.emit()" *ngIf="isValidJson" matTooltip="Copy to Clipboard"
+                class="copy-btn" mat-icon-button>
+            <mat-icon>content_copy</mat-icon>
+        </button>
         <button (click)="toggleOutputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'"
                 class="maximize-btn" mat-icon-button>
             <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>

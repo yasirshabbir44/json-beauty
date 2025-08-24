@@ -54,6 +54,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() toggleViewMode = new EventEmitter<'text' | 'tree' | 'table'>();
     @Output() toggleNode = new EventEmitter<string>();
     @Output() treeSearch = new EventEmitter<string>();
+    @Output() copy = new EventEmitter<void>();
 
     outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
