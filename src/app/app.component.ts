@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {CSPService} from './services/security/csp.service';
 import {SecurityUtilsService} from './services/security/security-utils.service';
 import {ThemeService, ThemeOption} from './services/theme/theme.service';
+import {SettingsService} from './services/settings/settings.service';
 
 /**
  * Main application component
@@ -22,7 +23,8 @@ export class AppComponent implements OnInit {
     constructor(
         private cspService: CSPService,
         private securityUtils: SecurityUtilsService,
-        private themeService: ThemeService
+        private themeService: ThemeService,
+        private settingsService: SettingsService
     ) {
         // Get theme options from the theme service
         this.themeOptions = this.themeService.getThemeOptions();
@@ -71,5 +73,29 @@ export class AppComponent implements OnInit {
      */
     getCurrentTheme(): string {
         return this.themeService.getCurrentTheme();
+    }
+
+    /**
+     * Toggle formatting options visibility
+     * Delegates to SettingsService
+     */
+    toggleFormattingOptions(): void {
+        this.settingsService.toggleFormattingOptions();
+    }
+
+    /**
+     * Toggle keyboard shortcuts visibility
+     * Delegates to SettingsService
+     */
+    toggleKeyboardShortcuts(): void {
+        this.settingsService.toggleKeyboardShortcuts();
+    }
+
+    /**
+     * Toggle search and replace visibility
+     * Delegates to SettingsService
+     */
+    toggleSearchReplace(): void {
+        this.settingsService.toggleSearchReplace();
     }
 }

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
@@ -9,6 +9,8 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
 import {ShareDialogComponent} from '../share-dialog/share-dialog.component';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
+import {SettingsService} from '../../services/settings/settings.service';
+import {Subscription} from 'rxjs';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -31,7 +33,9 @@ import 'ace-builds/src-noconflict/ext-searchbox';
  *
  * This component maintains the state and coordinates data flow between the child components.
  */
-export class JsonEditorComponent implements OnInit, AfterViewInit {
+export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+    // Subscriptions for cleanup
+    private subscriptions: Subscription[] = [];
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
     jsonInput = new FormControl('');
@@ -113,7 +117,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         private versionHistoryService: VersionHistoryService,
         private dialog: MatDialog,
         private sanitizationService: InputSanitizationService,
-        private securityUtils: SecurityUtilsService
+        private securityUtils: SecurityUtilsService,
+        private settingsService: SettingsService
     ) {
         // Listen for dark mode changes
         document.body.addEventListener('DOMSubtreeModified', () => {
@@ -296,7 +301,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     toggleKeyboardShortcuts(): void {
-        this.showKeyboardShortcuts = !this.showKeyboardShortcuts;
+        // Delegate to the settings service
+        this.settingsService.toggleKeyboardShortcuts();
     }
 
     toggleTheme(): void {
@@ -401,6 +407,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             document.body.classList.add('dark-theme');
         }
 
+        // Subscribe to settings service observables
+        this.subscriptions.push(
+            this.settingsService.showFormattingOptions$.subscribe(show => {
+                this.showFormattingOptions = show;
+            }),
+            this.settingsService.showKeyboardShortcuts$.subscribe(show => {
+                this.showKeyboardShortcuts = show;
+            }),
+            this.settingsService.showSearchReplace$.subscribe(show => {
+                this.showSearchReplace = show;
+                if (show) {
+                    // Set the current text for search and replace
+                    this.searchReplaceText = this.jsonInput.value || '';
+                }
+            })
+        );
+
         // Check for JSON data in URL (for shared links)
         this.loadJsonFromUrl();
 
@@ -435,6 +458,15 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             // Validate the initial JSON to update the output
             this.validateJson();
         }, 100);
+    }
+
+    /**
+     * Clean up subscriptions when component is destroyed
+     */
+    ngOnDestroy(): void {
+        // Unsubscribe from all subscriptions
+        this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.subscriptions = [];
     }
 
     // Output editor initialization is now handled by the JsonOutputEditorComponent

@@ -1,5 +1,29 @@
 <div class="app-container">
     <app-header [title]="title" subtitle="Format • Validate • Transform">
+        <button [matMenuTriggerFor]="settingsMenu" [matTooltip]="'Settings and Options'"
+                aria-label="Settings and Options" class="settings-btn"
+                mat-icon-button>
+            <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu #settingsMenu="matMenu">
+            <button (click)="toggleTheme()" mat-menu-item>
+                <mat-icon>brightness_medium</mat-icon>
+                <span>Theme</span>
+            </button>
+            <button (click)="toggleFormattingOptions()" mat-menu-item>
+                <mat-icon>settings</mat-icon>
+                <span>Options</span>
+            </button>
+            <button (click)="toggleKeyboardShortcuts()" mat-menu-item>
+                <mat-icon>keyboard</mat-icon>
+                <span>Shortcuts</span>
+            </button>
+            <button (click)="toggleSearchReplace()" mat-menu-item>
+                <mat-icon>find_replace</mat-icon>
+                <span>Search & Replace</span>
+            </button>
+        </mat-menu>
+        
         <button [matMenuTriggerFor]="themeMenu" [matTooltip]="'Change Theme'"
                 aria-label="Change Theme" class="theme-toggle-btn"
                 mat-icon-button>
