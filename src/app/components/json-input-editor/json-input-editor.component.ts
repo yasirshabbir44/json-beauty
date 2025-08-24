@@ -10,6 +10,9 @@ import 'ace-builds/src-noconflict/ext-code_lens';
 import 'ace-builds/src-noconflict/ext-modelist';
 import 'ace-builds/src-noconflict/ext-prompt';
 import 'ace-builds/src-noconflict/ext-linking';
+import {JsonService} from '../../services/json.service';
+import {InputSanitizationService} from '../../services/security/input-sanitization.service';
+import {SecurityUtilsService} from '../../services/security/security-utils.service';
 
 @Component({
     selector: 'app-json-input-editor',
@@ -27,6 +30,12 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
 
     @Output() jsonInputChange = new EventEmitter<string>();
     @Output() toggleMaximize = new EventEmitter<void>();
+    
+    // Action outputs
+    @Output() beautify = new EventEmitter<void>();
+    @Output() minify = new EventEmitter<void>();
+    @Output() clear = new EventEmitter<void>();
+    @Output() import = new EventEmitter<Event>();
 
     editor: AceAjax.Editor | null = null;
     jsonInput = new FormControl('');
@@ -35,7 +44,11 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
     private readonly EDITOR_INIT_ERROR = 'Failed to initialize editor';
     private readonly EDITOR_NOT_INITIALIZED = 'Editor is not initialized';
 
-    constructor() {
+    constructor(
+        private jsonService: JsonService,
+        private sanitizationService: InputSanitizationService,
+        private securityUtils: SecurityUtilsService
+    ) {
     }
 
     ngOnInit(): void {
@@ -149,7 +162,93 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
             this.editor.setValue('', -1);
             this.jsonInput.setValue('');
             this.jsonInputChange.emit('');
+            this.clear.emit();
         }
+    }
+    
+    /**
+     * Beautifies the JSON in the editor
+     */
+    beautifyJson(): void {
+        try {
+            if (this.editor) {
+                const beautified = this.jsonService.beautifyJson(this.getValue() || '{}');
+                this.setValue(beautified);
+                this.jsonInput.setValue(beautified);
+                this.jsonInputChange.emit(beautified);
+                this.beautify.emit();
+            }
+        } catch (e: any) {
+            console.error('Error beautifying JSON:', e.message);
+        }
+    }
+    
+    /**
+     * Minifies the JSON in the editor
+     */
+    minifyJson(): void {
+        try {
+            if (this.editor) {
+                const minified = this.jsonService.minifyJson(this.getValue() || '{}');
+                this.setValue(minified);
+                this.jsonInput.setValue(minified);
+                this.jsonInputChange.emit(minified);
+                this.minify.emit();
+            }
+        } catch (e: any) {
+            console.error('Error minifying JSON:', e.message);
+        }
+    }
+    
+    /**
+     * Imports JSON from a file
+     * @param event The file input change event
+     */
+    importFile(event: any): void {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file before processing
+        const allowedTypes = ['application/json', 'text/plain', 'text/json', 'application/x-javascript'];
+        const maxFileSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!this.securityUtils.validateFile(file, allowedTypes, maxFileSize)) {
+            console.error(`Invalid file: Only JSON files up to 5MB are allowed`);
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target?.result as string;
+
+                // Sanitize the file content before processing
+                const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'json';
+                const sanitizedContent = this.sanitizationService.sanitizeFileContent(content, fileExtension);
+
+                // Try to parse the sanitized content to validate it's JSON
+                JSON.parse(sanitizedContent);
+
+                // Set the input editor value
+                this.setValue(sanitizedContent);
+                this.jsonInput.setValue(sanitizedContent);
+                this.jsonInputChange.emit(sanitizedContent);
+                this.import.emit(event);
+            } catch (error) {
+                console.error('Error importing file:', error instanceof Error ? error.message : String(error));
+            }
+
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
+        };
+        
+        reader.onerror = () => {
+            console.error('Error reading file');
+            event.target.value = '';
+        };
+
+        reader.readAsText(file);
     }
 
     /**

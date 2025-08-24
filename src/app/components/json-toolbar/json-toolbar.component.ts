@@ -9,11 +9,7 @@ export class JsonToolbarComponent {
     @Input() isValidJson: boolean = false;
 
     // Basic actions
-    @Output() beautify = new EventEmitter<void>();
-    @Output() minify = new EventEmitter<void>();
     @Output() lint = new EventEmitter<void>();
-    @Output() clear = new EventEmitter<void>();
-    @Output() import = new EventEmitter<Event>();
 
     // Export actions
     @Output() copy = new EventEmitter<void>();
@@ -42,13 +38,5 @@ export class JsonToolbarComponent {
     @Output() toggleSearchReplace = new EventEmitter<void>();
 
     constructor() {
-    }
-
-    onImportClick(fileInput: HTMLInputElement): void {
-        fileInput.click();
-    }
-
-    onFileSelected(event: Event): void {
-        this.import.emit(event);
     }
 }

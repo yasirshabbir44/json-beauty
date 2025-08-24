@@ -3,6 +3,24 @@
         <mat-icon>input</mat-icon>
         <span>Input JSON</span>
         <div class="spacer"></div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button (click)="beautifyJson()" [disabled]="!isValidJson" mat-icon-button matTooltip="Beautify JSON">
+                <mat-icon>format_align_left</mat-icon>
+            </button>
+            <button (click)="minifyJson()" [disabled]="!isValidJson" mat-icon-button matTooltip="Minify JSON">
+                <mat-icon>compress</mat-icon>
+            </button>
+            <button (click)="clearEditor()" mat-icon-button matTooltip="Clear Editor">
+                <mat-icon>delete_outline</mat-icon>
+            </button>
+            <button (click)="fileInput.click()" mat-icon-button matTooltip="Import JSON">
+                <mat-icon>upload_file</mat-icon>
+            </button>
+            <input #fileInput (change)="importFile($event)" accept=".json,.txt" style="display: none" type="file">
+        </div>
+        
         <button (click)="toggleInputMaximize()" [matTooltip]="isMaximized ? 'Minimize' : 'Maximize'" class="maximize-btn"
                 mat-icon-button>
             <mat-icon>{{ isMaximized ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>

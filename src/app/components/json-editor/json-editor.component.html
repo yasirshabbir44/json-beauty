@@ -10,17 +10,13 @@
             <div class="editor-layout">
                 <!-- Toolbar Component -->
                 <app-json-toolbar
-                        (beautify)="beautifyJson()"
-                        (clear)="clearEditor()"
                         (convertToCsv)="convertToCsv()"
                         (convertToXml)="convertToXml()"
                         (copy)="copyToClipboard()"
                         (download)="downloadOutput()"
                         (downloadText)="downloadText()"
                         (generateSchema)="generateJsonSchema()"
-                        (import)="importFile($event)"
                         (lint)="lintJson()"
-                        (minify)="minifyJson()"
                         (share)="shareJson()"
                         (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
                         (toggleJsonCompare)="toggleJsonCompare()"
@@ -78,6 +74,10 @@
                     <app-json-input-editor
                             (jsonInputChange)="onJsonInputChange($event)"
                             (toggleMaximize)="toggleInputMaximize()"
+                            (beautify)="beautifyJson()"
+                            (minify)="minifyJson()"
+                            (clear)="clearEditor()"
+                            (import)="importFile($event)"
                             [errorMessage]="errorMessage"
                             [isDarkTheme]="isDarkTheme"
                             [isMaximized]="isInputMaximized"

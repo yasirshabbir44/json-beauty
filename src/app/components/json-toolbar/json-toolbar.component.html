@@ -9,30 +9,11 @@
                 <mat-icon>arrow_drop_down</mat-icon>
             </button>
             <mat-menu #actionsMenu="matMenu">
-                <button (click)="beautify.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>format_align_left</mat-icon>
-                    <span>Beautify</span>
-                </button>
-                <button (click)="minify.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>compress</mat-icon>
-                    <span>Minify</span>
-                </button>
                 <button (click)="lint.emit()" [disabled]="!isValidJson" mat-menu-item>
                     <mat-icon>build</mat-icon>
                     <span>Lint & Fix</span>
                 </button>
-                <button (click)="clear.emit()" mat-menu-item class="warn-action">
-                    <mat-icon color="warn">delete_outline</mat-icon>
-                    <span>Clear</span>
-                </button>
             </mat-menu>
-
-            <button (click)="onImportClick(fileInput)" class="action-button" color="primary" mat-raised-button
-                    matTooltip="Import JSON from file">
-                <mat-icon>upload_file</mat-icon>
-                Import
-            </button>
-            <input #fileInput (change)="onFileSelected($event)" accept=".json,.txt" style="display: none" type="file">
         </div>
     </div>
 
