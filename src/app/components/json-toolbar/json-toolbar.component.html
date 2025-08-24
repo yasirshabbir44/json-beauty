@@ -17,43 +17,6 @@
         </div>
     </div>
 
-    <div class="toolbar-section">
-        <h3 class="toolbar-title">Export</h3>
-        <div class="toolbar-buttons">
-            <button [matMenuTriggerFor]="exportMenu" class="action-button" color="primary"
-                    mat-raised-button matTooltip="Export Options">
-                <mat-icon>download</mat-icon>
-                Export
-                <mat-icon>arrow_drop_down</mat-icon>
-            </button>
-            <mat-menu #exportMenu="matMenu">
-                <button (click)="copy.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>content_copy</mat-icon>
-                    <span>Copy</span>
-                </button>
-                <button (click)="download.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>download</mat-icon>
-                    <span>JSON</span>
-                </button>
-                <button (click)="downloadText.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>description</mat-icon>
-                    <span>TXT</span>
-                </button>
-                <button (click)="convertToCsv.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>table_chart</mat-icon>
-                    <span>CSV</span>
-                </button>
-                <button (click)="convertToXml.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>code</mat-icon>
-                    <span>XML</span>
-                </button>
-                <button (click)="share.emit()" [disabled]="!isValidJson" mat-menu-item>
-                    <mat-icon>share</mat-icon>
-                    <span>Share</span>
-                </button>
-            </mat-menu>
-        </div>
-    </div>
 
     <div class="toolbar-section">
         <h3 class="toolbar-title">Features</h3>
