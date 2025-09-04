@@ -23,33 +23,31 @@
     }
   }
 
-  // Maximized state
+  // Fullscreen mode
+  &.fullscreen-mode {
+    border-radius: 0;
+    box-shadow: none;
+    transform: translateY(0);
+    background-color: #f8f9fa;
+    
+    .editor-wrapper {
+      height: calc(100vh - 42px);
+    }
+  }
+  
+  // For backward compatibility
   &.maximized {
     position: fixed;
-    top: 48px;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 1000;
     width: 100%;
-    height: calc(100vh - 48px);
+    height: 100%;
     border-radius: 0;
     box-shadow: none;
     overflow: auto;
-
-    @media (max-width: 768px) {
-      top: 42px;
-      height: calc(100vh - 42px);
-    }
-
-    .editor-wrapper {
-      height: calc(100vh - 90px);
-      min-height: auto;
-
-      @media (max-width: 768px) {
-        height: calc(100vh - 84px);
-      }
-    }
   }
 
   // Header styles

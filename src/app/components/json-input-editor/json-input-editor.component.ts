@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
@@ -21,6 +21,7 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
 })
 export class JsonInputEditorComponent implements OnInit, AfterViewInit {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
+    @ViewChild('editorSection', {static: true}) editorSectionElement!: ElementRef;
 
     @Input() isDarkTheme: boolean = false;
     @Input() isMaximized: boolean = false;
@@ -39,6 +40,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
 
     editor: AceAjax.Editor | null = null;
     jsonInput = new FormControl('');
+    isFullScreen: boolean = false;
 
     // Constants for error messages
     private readonly EDITOR_INIT_ERROR = 'Failed to initialize editor';
@@ -47,7 +49,8 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
     constructor(
         private jsonService: JsonService,
         private sanitizationService: InputSanitizationService,
-        private securityUtils: SecurityUtilsService
+        private securityUtils: SecurityUtilsService,
+        private renderer: Renderer2
     ) {
     }
 
@@ -60,6 +63,51 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
         if (this.editor) {
             this.editor.renderer.updateFull(true);
         }
+    }
+    
+    @HostListener('document:keydown.escape', ['$event'])
+    onEscapeKey(event: KeyboardEvent): void {
+        if (this.isFullScreen) {
+            this.exitFullScreen();
+        }
+    }
+
+    @HostListener('document:fullscreenchange', ['$event'])
+    @HostListener('document:webkitfullscreenchange', ['$event'])
+    @HostListener('document:mozfullscreenchange', ['$event'])
+    @HostListener('document:MSFullscreenChange', ['$event'])
+    onFullScreenChange(): void {
+        // Handle different browser implementations of fullscreen API
+        interface FullScreenDocument extends Document {
+            webkitFullscreenElement?: Element;
+            mozFullScreenElement?: Element;
+            msFullscreenElement?: Element;
+        }
+
+        const doc = document as FullScreenDocument;
+        this.isFullScreen = !!(doc.fullscreenElement ||
+            doc.webkitFullscreenElement ||
+            doc.mozFullScreenElement ||
+            doc.msFullscreenElement);
+
+        // Resize editor when exiting fullscreen
+        if (!this.isFullScreen) {
+            this.resizeEditorSafely();
+        }
+    }
+    
+    /**
+     * Utility method to safely resize the editor after a short delay
+     * @param delay Time in milliseconds to wait before resizing
+     */
+    private resizeEditorSafely(delay: number = 100): void {
+        if (!this.editor) return;
+
+        setTimeout(() => {
+            if (this.editor) {
+                this.editor.resize();
+            }
+        }, delay);
     }
 
     initializeEditor(): void {
@@ -255,14 +303,53 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
      * Toggles the maximized state of the input section
      */
     toggleInputMaximize(): void {
-        this.toggleMaximize.emit();
+        if (this.isFullScreen) {
+            this.exitFullScreen();
+        } else {
+            this.enterFullScreen();
+        }
+    }
+    
+    /**
+     * Enter full screen mode
+     */
+    private enterFullScreen(): void {
+        const element = this.editorSectionElement.nativeElement;
 
-        // Resize the editor after the UI has updated
-        setTimeout(() => {
-            if (this.editor) {
-                this.editor.resize();
-            }
-        }, 100);
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if ((element as any).webkitRequestFullscreen) {
+            (element as any).webkitRequestFullscreen();
+        } else if ((element as any).mozRequestFullScreen) {
+            (element as any).mozRequestFullScreen();
+        } else if ((element as any).msRequestFullscreen) {
+            (element as any).msRequestFullscreen();
+        }
+
+        // Add fullscreen class for styling
+        this.renderer.addClass(element, 'fullscreen-mode');
+
+        // Resize editor after entering fullscreen
+        this.resizeEditorSafely();
+    }
+
+    /**
+     * Exit full screen mode
+     */
+    private exitFullScreen(): void {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+            (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+            (document as any).msExitFullscreen();
+        }
+
+        // Remove fullscreen class
+        const element = this.editorSectionElement.nativeElement;
+        this.renderer.removeClass(element, 'fullscreen-mode');
     }
 
     /**
