@@ -2,30 +2,6 @@
     <mat-card class="editor-card">
         <mat-card-content class="p-1">
             <div class="editor-layout">
-                <!-- Toolbar Component -->
-                <app-json-toolbar
-                        (convertToCsv)="convertToCsv()"
-                        (convertToXml)="convertToXml()"
-                        (copy)="copyToClipboard()"
-                        (download)="downloadOutput()"
-                        (downloadText)="downloadText()"
-                        (generateSchema)="generateJsonSchema()"
-                        (lint)="lintJson()"
-                        (share)="shareJson()"
-                        (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
-                        (toggleJsonCompare)="toggleJsonCompare()"
-                        (toggleJsonPathQuery)="toggleJsonPathQuery()"
-                        (toggleJsonPaths)="toggleJsonPaths()"
-                        (toggleJsonVisualize)="toggleJsonVisualize()"
-                        (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
-                        (toggleOutputFormat)="toggleOutputFormat()"
-                        (toggleSchemaEditor)="toggleSchemaEditor()"
-                        (toggleSearchReplace)="toggleSearchReplace()"
-                        (toggleTheme)="toggleTheme()"
-                        (toggleTreeView)="toggleTreeView()"
-                        [isValidJson]="isValidJson">
-                </app-json-toolbar>
-
                 <!-- Dialogs Component -->
                 <app-json-dialogs
                         (applyFormatting)="applyFormatting()"
@@ -91,7 +67,14 @@
                             (downloadText)="downloadText()"
                             (convertToCsv)="convertToCsv()"
                             (convertToXml)="convertToXml()"
+                            (generateSchema)="generateJsonSchema()"
                             (share)="shareJson()"
+                            (toggleJsonCompare)="toggleJsonCompare()"
+                            (toggleJsonPaths)="toggleJsonPaths()"
+                            (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                            (toggleJsonVisualize)="toggleJsonVisualize()"
+                            (toggleSchemaEditor)="toggleSchemaEditor()"
+                            (toggleTreeView)="toggleTreeView()"
                             [expandedNodes]="expandedNodes"
                             [isDarkTheme]="isDarkTheme"
                             [isMaximized]="isOutputMaximized"

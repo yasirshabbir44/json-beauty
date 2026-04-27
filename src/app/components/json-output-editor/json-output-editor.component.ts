@@ -62,6 +62,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() toggleTreeView = new EventEmitter<void>();
     @Output() toggleJsonPaths = new EventEmitter<void>();
     @Output() toggleSchemaEditor = new EventEmitter<void>();
+    @Output() generateSchema = new EventEmitter<void>();
+    @Output() toggleJsonPathQuery = new EventEmitter<void>();
+    @Output() toggleJsonCompare = new EventEmitter<void>();
+    @Output() toggleJsonVisualize = new EventEmitter<void>();
     
     // Export-related event emitters
     @Output() download = new EventEmitter<void>();
@@ -334,6 +338,22 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      */
     onToggleSchemaEditor(): void {
         this.toggleSchemaEditor.emit();
+    }
+
+    onGenerateSchema(): void {
+        this.generateSchema.emit();
+    }
+
+    onToggleJsonPathQuery(): void {
+        this.toggleJsonPathQuery.emit();
+    }
+
+    onToggleJsonCompare(): void {
+        this.toggleJsonCompare.emit();
+    }
+
+    onToggleJsonVisualize(): void {
+        this.toggleJsonVisualize.emit();
     }
 
     /**

@@ -355,6 +355,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param viewMode The new view mode
      */
     handleViewModeChange(viewMode: 'text' | 'tree' | 'table'): void {
+        if ((viewMode === 'tree' || viewMode === 'table') && !this.isValidJson) {
+            this.showError('Please enter valid JSON to use tree or table view');
+            return;
+        }
+
         // If trying to enable tree or table view in YAML mode, switch to JSON mode first
         if ((viewMode === 'tree' || viewMode === 'table') && this.selectedOutputFormat === 'yaml') {
             this.selectedOutputFormat = 'json';
@@ -371,6 +376,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             try {
                 // Parse the JSON to create the tree data
                 this.jsonTreeData = JSON.parse(this.jsonOutput.value || '{}');
+                // Keep the root open so users immediately see content.
+                this.expandedNodes.clear();
+                this.expandedNodes.add('$');
             } catch (error) {
                 this.showError('Error parsing JSON for ' + viewMode + ' view');
                 this.selectedViewMode = 'text';
@@ -488,6 +496,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // Disable tree view if it's active
             if (this.showTreeView) {
                 this.showTreeView = false;
+                this.selectedViewMode = 'text';
                 this.showError('Tree view disabled due to invalid JSON');
             }
         }
@@ -555,11 +564,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // Disable tree view when switching to YAML mode
             if (this.showTreeView) {
                 this.showTreeView = false;
+                this.selectedViewMode = 'text';
                 this.showSuccess('Tree view disabled in YAML mode');
             }
         } else {
             // Switching from YAML to JSON
             this.selectedOutputFormat = 'json';
+            this.selectedViewMode = 'text';
+            this.showTreeView = false;
 
             try {
                 // Convert YAML back to JSON
@@ -746,6 +758,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.jsonTreeData = JSON.parse(jsonString);
                         // Reset expanded nodes when JSON changes
                         this.expandedNodes.clear();
+                        this.expandedNodes.add('$');
                     } catch (error) {
                         this.jsonTreeData = null;
                         // Disable tree view if parsing fails

@@ -36,6 +36,23 @@
                 <mat-icon>check_circle</mat-icon>
                 <span>Validate</span>
             </button>
+            <mat-divider></mat-divider>
+            <button (click)="onGenerateSchema()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>schema</mat-icon>
+                <span>Generate Schema</span>
+            </button>
+            <button (click)="onToggleJsonPathQuery()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>search</mat-icon>
+                <span>JSONPath Query</span>
+            </button>
+            <button (click)="onToggleJsonCompare()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>compare</mat-icon>
+                <span>Compare JSON</span>
+            </button>
+            <button (click)="onToggleJsonVisualize()" [disabled]="!isValidJson" mat-menu-item>
+                <mat-icon>bar_chart</mat-icon>
+                <span>Visualize</span>
+            </button>
         </mat-menu>
         
         <!-- Export Dropdown -->
