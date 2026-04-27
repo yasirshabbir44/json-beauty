@@ -128,6 +128,31 @@
   color: #174ea6;
 }
 
+.output-toolbar-sub {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #5f6368;
+  margin-left: 4px;
+
+  @media (max-width: 520px) {
+    display: none;
+  }
+}
+
+.view-toggle-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+.view-toggle-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .output-toolbar-actions {
   display: flex;
   align-items: center;
@@ -181,7 +206,7 @@
   width: 100%;
   height: 100%;
   font-size: 14px;
-  font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
   line-height: 1.5;
   padding: 12px;
   box-sizing: border-box;

@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
@@ -19,24 +19,19 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
     templateUrl: './json-input-editor.component.html',
     styleUrls: ['./json-input-editor.component.scss']
 })
-export class JsonInputEditorComponent implements OnInit, AfterViewInit {
+export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
     @ViewChild('editorSection', {static: true}) editorSectionElement!: ElementRef;
+    @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
     @Input() isDarkTheme: boolean = false;
     @Input() isMaximized: boolean = false;
-    @Input() showInputSearchBar: boolean = false;
     @Input() isValidJson: boolean = true;
     @Input() errorMessage: string = '';
 
     @Output() jsonInputChange = new EventEmitter<string>();
     @Output() toggleMaximize = new EventEmitter<void>();
-    
-    // Action outputs
-    @Output() beautify = new EventEmitter<void>();
-    @Output() minify = new EventEmitter<void>();
-    @Output() clear = new EventEmitter<void>();
-    @Output() import = new EventEmitter<Event>();
+    @Output() cursorPositionChange = new EventEmitter<{ line: number; column: number }>();
 
     editor: AceAjax.Editor | null = null;
     jsonInput = new FormControl('');
@@ -131,7 +126,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
                 showGutter: true,
                 highlightActiveLine: true,
                 tabSize: 2,
-                fontSize: '15px',
+                fontSize: '14px',
                 printMarginColumn: 120,
                 showPrintMargin: false,
                 fadeFoldWidgets: false,
@@ -173,6 +168,10 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
                     this.jsonInputChange.emit(this.editor.getValue());
                 }
             });
+
+            const ed = this.editor as unknown as { selection: { on: (ev: string, fn: () => void) => void } };
+            ed.selection.on('changeCursor', this.boundEmitCursor);
+            this.emitCursorPosition();
         } catch (error) {
             console.error(`${this.EDITOR_INIT_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
         }
@@ -210,42 +209,34 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
             this.editor.setValue('', -1);
             this.jsonInput.setValue('');
             this.jsonInputChange.emit('');
-            this.clear.emit();
         }
     }
-    
-    /**
-     * Beautifies the JSON in the editor
-     */
-    beautifyJson(): void {
-        try {
-            if (this.editor) {
-                const beautified = this.jsonService.beautifyJson(this.getValue() || '{}');
-                this.setValue(beautified);
-                this.jsonInput.setValue(beautified);
-                this.jsonInputChange.emit(beautified);
-                this.beautify.emit();
-            }
-        } catch (e: any) {
-            console.error('Error beautifying JSON:', e.message);
+
+    ngOnDestroy(): void {
+        if (this.editor) {
+            const ed = this.editor as unknown as { selection: { off: (ev: string, fn: () => void) => void } };
+            ed.selection.off('changeCursor', this.boundEmitCursor);
         }
     }
-    
-    /**
-     * Minifies the JSON in the editor
-     */
-    minifyJson(): void {
-        try {
-            if (this.editor) {
-                const minified = this.jsonService.minifyJson(this.getValue() || '{}');
-                this.setValue(minified);
-                this.jsonInput.setValue(minified);
-                this.jsonInputChange.emit(minified);
-                this.minify.emit();
-            }
-        } catch (e: any) {
-            console.error('Error minifying JSON:', e.message);
+
+    /** Opens the hidden file picker (used from parent menus). */
+    openFilePicker(): void {
+        this.fileInputRef?.nativeElement?.click();
+    }
+
+    /** Exposes the Ace instance for scroll sync and parent-driven search. */
+    getAceEditor(): AceAjax.Editor | null {
+        return this.editor;
+    }
+
+    private readonly boundEmitCursor = (): void => this.emitCursorPosition();
+
+    private emitCursorPosition(): void {
+        if (!this.editor) {
+            return;
         }
+        const pos = (this.editor as unknown as { getCursorPosition: () => { row: number; column: number } }).getCursorPosition();
+        this.cursorPositionChange.emit({ line: pos.row + 1, column: pos.column + 1 });
     }
     
     /**
@@ -282,7 +273,6 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
                 this.setValue(sanitizedContent);
                 this.jsonInput.setValue(sanitizedContent);
                 this.jsonInputChange.emit(sanitizedContent);
-                this.import.emit(event);
             } catch (error) {
                 console.error('Error importing file:', error instanceof Error ? error.message : String(error));
             }

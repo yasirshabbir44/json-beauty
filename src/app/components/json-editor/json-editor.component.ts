@@ -1,8 +1,9 @@
-import {AfterViewInit, Component, DestroyRef, HostListener, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, DestroyRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
+import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {JsonService} from '../../services/json.service';
 import {VersionHistoryService} from '../../services/history/version-history.service';
 import {InputSanitizationService} from '../../services/security/input-sanitization.service';
@@ -26,7 +27,23 @@ import 'ace-builds/src-noconflict/ext-searchbox';
     templateUrl: './json-editor.component.html',
     styleUrls: ['./json-editor.component.scss']
 })
-export class JsonEditorComponent implements OnInit, AfterViewInit {
+export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+    private static readonly DEFAULT_SAMPLE_OBJECT = {
+        name: 'JSON Beauty',
+        version: '1.0.0',
+        description: 'A powerful JSON formatter and validator',
+        features: [
+            'Beautify JSON',
+            'Minify JSON',
+            'Validate JSON',
+            'Lint JSON',
+            'Format nested JSON',
+            'Syntax highlighting'
+        ],
+        isAwesome: true,
+        numberOfUsers: 1000
+    };
+
     private isResizingPanels = false;
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
@@ -46,7 +63,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
     // Keyboard shortcuts
     keyboardShortcuts = [
-        {key: 'Ctrl / Cmd + F', action: 'Show/Hide editor search bar'},
+        {key: 'Ctrl / Cmd + F', action: 'Show/Hide floating find bar'},
         {key: 'Ctrl / Cmd + Shift + F', action: 'Show/Hide Search & Replace panel'},
         {key: 'Ctrl + B', action: 'Beautify JSON'},
         {key: 'Ctrl + M', action: 'Minify JSON'},
@@ -73,10 +90,20 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     treeSearchResults: string[] = [];
     treeSearchHighlighted: boolean = false;
 
-    // Search bar visibility properties
-    showInputSearchBar: boolean = false;
-    showOutputSearchBar: boolean = false;
-    showTreeSearchBar: boolean = false;
+    /** Floating find (Ctrl+F): targets input Ace, output Ace, or tree filter. */
+    floatingSearchOpen = false;
+    floatingSearchTarget: 'input' | 'output' | 'tree' = 'input';
+    floatingSearchQuery = '';
+    floatingSearchMatchCount = 0;
+
+    /** When true, vertical scroll position is mirrored between input and JSON output editors. */
+    syncScrollEnabled = false;
+    private suppressScrollSync = false;
+    private scrollSyncCleanups: Array<() => void> = [];
+
+    /** Input editor cursor for the status bar (1-based). */
+    inputCursorLine = 1;
+    inputCursorColumn = 1;
 
     // Schema validation properties
     schemaInput = new FormControl('');
@@ -169,6 +196,13 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         this.updateOutput();
     }
 
+    @HostListener('document:keydown', ['$event'])
+    onDocumentEscape(event: KeyboardEvent): void {
+        if (event.key === 'Escape' && this.floatingSearchOpen) {
+            this.floatingSearchOpen = false;
+        }
+    }
+
     // Listen for keyboard shortcuts
     @HostListener('window:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent): void {
@@ -250,46 +284,150 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Toggles the search bar visibility
+     * Toggles the floating find bar (Ctrl+F).
      */
     toggleSearchBar(): void {
-        // Determine which view is active or toggle all off if none is specifically active
-        if (this.isInputMaximized) {
-            // Input editor is maximized
-            this.showInputSearchBar = !this.showInputSearchBar;
-            // Hide other search bars
-            this.showOutputSearchBar = false;
-            this.showTreeSearchBar = false;
-
-            if (this.showInputSearchBar) {
-                this.focusQuerySelector('.input-search-field input');
+        this.floatingSearchOpen = !this.floatingSearchOpen;
+        if (this.floatingSearchOpen) {
+            if (this.selectedViewMode === 'tree') {
+                this.floatingSearchTarget = 'tree';
+            } else if (this.isOutputMaximized && this.canSearchOutputAce()) {
+                this.floatingSearchTarget = 'output';
+            } else {
+                this.floatingSearchTarget = 'input';
             }
-        } else if (this.isOutputMaximized || (!this.isInputMaximized && !this.showTreeView)) {
-            // Output editor is active
-            this.showOutputSearchBar = !this.showOutputSearchBar;
-            // Hide other search bars
-            this.showInputSearchBar = false;
-            this.showTreeSearchBar = false;
-
-            if (this.showOutputSearchBar) {
-                this.focusQuerySelector('.output-search-field input');
-            }
-        } else if (this.showTreeView) {
-            // Tree view is active
-            this.showTreeSearchBar = !this.showTreeSearchBar;
-            // Hide other search bars
-            this.showInputSearchBar = false;
-            this.showOutputSearchBar = false;
-
-            if (this.showTreeSearchBar) {
-                this.focusQuerySelector('.tree-search-field input');
-            }
-        } else {
-            // No specific view is active, toggle all search bars off
-            this.showInputSearchBar = false;
-            this.showOutputSearchBar = false;
-            this.showTreeSearchBar = false;
+            this.updateFloatingSearchMatchCount();
+            setTimeout(() => this.focusQuerySelector('.floating-search-query', 0), 80);
         }
+    }
+
+    closeFloatingSearch(): void {
+        this.floatingSearchOpen = false;
+    }
+
+    onFloatingSearchTargetChange(event: MatButtonToggleChange): void {
+        const v = event.value as 'input' | 'output' | 'tree' | undefined;
+        if (v) {
+            this.floatingSearchTarget = v;
+            this.updateFloatingSearchMatchCount();
+        }
+    }
+
+    onFloatingSearchQueryChange(_value: string): void {
+        this.updateFloatingSearchMatchCount();
+    }
+
+    runFloatingSearch(): void {
+        const q = this.floatingSearchQuery.trim();
+        if (!q) {
+            this.jsonInputEditor?.clearSearch();
+            this.jsonOutputEditor?.clearSearch();
+            this.jsonOutputEditor?.clearTreeSearch();
+            this.floatingSearchMatchCount = 0;
+            return;
+        }
+        if (this.floatingSearchTarget === 'input') {
+            this.jsonInputEditor?.searchInJson(q);
+        } else if (this.floatingSearchTarget === 'output') {
+            this.jsonOutputEditor?.searchInJson(q);
+        } else {
+            this.jsonOutputEditor?.searchInTree(q);
+        }
+        this.updateFloatingSearchMatchCount();
+    }
+
+    floatingSearchPrevious(): void {
+        if (this.floatingSearchTarget === 'tree') {
+            return;
+        }
+        if (this.floatingSearchTarget === 'input') {
+            this.jsonInputEditor?.findPrevious();
+        } else {
+            this.jsonOutputEditor?.findPrevious();
+        }
+    }
+
+    floatingSearchNext(): void {
+        if (this.floatingSearchTarget === 'tree') {
+            return;
+        }
+        if (this.floatingSearchTarget === 'input') {
+            this.jsonInputEditor?.findNext();
+        } else {
+            this.jsonOutputEditor?.findNext();
+        }
+    }
+
+    canSearchOutputAce(): boolean {
+        return this.isValidJson && this.selectedOutputFormat === 'json' && this.selectedViewMode === 'text';
+    }
+
+    openImportPicker(): void {
+        this.jsonInputEditor?.openFilePicker();
+    }
+
+    loadSampleJson(): void {
+        const str = JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2);
+        this.jsonInputEditor?.setValue(str);
+        this.jsonInput.setValue(str);
+        this.validateJson();
+        this.updateOutput();
+        this.showSuccess('Sample JSON loaded');
+    }
+
+    sortKeysJson(): void {
+        if (!this.isValidJson) {
+            this.showError('Enter valid JSON before sorting keys');
+            return;
+        }
+        try {
+            const parsed = JSON.parse(this.jsonInput.value || '{}');
+            const sorted = this.sortObjectKeys(parsed);
+            const str = JSON.stringify(sorted, null, 2);
+            this.applyTransformedJson(str);
+            this.showSuccess('Object keys sorted');
+        } catch {
+            this.showError('Could not sort keys');
+        }
+    }
+
+    openToolYaml(): void {
+        if (!this.isValidJson) {
+            this.showError('Enter valid JSON first');
+            return;
+        }
+        if (this.selectedOutputFormat === 'json') {
+            this.toggleOutputFormat();
+        }
+    }
+
+    onInputCursorPosition(pos: { line: number; column: number }): void {
+        this.inputCursorLine = pos.line;
+        this.inputCursorColumn = pos.column;
+    }
+
+    onSyncScrollChange(enabled: boolean): void {
+        this.syncScrollEnabled = enabled;
+        this.teardownScrollSync();
+        if (enabled) {
+            this.scheduleScrollSyncBind();
+        }
+    }
+
+    getDisplaySize(): string {
+        const raw = this.jsonInput.value || '';
+        const bytes = new Blob([raw]).size;
+        if (bytes < 1024) {
+            return `${bytes} B`;
+        }
+        if (bytes < 1024 * 1024) {
+            return `${(bytes / 1024).toFixed(1)} KB`;
+        }
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    ngOnDestroy(): void {
+        this.teardownScrollSync();
     }
 
     toggleKeyboardShortcuts(): void {
@@ -376,19 +514,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         } else if (viewMode === 'text') {
             // When switching to text view
             if (this.selectedOutputFormat === 'json') {
-                // In JSON mode, ensure the output editor is initialized and updated
                 setTimeout(() => {
                     if (this.jsonOutputEditor) {
                         this.jsonOutputEditor.initializeOutputEditor();
                     }
-                    // Update the output with the formatted JSON
                     this.updateOutput();
                 }, 100);
             } else if (this.selectedOutputFormat === 'yaml') {
-                // In YAML mode, update the YAML output
                 this.updateYamlOutput();
             }
         }
+
+        setTimeout(() => {
+            this.teardownScrollSync();
+            if (this.syncScrollEnabled) {
+                this.setupScrollSync();
+            }
+        }, 280);
     }
 
     ngOnInit(): void {
@@ -412,24 +554,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         this.loadJsonFromUrl();
 
         if (!this.hasLoadedSharedJson) {
-            // Set some sample JSON to help users get started if no JSON in URL
-            const sampleJson = {
-                "name": "JSON Beauty",
-                "version": "1.0.0",
-                "description": "A powerful JSON formatter and validator",
-                "features": [
-                    "Beautify JSON",
-                    "Minify JSON",
-                    "Validate JSON",
-                    "Lint JSON",
-                    "Format nested JSON",
-                    "Syntax highlighting"
-                ],
-                "isAwesome": true,
-                "numberOfUsers": 1000
-            };
-
-            this.jsonInput.setValue(JSON.stringify(sampleJson, null, 2));
+            this.jsonInput.setValue(JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2));
             // The output will be updated after validation in the validateJson method
         }
     }
@@ -443,6 +568,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
             // Validate the initial JSON to update the output
             this.validateJson();
+            this.scheduleScrollSyncBind();
         }, 100);
     }
 
@@ -769,7 +895,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         }
 
         navigator.clipboard.writeText(textToCopy)
-            .then(() => this.showSuccess(`${this.selectedOutputFormat.toUpperCase()} copied to clipboard`))
+            .then(() => this.showSuccess('Copied!'))
             .catch(err => this.showError('Failed to copy: ' + err));
     }
 
@@ -1121,19 +1247,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
         }
     }
 
-    getJsonSize(): string {
-        const jsonValue = this.jsonInput.value || '';
-        const charCount = jsonValue.length;
-
-        if (charCount < 1000) {
-            return charCount.toString();
-        } else if (charCount < 1000000) {
-            return (charCount / 1000).toFixed(1) + 'K';
-        } else {
-            return (charCount / 1000000).toFixed(1) + 'M';
-        }
-    }
-
     /**
      * Gets the keys of an object
      * @param obj The object to get keys from
@@ -1384,6 +1497,106 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             const errorMessage = error instanceof Error ? error.message : String(error);
             this.showError(`Error initializing visualization: ${errorMessage}`);
         }
+    }
+
+    private scheduleScrollSyncBind(): void {
+        setTimeout(() => {
+            this.teardownScrollSync();
+            if (this.syncScrollEnabled) {
+                this.setupScrollSync();
+            }
+        }, 400);
+    }
+
+    private setupScrollSync(): void {
+        this.teardownScrollSync();
+        if (!this.syncScrollEnabled || !this.canSearchOutputAce()) {
+            return;
+        }
+        const inputEd = this.jsonInputEditor?.getAceEditor() ?? null;
+        const outputEd = this.jsonOutputEditor?.getAceEditor() ?? null;
+        if (!inputEd || !outputEd) {
+            return;
+        }
+
+        const handlerIn = (): void => this.applyScrollSync(inputEd, outputEd);
+        const handlerOut = (): void => this.applyScrollSync(outputEd, inputEd);
+
+        const inSession = inputEd.session as unknown as { on: (ev: string, fn: () => void) => void; off: (ev: string, fn: () => void) => void };
+        const outSession = outputEd.session as unknown as { on: (ev: string, fn: () => void) => void; off: (ev: string, fn: () => void) => void };
+        inSession.on('changeScrollTop', handlerIn);
+        outSession.on('changeScrollTop', handlerOut);
+        this.scrollSyncCleanups.push(() => inSession.off('changeScrollTop', handlerIn));
+        this.scrollSyncCleanups.push(() => outSession.off('changeScrollTop', handlerOut));
+    }
+
+    private teardownScrollSync(): void {
+        for (const off of this.scrollSyncCleanups) {
+            off();
+        }
+        this.scrollSyncCleanups = [];
+    }
+
+    private applyScrollSync(src: AceAjax.Editor, dst: AceAjax.Editor): void {
+        if (this.suppressScrollSync) {
+            return;
+        }
+        this.suppressScrollSync = true;
+        try {
+            const ratio = this.getEditorScrollRatio(src);
+            this.setEditorScrollRatio(dst, ratio);
+        } finally {
+            requestAnimationFrame(() => {
+                this.suppressScrollSync = false;
+            });
+        }
+    }
+
+    private getEditorScrollRatio(editor: AceAjax.Editor): number {
+        const ed = editor as unknown as {
+            getFirstVisibleRow: () => number;
+            getLastVisibleRow: () => number;
+            session: { getLength: () => number };
+        };
+        const first = ed.getFirstVisibleRow();
+        const last = ed.getLastVisibleRow();
+        const len = ed.session.getLength();
+        const visibleRows = Math.max(1, last - first + 1);
+        const maxFirst = Math.max(0, len - visibleRows);
+        return maxFirst > 0 ? Math.min(1, Math.max(0, first / maxFirst)) : 0;
+    }
+
+    private setEditorScrollRatio(editor: AceAjax.Editor, ratio: number): void {
+        const ed = editor as unknown as {
+            getFirstVisibleRow: () => number;
+            getLastVisibleRow: () => number;
+            session: { getLength: () => number };
+            scrollToLine: (row: number, center: boolean, animate: boolean, margin: number) => void;
+        };
+        const first = ed.getFirstVisibleRow();
+        const last = ed.getLastVisibleRow();
+        const visibleRows = Math.max(1, last - first + 1);
+        const len = ed.session.getLength();
+        const maxFirst = Math.max(0, len - visibleRows);
+        const targetFirst = Math.floor(ratio * maxFirst);
+        ed.scrollToLine(targetFirst, false, false, 0);
+    }
+
+    private updateFloatingSearchMatchCount(): void {
+        const q = this.floatingSearchQuery.trim();
+        if (!q || this.floatingSearchTarget === 'tree') {
+            this.floatingSearchMatchCount = 0;
+            return;
+        }
+        const text =
+            this.floatingSearchTarget === 'input' ? this.jsonInput.value || '' : this.jsonOutput.value || '';
+        this.floatingSearchMatchCount = this.countOccurrencesInsensitive(text, q);
+    }
+
+    private countOccurrencesInsensitive(haystack: string, needle: string): number {
+        const esc = needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(esc, 'gi');
+        return (haystack.match(re) || []).length;
     }
 
     private focusQuerySelector(selector: string, delayMs = 100): void {

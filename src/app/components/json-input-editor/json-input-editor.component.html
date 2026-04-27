@@ -3,27 +3,17 @@
         <div class="input-toolbar-primary">
             <mat-icon class="input-toolbar-brand-icon">input</mat-icon>
             <span class="input-toolbar-title">Input JSON</span>
+            <span class="input-toolbar-sub">Editable</span>
         </div>
         <div class="input-toolbar-actions">
-            <div class="action-buttons">
-            <button (click)="beautifyJson()" [disabled]="!isValidJson" mat-icon-button matTooltip="Beautify JSON">
-                <mat-icon>format_align_left</mat-icon>
-            </button>
-            <button (click)="minifyJson()" [disabled]="!isValidJson" mat-icon-button matTooltip="Minify JSON">
-                <mat-icon>compress</mat-icon>
-            </button>
-            <button (click)="clearEditor()" mat-icon-button matTooltip="Clear Editor">
-                <mat-icon>delete_outline</mat-icon>
-            </button>
             <button (click)="fileInput.click()" mat-icon-button matTooltip="Import JSON">
                 <mat-icon>upload_file</mat-icon>
             </button>
             <input #fileInput (change)="importFile($event)" accept=".json,.txt" style="display: none" type="file">
-            </div>
-        <button (click)="toggleInputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn"
-                mat-icon-button>
-            <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-        </button>
+            <button (click)="toggleInputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn"
+                    mat-icon-button>
+                <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+            </button>
         </div>
     </h3>
     <div class="editor-wrapper">
@@ -33,26 +23,5 @@
             <span>{{ errorMessage }}</span>
         </div>
 
-        <!-- Search Bar -->
-        <div *ngIf="showInputSearchBar" class="search-bar input-search-field">
-            <mat-form-field appearance="outline">
-                <mat-label>Search</mat-label>
-                <input #searchInput (keyup.enter)="searchInJson(searchInput.value)" matInput>
-                <button (click)="searchInJson(searchInput.value)" mat-icon-button matSuffix>
-                    <mat-icon>search</mat-icon>
-                </button>
-            </mat-form-field>
-            <div class="search-actions">
-                <button (click)="findPrevious()" mat-icon-button matTooltip="Previous">
-                    <mat-icon>keyboard_arrow_up</mat-icon>
-                </button>
-                <button (click)="findNext()" mat-icon-button matTooltip="Next">
-                    <mat-icon>keyboard_arrow_down</mat-icon>
-                </button>
-                <button (click)="clearSearch()" mat-icon-button matTooltip="Clear">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
-        </div>
     </div>
 </div>
