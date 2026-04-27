@@ -6,6 +6,7 @@ import {
     HostListener,
     Input,
     OnChanges,
+    OnDestroy,
     OnInit,
     Output,
     Renderer2,
@@ -13,6 +14,7 @@ import {
     ViewChild
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {Subscription} from 'rxjs';
 import * as ace from 'ace-builds';
 import {JsonValue} from '../../types/json.types';
 import 'ace-builds/src-noconflict/mode-json';
@@ -30,7 +32,7 @@ import 'ace-builds/src-noconflict/ext-linking';
     templateUrl: './json-output-editor.component.html',
     styleUrls: ['./json-output-editor.component.scss']
 })
-export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChanges {
+export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     @ViewChild('outputEditor', {static: false}) outputEditorElement!: ElementRef;
     @ViewChild('editorSection', {static: false}) editorSectionElement!: ElementRef;
 
@@ -70,12 +72,15 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
+    private jsonOutputSubscription: Subscription | null = null;
+    private yamlOutputSubscription: Subscription | null = null;
 
     constructor(private renderer: Renderer2) {
     }
 
     ngOnInit(): void {
-        // Initialize will be done in ngAfterViewInit
+        // Keep output views in sync when FormControl values change.
+        this.setupOutputSubscriptions();
     }
 
     ngAfterViewInit(): void {
@@ -138,6 +143,11 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             }
         }
 
+        // Re-subscribe if the parent provides a new FormControl instance.
+        if (changes['jsonOutput'] || changes['yamlOutput']) {
+            this.setupOutputSubscriptions();
+        }
+
         // Update editor content when jsonOutput changes
         if (changes['jsonOutput'] && this.outputEditor && !this.showTreeView && this.selectedOutputFormat === 'json') {
             try {
@@ -168,6 +178,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 }, 100);
             }
         }
+    }
+
+    ngOnDestroy(): void {
+        this.cleanupOutputSubscriptions();
     }
 
     /**
@@ -523,6 +537,36 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             console.error(`Error updating editor content: ${errorMessage}`);
+        }
+    }
+
+    private setupOutputSubscriptions(): void {
+        this.cleanupOutputSubscriptions();
+
+        this.jsonOutputSubscription = this.jsonOutput.valueChanges.subscribe(() => {
+            this.refreshOutputForCurrentMode();
+        });
+
+        this.yamlOutputSubscription = this.yamlOutput.valueChanges.subscribe(() => {
+            this.refreshOutputForCurrentMode();
+        });
+    }
+
+    private cleanupOutputSubscriptions(): void {
+        if (this.jsonOutputSubscription) {
+            this.jsonOutputSubscription.unsubscribe();
+            this.jsonOutputSubscription = null;
+        }
+
+        if (this.yamlOutputSubscription) {
+            this.yamlOutputSubscription.unsubscribe();
+            this.yamlOutputSubscription = null;
+        }
+    }
+
+    private refreshOutputForCurrentMode(): void {
+        if (this.selectedOutputFormat === 'json' && this.selectedViewMode === 'text' && !this.showTreeView) {
+            this.updateEditorContentSafely(this.jsonOutput.value || '', -1);
         }
     }
 
