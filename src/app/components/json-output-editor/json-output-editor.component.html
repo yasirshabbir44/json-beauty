@@ -8,6 +8,14 @@
                 <mat-button-toggle value="yaml">YAML</mat-button-toggle>
             </mat-button-toggle-group>
         </div>
+        <div *ngIf="isValidJson && selectedOutputFormat === 'json'" class="view-mode-selector"
+             matTooltip="Switch how the output is shown">
+            <mat-button-toggle-group (change)="onViewModeSelect($event)" [value]="selectedViewMode">
+                <mat-button-toggle value="text">Text</mat-button-toggle>
+                <mat-button-toggle value="tree">Tree</mat-button-toggle>
+                <mat-button-toggle value="table">Table</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
         <div class="spacer"></div>
         <button (click)="copy.emit()" *ngIf="isValidJson" matTooltip="Copy to Clipboard"
                 class="copy-btn" mat-icon-button>

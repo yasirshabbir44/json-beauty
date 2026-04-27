@@ -4,11 +4,11 @@
             <div class="editor-layout">
                 <!-- Dialogs Component -->
                 <app-json-dialogs
-                        (applyFormatting)="applyFormatting()"
+                        (applyFormatting)="applyFormatting($event)"
                         (compareJson)="compareJson()"
                         (executeJsonPathQuery)="executeJsonPathQuery()"
 
-                        (toggleFormattingOptions)="showFormattingOptions = !showFormattingOptions"
+                        (toggleFormattingOptions)="onFormattingOptionsDialogToggle()"
                         (toggleJsonCompare)="toggleJsonCompare()"
                         (toggleJsonPathQuery)="toggleJsonPathQuery()"
                         (toggleJsonVisualize)="toggleJsonVisualize()"
@@ -106,7 +106,7 @@
                         [isValidJson]="isValidJson"
                         [jsonSize]="getJsonSize()"
                         [selectedOutputFormat]="selectedOutputFormat"
-                        [showTreeView]="showTreeView">
+                        [selectedViewMode]="selectedViewMode">
                 </app-json-status>
 
 

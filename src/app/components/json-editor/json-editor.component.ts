@@ -326,12 +326,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Toggles between text and tree views (legacy method, kept for backward compatibility)
+     * Toggles tree view vs text view (from features menu). From table view, switches to tree.
      */
     toggleTreeView(): void {
-        // Toggle between text and tree view modes
-        this.selectedViewMode = this.selectedViewMode === 'text' ? 'tree' : 'text';
-        this.handleViewModeChange(this.selectedViewMode);
+        const next: 'text' | 'tree' = this.selectedViewMode === 'tree' ? 'text' : 'tree';
+        this.handleViewModeChange(next);
     }
 
     /**
@@ -1319,11 +1318,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     }
 
     /**
-     * Applies the current formatting options to the JSON
+     * Keeps SettingsService in sync when the formatting dialog opens/closes from the overlay.
      */
-    applyFormatting(): void {
+    onFormattingOptionsDialogToggle(): void {
+        this.settingsService.toggleFormattingOptions();
+    }
+
+    /**
+     * Applies formatting options from the dialog (indent values come from the dialog payload).
+     */
+    applyFormatting(options?: { indentSize: number; indentChar: string }): void {
         if (!this.isValidJson) {
             return;
+        }
+
+        if (options) {
+            this.indentSize = options.indentSize;
+            this.indentChar = options.indentChar;
         }
 
         try {
@@ -1339,6 +1350,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             // The output editor will be updated through data binding in the child component
 
             this.showSuccess('Formatting options applied');
+
+            if (this.settingsService.getFormattingOptionsState()) {
+                this.settingsService.toggleFormattingOptions();
+            }
         } catch (error) {
             this.showError(`Error applying formatting: ${error instanceof Error ? error.message : String(error)}`);
         }
