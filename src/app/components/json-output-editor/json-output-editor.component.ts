@@ -14,6 +14,7 @@ import {
     ViewChild
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {Subscription} from 'rxjs';
 import * as ace from 'ace-builds';
 import {JsonValue} from '../../types/json.types';
@@ -317,6 +318,16 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      */
     onToggleViewMode(): void {
         this.toggleViewMode.emit(this.selectedViewMode);
+    }
+
+    /**
+     * User picked Text, Tree, or Table from the output toolbar.
+     */
+    onViewModeSelect(event: MatButtonToggleChange): void {
+        const mode = event.value as 'text' | 'tree' | 'table' | undefined;
+        if (mode) {
+            this.toggleViewMode.emit(mode);
+        }
     }
     
     /**

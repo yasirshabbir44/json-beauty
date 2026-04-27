@@ -7,9 +7,9 @@
         <mat-icon>data_object</mat-icon>
         <span>{{ jsonSize }} characters</span>
     </div>
-    <div *ngIf="showTreeView" class="status-item">
-        <mat-icon>account_tree</mat-icon>
-        <span>Tree View</span>
+    <div *ngIf="selectedOutputFormat === 'json'" class="status-item">
+        <mat-icon>{{ selectedViewMode === 'table' ? 'table_chart' : selectedViewMode === 'tree' ? 'account_tree' : 'article' }}</mat-icon>
+        <span>{{ viewModeLabel }}</span>
     </div>
     <div *ngIf="selectedOutputFormat === 'yaml'" class="status-item">
         <mat-icon>description</mat-icon>
