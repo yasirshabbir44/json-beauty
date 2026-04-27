@@ -346,17 +346,24 @@
   margin-left: 12px;
   border-left: 1px dashed #e0e0e0;
   padding-left: 6px;
-  overflow: hidden;
-  max-height: 2000px;
+  overflow: visible;
+  max-height: none;
   opacity: 1;
-  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-  opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   &.collapsed {
     max-height: 0;
     opacity: 0;
-    transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-    opacity 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-left: 0;
+    border-left-width: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
   }
 
   // Add different colors for different nesting levels to improve readability
@@ -377,15 +384,14 @@
 
 .tree-leaf {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 4px 6px;
   margin-left: 18px;
   border-radius: 3px;
   margin: 1px 0 1px 18px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
   max-width: 100%;
+  overflow: visible;
 
   &:hover {
     background-color: rgba(66, 133, 244, 0.04);
@@ -395,7 +401,8 @@
 .node-label {
   font-weight: 600;
   margin-right: 8px;
-  color: #4285F4;
+  color: #4285f4;
+  flex-shrink: 0;
 }
 
 .node-info {
@@ -411,6 +418,11 @@
   font-family: 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
   padding: 2px 6px;
   border-radius: 4px;
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 
   &.string-value {
     color: #0d904f;
