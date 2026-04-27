@@ -120,9 +120,10 @@
 
                 <!-- Search & Replace Component -->
                 <app-json-search-replace
+                        (activeMatchChange)="onSearchReplaceActiveMatch($event)"
                         (textChanged)="onSearchReplaceTextChanged($event)"
                         *ngIf="showSearchReplace"
-                        [text]="searchReplaceText">
+                        [text]="jsonInput.value || ''">
                 </app-json-search-replace>
 
                 <!-- Version History Component -->

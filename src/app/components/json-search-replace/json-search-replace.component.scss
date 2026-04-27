@@ -38,6 +38,13 @@
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
   margin-left: 8px;
+  white-space: nowrap;
+}
+
+.regex-error {
+  font-size: 13px;
+  color: #c62828;
+  margin: -4px 0 0;
 }
 
 /* Dark theme support */
@@ -48,5 +55,9 @@
 
   .match-count, .replacement-count {
     color: rgba(255, 255, 255, 0.7);
+  }
+
+  .regex-error {
+    color: #ef9a9a;
   }
 }
