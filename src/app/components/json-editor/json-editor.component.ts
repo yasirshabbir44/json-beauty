@@ -119,12 +119,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
         private settingsService: SettingsService
-    ) {
-        // Listen for dark mode changes
-        document.body.addEventListener('DOMSubtreeModified', () => {
-            this.updateTheme();
-        });
-    }
+    ) {}
 
     /**
      * Handles input changes from the JsonInputEditorComponent

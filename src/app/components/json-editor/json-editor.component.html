@@ -1,11 +1,5 @@
 <div [class.dark-theme]="isDarkTheme" class="editor-container">
     <mat-card class="editor-card">
-        <mat-card-header>
-            <mat-icon color="primary">code</mat-icon>
-            <mat-card-title>JSON Editor</mat-card-title>
-            <mat-card-subtitle>Beautify, minify, and validate your JSON data</mat-card-subtitle>
-        </mat-card-header>
-
         <mat-card-content class="p-1">
             <div class="editor-layout">
                 <!-- Toolbar Component -->
@@ -116,6 +110,7 @@
                 </div>
                 <!-- Status Component -->
                 <app-json-status
+                        *ngIf="jsonInput.value"
                         [isValidJson]="isValidJson"
                         [jsonSize]="getJsonSize()"
                         [selectedOutputFormat]="selectedOutputFormat"
@@ -140,6 +135,7 @@
 
                 <!-- Version History Component -->
                 <app-version-history
+                        *ngIf="jsonInput.value"
                         (versionSelected)="loadVersionContent($event)">
                 </app-version-history>
 
