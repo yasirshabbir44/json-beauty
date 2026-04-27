@@ -2,7 +2,6 @@
     <mat-card class="editor-card">
         <mat-card-content class="p-1">
             <div class="editor-layout">
-                <!-- Dialogs Component -->
                 <app-json-dialogs
                         (applyFormatting)="applyFormatting($event)"
                         (compareJson)="compareJson()"
@@ -37,24 +36,153 @@
                         [showSchemaEditor]="showSchemaEditor">
                 </app-json-dialogs>
 
+                <nav class="editor-feature-nav" aria-label="Editor menus">
+                    <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="fileMenu">
+                        <mat-icon>folder_open</mat-icon>
+                        File
+                    </button>
+                    <mat-menu #fileMenu="matMenu">
+                        <button mat-menu-item type="button" (click)="openImportPicker()">
+                            <mat-icon>upload_file</mat-icon>
+                            Import JSON
+                        </button>
+                        <button mat-menu-item type="button" (click)="downloadJson()" [disabled]="!isValidJson">
+                            <mat-icon>download</mat-icon>
+                            Export JSON
+                        </button>
+                        <button mat-menu-item type="button" (click)="loadSampleJson()">
+                            <mat-icon>auto_awesome</mat-icon>
+                            Load sample
+                        </button>
+                    </mat-menu>
+
+                    <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="formatMenu">
+                        <mat-icon>auto_fix_high</mat-icon>
+                        Format
+                    </button>
+                    <mat-menu #formatMenu="matMenu">
+                        <button mat-menu-item type="button" (click)="beautifyJson()" [disabled]="!isValidJson">
+                            <mat-icon>format_align_left</mat-icon>
+                            Beautify
+                        </button>
+                        <button mat-menu-item type="button" (click)="minifyJson()" [disabled]="!isValidJson">
+                            <mat-icon>compress</mat-icon>
+                            Minify
+                        </button>
+                        <button mat-menu-item type="button" (click)="sortKeysJson()" [disabled]="!isValidJson">
+                            <mat-icon>sort_by_alpha</mat-icon>
+                            Sort keys
+                        </button>
+                    </mat-menu>
+
+                    <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleSearchBar()"
+                            matTooltip="Find (Ctrl+F)">
+                        <mat-icon>search</mat-icon>
+                        Search
+                    </button>
+                    <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleJsonCompare()"
+                            [disabled]="!isValidJson" matTooltip="Compare JSON">
+                        <mat-icon>compare_arrows</mat-icon>
+                        Diff
+                    </button>
+
+                    <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="toolsMenu">
+                        <mat-icon>construction</mat-icon>
+                        Tools
+                    </button>
+                    <mat-menu #toolsMenu="matMenu">
+                        <button mat-menu-item type="button" (click)="openToolYaml()" [disabled]="!isValidJson">
+                            <mat-icon>description</mat-icon>
+                            JSON → YAML
+                        </button>
+                        <button mat-menu-item type="button" (click)="convertToCsv()" [disabled]="!isValidJson">
+                            <mat-icon>table_chart</mat-icon>
+                            JSON → CSV
+                        </button>
+                        <button mat-menu-item type="button" (click)="convertToXml()" [disabled]="!isValidJson">
+                            <mat-icon>code</mat-icon>
+                            JSON → XML
+                        </button>
+                    </mat-menu>
+                </nav>
+
+                <div class="editor-action-toolbar">
+                    <button type="button" mat-flat-button color="primary" class="toolbar-primary"
+                            (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
+                        Beautify
+                    </button>
+                    <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
+                            matTooltip="Minify (Ctrl+M)">Minify</button>
+                    <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
+                            matTooltip="Lint &amp; fix (Ctrl+L)">Validate</button>
+                    <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
+                            [disabled]="!isValidJson" matTooltip="Tree view">Tree</button>
+                    <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
+                            [disabled]="!isValidJson" matTooltip="Table view">Table</button>
+                    <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
+                            matTooltip="Copy output (Ctrl+C)">Copy</button>
+                    <button type="button" mat-stroked-button (click)="clearEditor()" matTooltip="Clear (Ctrl+D)">
+                        Clear
+                    </button>
+                </div>
+
+                <div *ngIf="floatingSearchOpen" class="floating-search-backdrop" (click)="closeFloatingSearch()">
+                    <div class="floating-search-panel" (click)="$event.stopPropagation()" role="search"
+                         aria-label="Find in editor">
+                        <mat-icon class="floating-search-lead-icon" aria-hidden="true">search</mat-icon>
+                        <mat-button-toggle-group class="floating-search-targets" [hideSingleSelectionIndicator]="true"
+                                                 [value]="floatingSearchTarget"
+                                                 (change)="onFloatingSearchTargetChange($event)">
+                            <mat-button-toggle value="input">Input</mat-button-toggle>
+                            <mat-button-toggle value="output" [disabled]="!canSearchOutputAce()">Output
+                            </mat-button-toggle>
+                            <mat-button-toggle value="tree" [disabled]="selectedViewMode !== 'tree'">Tree
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
+                        <mat-form-field appearance="outline" class="floating-search-field" subscriptSizing="dynamic">
+                            <mat-label>Find</mat-label>
+                            <input matInput class="floating-search-query" [(ngModel)]="floatingSearchQuery"
+                                   (ngModelChange)="onFloatingSearchQueryChange($event)"
+                                   (keyup.enter)="runFloatingSearch()" placeholder="Search…" />
+                        </mat-form-field>
+                        <span *ngIf="floatingSearchMatchCount > 0 && floatingSearchTarget !== 'tree'"
+                              class="floating-search-count">{{ floatingSearchMatchCount }} matches</span>
+                        <button type="button" mat-icon-button matTooltip="Previous" (click)="floatingSearchPrevious()"
+                                [disabled]="floatingSearchTarget === 'tree'">
+                            <mat-icon>keyboard_arrow_up</mat-icon>
+                        </button>
+                        <button type="button" mat-icon-button matTooltip="Next" (click)="floatingSearchNext()"
+                                [disabled]="floatingSearchTarget === 'tree'">
+                            <mat-icon>keyboard_arrow_down</mat-icon>
+                        </button>
+                        <button type="button" mat-icon-button matTooltip="Find" (click)="runFloatingSearch()">
+                            <mat-icon>play_arrow</mat-icon>
+                        </button>
+                        <button type="button" mat-icon-button matTooltip="Close" (click)="closeFloatingSearch()">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <div *ngIf="!isInputMaximized && !isOutputMaximized" class="split-controls">
+                    <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
+                        Sync scroll
+                    </mat-slide-toggle>
+                    <span class="split-hint">Drag the center bar to resize panels</span>
+                </div>
 
                 <div [class.input-maximized]="isInputMaximized"
                      [class.output-maximized]="isOutputMaximized"
                      [style.--input-panel-width.%]="inputPanelWidth"
                      class="editor-columns">
-                    <!-- Input Editor Component -->
                     <app-json-input-editor
+                            (cursorPositionChange)="onInputCursorPosition($event)"
                             (jsonInputChange)="onJsonInputChange($event)"
                             (toggleMaximize)="toggleInputMaximize()"
-                            (beautify)="beautifyJson()"
-                            (minify)="minifyJson()"
-                            (clear)="clearEditor()"
-                            (import)="importFile($event)"
                             [errorMessage]="errorMessage"
                             [isDarkTheme]="isDarkTheme"
                             [isMaximized]="isInputMaximized"
-                            [isValidJson]="isValidJson"
-                            [showInputSearchBar]="showInputSearchBar">
+                            [isValidJson]="isValidJson">
                     </app-json-input-editor>
 
                     <div (mousedown)="startPanelResize($event)"
@@ -64,26 +192,25 @@
                          role="separator">
                     </div>
 
-                    <!-- Output Editor Component -->
                     <app-json-output-editor
-                            (toggleMaximize)="toggleOutputMaximize()"
-                            (toggleNode)="toggleNode($event)"
-                            (toggleOutputFormat)="toggleOutputFormat()"
-                            (toggleViewMode)="handleViewModeChange($event)"
-                            (treeSearch)="searchInTree($event)"
+                            (convertToCsv)="convertToCsv()"
+                            (convertToXml)="convertToXml()"
                             (copy)="copyToClipboard()"
                             (download)="downloadOutput()"
                             (downloadText)="downloadText()"
-                            (convertToCsv)="convertToCsv()"
-                            (convertToXml)="convertToXml()"
                             (generateSchema)="generateJsonSchema()"
                             (share)="shareJson()"
                             (toggleJsonCompare)="toggleJsonCompare()"
-                            (toggleJsonPaths)="toggleJsonPaths()"
                             (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                            (toggleJsonPaths)="toggleJsonPaths()"
                             (toggleJsonVisualize)="toggleJsonVisualize()"
+                            (toggleMaximize)="toggleOutputMaximize()"
+                            (toggleNode)="toggleNode($event)"
+                            (toggleOutputFormat)="toggleOutputFormat()"
                             (toggleSchemaEditor)="toggleSchemaEditor()"
                             (toggleTreeView)="toggleTreeView()"
+                            (toggleViewMode)="handleViewModeChange($event)"
+                            (treeSearch)="searchInTree($event)"
                             [expandedNodes]="expandedNodes"
                             [isDarkTheme]="isDarkTheme"
                             [isMaximized]="isOutputMaximized"
@@ -92,25 +219,23 @@
                             [jsonTreeData]="jsonTreeData"
                             [selectedOutputFormat]="selectedOutputFormat"
                             [selectedViewMode]="selectedViewMode"
-                            [showOutputSearchBar]="showOutputSearchBar"
-                            [showTreeSearchBar]="showTreeSearchBar"
                             [showTreeView]="showTreeView"
                             [treeSearchHighlighted]="treeSearchHighlighted"
                             [treeSearchResults]="treeSearchResults"
                             [yamlOutput]="yamlOutput">
                     </app-json-output-editor>
                 </div>
-                <!-- Status Component -->
+
                 <app-json-status
-                        *ngIf="jsonInput.value"
+                        [cursorColumn]="inputCursorColumn"
+                        [cursorLine]="inputCursorLine"
+                        [displaySize]="getDisplaySize()"
+                        [errorMessage]="errorMessage"
                         [isValidJson]="isValidJson"
-                        [jsonSize]="getJsonSize()"
                         [selectedOutputFormat]="selectedOutputFormat"
                         [selectedViewMode]="selectedViewMode">
                 </app-json-status>
 
-
-                <!-- JSON Paths Component -->
                 <app-json-paths
                         (toggleJsonPaths)="toggleJsonPaths()"
                         [isValidJson]="isValidJson"
@@ -118,7 +243,6 @@
                         [showJsonPaths]="showJsonPaths">
                 </app-json-paths>
 
-                <!-- Search & Replace Component -->
                 <app-json-search-replace
                         (activeMatchChange)="onSearchReplaceActiveMatch($event)"
                         (textChanged)="onSearchReplaceTextChanged($event)"
@@ -126,7 +250,6 @@
                         [text]="jsonInput.value || ''">
                 </app-json-search-replace>
 
-                <!-- Version History Component -->
                 <app-version-history
                         *ngIf="jsonInput.value"
                         (versionSelected)="loadVersionContent($event)">

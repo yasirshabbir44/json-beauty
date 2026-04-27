@@ -2,7 +2,8 @@
     <h3 class="output-toolbar">
         <div class="output-toolbar-primary">
             <mat-icon class="output-toolbar-brand-icon">output</mat-icon>
-            <span class="output-toolbar-title">Output</span>
+            <span class="output-toolbar-title">Output JSON</span>
+            <span class="output-toolbar-sub">Formatted / view</span>
             <div *ngIf="isValidJson" class="output-toolbar-toggles">
                 <div class="output-format-selector">
                     <mat-button-toggle-group (change)="onToggleOutputFormat()"
@@ -17,9 +18,9 @@
                     <mat-button-toggle-group (change)="onViewModeSelect($event)"
                                              [hideSingleSelectionIndicator]="true"
                                              [value]="selectedViewMode">
-                        <mat-button-toggle value="text">Text</mat-button-toggle>
-                        <mat-button-toggle value="tree">Tree</mat-button-toggle>
-                        <mat-button-toggle value="table">Table</mat-button-toggle>
+                        <mat-button-toggle value="text" matTooltip="JSON text"><mat-icon class="view-toggle-icon">article</mat-icon><span class="view-toggle-label">JSON</span></mat-button-toggle>
+                        <mat-button-toggle value="tree" matTooltip="Tree view"><mat-icon class="view-toggle-icon">account_tree</mat-icon><span class="view-toggle-label">Tree</span></mat-button-toggle>
+                        <mat-button-toggle value="table" matTooltip="Table view"><mat-icon class="view-toggle-icon">table_chart</mat-icon><span class="view-toggle-label">Table</span></mat-button-toggle>
                     </mat-button-toggle-group>
                 </div>
             </div>
@@ -150,44 +151,6 @@
             </div>
         </div>
 
-        <!-- Search Bar for JSON Output -->
-        <div *ngIf="showOutputSearchBar && selectedViewMode === 'text' && selectedOutputFormat === 'json'"
-             class="search-bar output-search-field">
-            <mat-form-field appearance="outline">
-                <mat-label>Search</mat-label>
-                <input #searchOutput (keyup.enter)="searchInJson(searchOutput.value)" matInput>
-                <button (click)="searchInJson(searchOutput.value)" mat-icon-button matSuffix>
-                    <mat-icon>search</mat-icon>
-                </button>
-            </mat-form-field>
-            <div class="search-actions">
-                <button (click)="findPrevious()" mat-icon-button matTooltip="Previous">
-                    <mat-icon>keyboard_arrow_up</mat-icon>
-                </button>
-                <button (click)="findNext()" mat-icon-button matTooltip="Next">
-                    <mat-icon>keyboard_arrow_down</mat-icon>
-                </button>
-                <button (click)="clearSearch()" mat-icon-button matTooltip="Clear">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
-        </div>
-
-        <!-- Search Bar for Tree View -->
-        <div *ngIf="showTreeSearchBar && selectedViewMode === 'tree'" class="search-bar tree-search-field">
-            <mat-form-field appearance="outline">
-                <mat-label>Search in Tree</mat-label>
-                <input #searchTree (keyup.enter)="searchInTree(searchTree.value)" matInput>
-                <button (click)="searchInTree(searchTree.value)" mat-icon-button matSuffix>
-                    <mat-icon>search</mat-icon>
-                </button>
-            </mat-form-field>
-            <div class="search-actions">
-                <button (click)="clearTreeSearch()" mat-icon-button matTooltip="Clear">
-                    <mat-icon>close</mat-icon>
-                </button>
-            </div>
-        </div>
     </div>
 
     <!-- Fullscreen overlay for better UX -->

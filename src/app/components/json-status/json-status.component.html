@@ -1,18 +1,25 @@
-<div *ngIf="isValidJson" class="status-section">
-    <div class="status-item success">
-        <mat-icon>check_circle</mat-icon>
-        <span>JSON is valid</span>
+<div class="status-section" role="status" aria-live="polite">
+    <div class="status-item cursor">
+        <mat-icon>my_location</mat-icon>
+        <span>Line {{ cursorLine }} · Col {{ cursorColumn }}</span>
     </div>
     <div class="status-item">
-        <mat-icon>data_object</mat-icon>
-        <span>{{ jsonSize }} characters</span>
+        <mat-icon>straighten</mat-icon>
+        <span>Size: {{ displaySize }}</span>
     </div>
-    <div *ngIf="selectedOutputFormat === 'json'" class="status-item">
-        <mat-icon>{{ selectedViewMode === 'table' ? 'table_chart' : selectedViewMode === 'tree' ? 'account_tree' : 'article' }}</mat-icon>
+    <div *ngIf="isValidJson" class="status-item success">
+        <mat-icon>check_circle</mat-icon>
+        <span>Valid JSON</span>
+    </div>
+    <div *ngIf="!isValidJson" class="status-item error">
+        <mat-icon>error</mat-icon>
+        <span>Invalid JSON</span>
+    </div>
+    <div *ngIf="!isValidJson && errorMessage" class="status-item error-detail">
+        <span>{{ errorMessage }}</span>
+    </div>
+    <div *ngIf="isValidJson" class="status-item meta">
+        <mat-icon>{{ viewModeIcon }}</mat-icon>
         <span>{{ viewModeLabel }}</span>
-    </div>
-    <div *ngIf="selectedOutputFormat === 'yaml'" class="status-item">
-        <mat-icon>description</mat-icon>
-        <span>YAML Mode</span>
     </div>
 </div>

@@ -39,7 +39,6 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     @Input() isDarkTheme: boolean = false;
     @Input() isMaximized: boolean = false;
-    @Input() showOutputSearchBar: boolean = false;
     @Input() isValidJson: boolean = true;
     @Input() jsonOutput: FormControl = new FormControl('');
     @Input() yamlOutput: FormControl = new FormControl('');
@@ -49,7 +48,6 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Input() selectedViewMode: 'text' | 'tree' | 'table' = 'text';
     @Input() expandedNodes: Set<string> = new Set();
     @Input() treeSearchResults: string[] = [];
-    @Input() showTreeSearchBar: boolean = false;
     @Input() treeSearchHighlighted: boolean = false;
 
     @Output() toggleMaximize = new EventEmitter<void>();
@@ -189,6 +187,11 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         this.cleanupOutputSubscriptions();
     }
 
+    /** Exposes the Ace instance for scroll sync and parent-driven search. */
+    getAceEditor(): AceAjax.Editor | null {
+        return this.outputEditor;
+    }
+
     /**
      * Initializes the output editor with proper configuration
      */
@@ -232,7 +235,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 showGutter: true,
                 highlightActiveLine: true,
                 tabSize: 2,
-                fontSize: '15px',
+                fontSize: '14px',
                 printMarginColumn: 120,
                 showPrintMargin: false,
                 fadeFoldWidgets: false,
