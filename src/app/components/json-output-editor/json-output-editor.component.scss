@@ -1,6 +1,10 @@
 // Component-specific styles with only necessary shared styles
 // This approach reduces the file size to stay within budget limits
 
+:host {
+  --output-toolbar-h: 36px;
+}
+
 // Base editor section styles
 .editor-section {
   width: 100%;
@@ -17,14 +21,20 @@
     border-color: rgba(66, 133, 244, 0.3);
     background-color: #f8f9fa;
 
-    h3 {
+    h3.output-toolbar {
       background: linear-gradient(to right, #e8f0fe, #f5f9ff);
-      border-bottom: 1px solid rgba(66, 133, 244, 0.3);
-      min-height: 42px;
-      height: auto;
-      flex-wrap: wrap;
-      row-gap: 8px;
-      column-gap: 4px;
+      border-bottom: 1px solid rgba(66, 133, 244, 0.28);
+      margin: 0;
+      padding: 4px 8px;
+      min-height: var(--output-toolbar-h);
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a73e8;
     }
   }
 
@@ -36,7 +46,7 @@
     background-color: #f8f9fa;
     
     .editor-wrapper {
-      height: calc(100vh - 42px);
+      height: calc(100vh - var(--output-toolbar-h));
     }
   }
   
@@ -55,39 +65,70 @@
     overflow: auto;
   }
 
-  // Header styles
-  h3 {
-    margin: 0;
-    padding: 10px 16px;
-    background: linear-gradient(to right, #f8f9fa, #fff);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #4285F4;
-    min-height: 42px;
+}
 
-    mat-icon {
-      margin-right: 10px;
-      color: #4285F4;
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
+/* Compact output toolbar layout */
+.output-toolbar-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(26, 115, 232, 0.35);
+    border-radius: 2px;
+  }
+}
+
+.output-toolbar-brand-icon {
+  flex-shrink: 0;
+  margin: 0 !important;
+  color: #1a73e8 !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+.output-toolbar-title {
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #174ea6;
+}
+
+.output-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0;
+
+  .maximize-btn {
+    color: #5f6368;
+
+    &:hover {
+      color: #1a73e8;
     }
+  }
+}
 
-    .spacer {
-      flex: 1 1 auto;
-    }
+@media (max-width: 400px) {
+  .output-toolbar-title {
+    display: none;
+  }
+}
 
-    .maximize-btn {
-      color: #5f6368;
-      margin-left: 8px;
-
-      &:hover {
-        color: #4285F4;
-      }
-    }
+@media (max-width: 360px) {
+  :host {
+    --output-toolbar-h: 34px;
   }
 }
 
@@ -402,33 +443,54 @@
   }
 }
 
-/* Output Format Selector */
-.output-format-selector, .view-mode-selector {
-  margin-left: 12px;
+/* Compact toggles + icon buttons (Material MDC) */
+.output-format-selector,
+.view-mode-selector {
+  flex-shrink: 0;
+}
 
-  .mat-button-toggle-group {
-    border-radius: 3px;
-    overflow: hidden;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e0e0e0;
+:host ::ng-deep {
+  .output-toolbar-primary .mat-mdc-button-toggle-group {
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.12);
+    border: 1px solid #dadce0;
   }
 
-  .mat-button-toggle {
-    background-color: #f8f9fa;
-    color: #5f6368;
+  .output-toolbar-primary .mat-mdc-button-toggle {
+    min-width: 2.25rem;
+    height: 28px;
+    --mat-standard-button-toggle-height: 28px;
+  }
+
+  .output-toolbar-primary .mat-mdc-button-toggle .mdc-button {
+    min-height: 28px;
+    padding: 0 6px;
+    font-size: 12px;
     font-weight: 500;
-    padding: 0 8px;
-    min-width: 40px;
-    font-size: 13px;
+    letter-spacing: 0;
+  }
 
-    &.mat-button-toggle-checked {
-      background-color: #e8f0fe;
-      color: #1a73e8;
-    }
+  .output-toolbar-primary .mat-mdc-button-toggle.mat-mdc-button-toggle-checked .mdc-button {
+    background-color: #e8f0fe;
+    color: #174ea6;
+  }
 
-    &:hover:not(.mat-button-toggle-checked) {
-      background-color: #f1f3f4;
-    }
+  .output-toolbar-actions .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  .output-toolbar-actions .mat-mdc-icon-button .mat-mdc-button-touch-target {
+    height: 32px;
+    width: 32px;
+  }
+
+  .output-toolbar-actions mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #5f6368;
   }
 }
 

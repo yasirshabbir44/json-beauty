@@ -1,11 +1,11 @@
 <div #editorSection [class.maximized]="isMaximized" [class.fullscreen-mode]="isFullScreen" class="editor-section">
-    <h3>
-        <mat-icon>input</mat-icon>
-        <span>Input JSON</span>
-        <div class="spacer"></div>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
+    <h3 class="input-toolbar">
+        <div class="input-toolbar-primary">
+            <mat-icon class="input-toolbar-brand-icon">input</mat-icon>
+            <span class="input-toolbar-title">Input JSON</span>
+        </div>
+        <div class="input-toolbar-actions">
+            <div class="action-buttons">
             <button (click)="beautifyJson()" [disabled]="!isValidJson" mat-icon-button matTooltip="Beautify JSON">
                 <mat-icon>format_align_left</mat-icon>
             </button>
@@ -19,12 +19,12 @@
                 <mat-icon>upload_file</mat-icon>
             </button>
             <input #fileInput (change)="importFile($event)" accept=".json,.txt" style="display: none" type="file">
-        </div>
-        
+            </div>
         <button (click)="toggleInputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn"
                 mat-icon-button>
             <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
         </button>
+        </div>
     </h3>
     <div class="editor-wrapper">
         <div #editor class="ace-editor"></div>

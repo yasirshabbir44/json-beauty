@@ -1,6 +1,10 @@
 // Component-specific styles with only necessary shared styles
 // This approach reduces the file size to stay within budget limits
 
+:host {
+  --input-toolbar-h: 36px;
+}
+
 // Base editor section styles
 .editor-section {
   width: 100%;
@@ -27,7 +31,7 @@
     background-color: #ffffff;
     
     .editor-wrapper {
-      height: calc(100vh - 42px);
+      height: calc(100vh - var(--input-toolbar-h));
     }
   }
   
@@ -46,97 +50,110 @@
     overflow: auto;
   }
 
-  // Header styles
-  h3 {
+  h3.input-toolbar {
     margin: 0;
-    padding: 10px 16px;
+    padding: 4px 8px;
+    min-height: var(--input-toolbar-h);
     background: linear-gradient(to right, #f8f9fa, #ffffff);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    font-size: 0.95rem;
+    justify-content: space-between;
+    gap: 6px;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: #4285F4;
-    height: 42px;
-    letter-spacing: 0.3px;
-    position: relative;
+    color: #174ea6;
+  }
+}
 
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 50px;
-      height: 1px;
-      background-color: #4285F4;
-    }
+.input-toolbar-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
 
-    mat-icon {
-      margin-right: 10px;
-      color: #4285F4;
-      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-      font-size: 20px;
-      height: 20px;
-      width: 20px;
-    }
+.input-toolbar-brand-icon {
+  flex-shrink: 0;
+  margin: 0 !important;
+  color: #1a73e8 !important;
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+  filter: none;
+}
 
-    .spacer {
-      flex: 1 1 auto;
-    }
-    
-    .action-buttons {
-      display: flex;
-      align-items: center;
-      
-      button {
-        color: #5f6368;
-        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        margin-left: 4px;
-        
-        &:hover {
-          color: #4285F4;
-          background-color: rgba(66, 133, 244, 0.08);
-          transform: scale(1.1);
-        }
-        
-        &:active {
-          transform: scale(1);
-        }
-        
-        &[disabled] {
-          color: rgba(0, 0, 0, 0.26);
-          background-color: transparent;
-          cursor: not-allowed;
-          
-          &:hover {
-            transform: none;
-          }
-        }
-        
-        mat-icon {
-          font-size: 18px;
-          height: 18px;
-          width: 18px;
-          margin-right: 0;
-        }
-      }
-    }
+.input-toolbar-title {
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #174ea6;
+}
 
-    .maximize-btn {
+.input-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0;
+
+  .action-buttons {
+    display: flex;
+    align-items: center;
+
+    button {
       color: #5f6368;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      margin-left: 8px;
 
-      &:hover {
-        color: #4285F4;
-        background-color: rgba(66, 133, 244, 0.08);
-        transform: scale(1.1);
+      &:hover:not([disabled]) {
+        color: #1a73e8;
+        background-color: rgba(26, 115, 232, 0.08);
       }
 
-      &:active {
-        transform: scale(1);
+      &[disabled] {
+        color: rgba(0, 0, 0, 0.26);
+        cursor: not-allowed;
+      }
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+        margin-right: 0;
       }
     }
+  }
+
+  .maximize-btn {
+    color: #5f6368;
+
+    &:hover {
+      color: #1a73e8;
+      background-color: rgba(26, 115, 232, 0.08);
+    }
+  }
+}
+
+@media (max-width: 440px) {
+  .input-toolbar-title {
+    display: none;
+  }
+}
+
+:host ::ng-deep {
+  .input-toolbar-actions .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+
+  .input-toolbar-actions .mat-mdc-icon-button .mat-mdc-button-touch-target {
+    height: 32px;
+    width: 32px;
+  }
+
+  .input-toolbar-actions mat-icon {
+    color: #5f6368;
   }
 }
 
