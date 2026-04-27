@@ -2,7 +2,7 @@
 // This approach reduces the file size to stay within budget limits
 
 :host {
-  --input-toolbar-h: 36px;
+  --input-toolbar-h: 40px;
 }
 
 // Base editor section styles
@@ -298,5 +298,36 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+:host-context(.dark-theme) {
+  .editor-section {
+    border-color: #3d3d3d;
+    background-color: #2d2d2d;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      border-color: #4d4d4d;
+    }
+
+    h3.input-toolbar {
+      background: linear-gradient(to right, #1e1e1e, #2d2d2d);
+      border-bottom-color: #3d3d3d;
+      color: #8ab4f8;
+    }
+  }
+
+  .input-toolbar-brand-icon,
+  .input-toolbar-title {
+    color: #8ab4f8;
+  }
+
+  .editor-wrapper {
+    background-color: #2d2d2d;
+
+    &:focus-within {
+      background-color: #252525;
+    }
   }
 }

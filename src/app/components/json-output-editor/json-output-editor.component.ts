@@ -230,7 +230,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 readOnly: true,
                 showLineNumbers: true,
                 showGutter: true,
-                highlightActiveLine: false,
+                highlightActiveLine: true,
                 tabSize: 2,
                 fontSize: '15px',
                 printMarginColumn: 120,
