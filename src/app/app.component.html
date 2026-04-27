@@ -6,15 +6,15 @@
             <mat-icon>settings</mat-icon>
         </button>
         <mat-menu #settingsMenu="matMenu">
-            <button (click)="toggleFormattingOptions()" mat-menu-item>
+            <button (click)="settings.toggleFormattingOptions()" mat-menu-item>
                 <mat-icon>settings</mat-icon>
                 <span>Options</span>
             </button>
-            <button (click)="toggleKeyboardShortcuts()" mat-menu-item>
+            <button (click)="settings.toggleKeyboardShortcuts()" mat-menu-item>
                 <mat-icon>keyboard</mat-icon>
                 <span>Shortcuts</span>
             </button>
-            <button (click)="toggleSearchReplace()" mat-menu-item>
+            <button (click)="settings.toggleSearchReplace()" mat-menu-item>
                 <mat-icon>find_replace</mat-icon>
                 <span>Search & Replace</span>
             </button>

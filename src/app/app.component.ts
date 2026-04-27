@@ -1,11 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {CSPService} from './services/security/csp.service';
 import {SecurityUtilsService} from './services/security/security-utils.service';
 import {SettingsService} from './services/settings/settings.service';
 
 /**
- * Main application component
- * Coordinates app-level security and UI settings actions
+ * Application shell: layout, security bootstrap, and settings the template can bind to.
  */
 @Component({
     selector: 'app-root',
@@ -16,42 +15,15 @@ export class AppComponent implements OnInit {
     readonly title = 'JSON Beauty';
     readonly currentYear = new Date().getFullYear();
 
-    constructor(
-        private cspService: CSPService,
-        private securityUtils: SecurityUtilsService,
-        private settingsService: SettingsService
-    ) {}
+    /** Exposed for template bindings; settings UI state lives in SettingsService (SRP). */
+    readonly settings = inject(SettingsService);
+
+    private readonly cspService = inject(CSPService);
+    private readonly securityUtils = inject(SecurityUtilsService);
 
     ngOnInit(): void {
-        // Initialize Content Security Policy
         this.cspService.initializeCSP();
         this.cspService.listenForViolations();
-        
-        // Initialize CSRF protection
         this.securityUtils.initializeCSRFProtection();
-    }
-
-    /**
-     * Toggle formatting options visibility
-     * Delegates to SettingsService
-     */
-    toggleFormattingOptions(): void {
-        this.settingsService.toggleFormattingOptions();
-    }
-
-    /**
-     * Toggle keyboard shortcuts visibility
-     * Delegates to SettingsService
-     */
-    toggleKeyboardShortcuts(): void {
-        this.settingsService.toggleKeyboardShortcuts();
-    }
-
-    /**
-     * Toggle search and replace visibility
-     * Delegates to SettingsService
-     */
-    toggleSearchReplace(): void {
-        this.settingsService.toggleSearchReplace();
     }
 }

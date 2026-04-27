@@ -1,4 +1,5 @@
-import {AfterViewInit, Component, HostListener, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, DestroyRef, HostListener, OnInit, ViewChild} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatDialog} from '@angular/material/dialog';
@@ -10,32 +11,22 @@ import {ShareDialogComponent} from '../share-dialog/share-dialog.component';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
 import {SettingsService} from '../../services/settings/settings.service';
-import {Subscription} from 'rxjs';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
 
+/**
+ * Coordinates JSON input/output editors, dialogs, and panels.
+ * Persistence and algorithms live in services; this class wires UI state and user actions.
+ */
 @Component({
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
     styleUrls: ['./json-editor.component.scss']
 })
-/**
- * Main JSON Editor component that orchestrates the interaction between child components:
- * - JsonInputEditorComponent: Handles the input JSON editor
- * - JsonOutputEditorComponent: Handles the output JSON/YAML display and tree view
- * - JsonToolbarComponent: Provides action buttons for JSON operations
- * - JsonDialogsComponent: Manages dialog windows for keyboard shortcuts, formatting options, etc.
- * - JsonStatusComponent: Displays status information about the JSON
- * - JsonPathsComponent: Shows JSON paths when enabled
- *
- * This component maintains the state and coordinates data flow between the child components.
- */
-export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
-    // Subscriptions for cleanup
-    private subscriptions: Subscription[] = [];
+export class JsonEditorComponent implements OnInit, AfterViewInit {
     private isResizingPanels = false;
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
@@ -121,7 +112,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private dialog: MatDialog,
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private destroyRef: DestroyRef
     ) {}
 
     /**
@@ -175,13 +167,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.validateJson();
         this.updateOutput();
-    }
-
-    /**
-     * Updates the theme for all components
-     */
-    updateTheme(): void {
-        // Theme updates will be handled by the child components through the isDarkTheme input
     }
 
     // Listen for keyboard shortcuts
@@ -271,13 +256,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.showTreeSearchBar = false;
 
             if (this.showInputSearchBar) {
-                // Focus the input search field after a short delay to allow the UI to update
-                setTimeout(() => {
-                    const inputSearchField = document.querySelector('.input-search-field input') as HTMLElement;
-                    if (inputSearchField) {
-                        inputSearchField.focus();
-                    }
-                }, 100);
+                this.focusQuerySelector('.input-search-field input');
             }
         } else if (this.isOutputMaximized || (!this.isInputMaximized && !this.showTreeView)) {
             // Output editor is active
@@ -287,13 +266,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.showTreeSearchBar = false;
 
             if (this.showOutputSearchBar) {
-                // Focus the output search field after a short delay
-                setTimeout(() => {
-                    const outputSearchField = document.querySelector('.output-search-field input') as HTMLElement;
-                    if (outputSearchField) {
-                        outputSearchField.focus();
-                    }
-                }, 100);
+                this.focusQuerySelector('.output-search-field input');
             }
         } else if (this.showTreeView) {
             // Tree view is active
@@ -303,13 +276,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.showOutputSearchBar = false;
 
             if (this.showTreeSearchBar) {
-                // Focus the tree search field after a short delay
-                setTimeout(() => {
-                    const treeSearchField = document.querySelector('.tree-search-field input') as HTMLElement;
-                    if (treeSearchField) {
-                        treeSearchField.focus();
-                    }
-                }, 100);
+                this.focusQuerySelector('.tree-search-field input');
             }
         } else {
             // No specific view is active, toggle all search bars off
@@ -422,22 +389,22 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     ngOnInit(): void {
         this.isDarkTheme = false;
 
-        // Subscribe to settings service observables
-        this.subscriptions.push(
-            this.settingsService.showFormattingOptions$.subscribe(show => {
-                this.showFormattingOptions = show;
-            }),
-            this.settingsService.showKeyboardShortcuts$.subscribe(show => {
-                this.showKeyboardShortcuts = show;
-            }),
-            this.settingsService.showSearchReplace$.subscribe(show => {
+        this.settingsService.showFormattingOptions$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(show => (this.showFormattingOptions = show));
+
+        this.settingsService.showKeyboardShortcuts$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(show => (this.showKeyboardShortcuts = show));
+
+        this.settingsService.showSearchReplace$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(show => {
                 this.showSearchReplace = show;
                 if (show) {
-                    // Set the current text for search and replace
                     this.searchReplaceText = this.jsonInput.value || '';
                 }
-            })
-        );
+            });
 
         // Check for JSON data in URL (for shared links)
         this.loadJsonFromUrl();
@@ -476,19 +443,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.validateJson();
         }, 100);
     }
-
-    /**
-     * Clean up subscriptions when component is destroyed
-     */
-    ngOnDestroy(): void {
-        // Unsubscribe from all subscriptions
-        this.subscriptions.forEach(sub => sub.unsubscribe());
-        this.subscriptions = [];
-    }
-
-    // Output editor initialization is now handled by the JsonOutputEditorComponent
-
-    // Theme updates are now handled by the child components through the isDarkTheme input
 
     validateJson(): void {
         const jsonString = this.jsonInput.value || '';
@@ -536,20 +490,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!this.isValidJson) return;
 
         try {
-            const result = this.jsonService.jsonToYaml(this.jsonInput.value || '');
-
-            const processResult = (yamlString: string) => {
-                this.yamlOutput.setValue(yamlString);
-            };
-
-            if (result instanceof Promise) {
-                result.then(processResult).catch(error => {
-                    console.error('Error converting to YAML:', error);
-                });
-            } else {
-                processResult(result);
-            }
-        } catch (e: any) {
+            this.resolveMaybeAsync(
+                this.jsonService.jsonToYaml(this.jsonInput.value || ''),
+                yamlString => this.yamlOutput.setValue(yamlString),
+                error => console.error('Error converting to YAML:', error)
+            );
+        } catch (e: unknown) {
             console.error('Error converting to YAML:', e);
         }
     }
@@ -589,26 +535,18 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
             try {
                 // Convert YAML back to JSON
-                const result = this.jsonService.yamlToJson(this.yamlOutput.value || '');
-
-                const processResult = (jsonString: string) => {
-                    // Update the input editor with the converted JSON
-                    if (this.jsonInputEditor) {
-                        this.jsonInputEditor.setValue(jsonString);
-                    }
-                    this.jsonInput.setValue(jsonString);
-
-                    // Validate the JSON
-                    this.validateJson();
-                };
-
-                if (result instanceof Promise) {
-                    result.then(processResult).catch(error => {
-                        this.showError(`Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`);
-                    });
-                } else {
-                    processResult(result);
-                }
+                this.resolveMaybeAsync(
+                    this.jsonService.yamlToJson(this.yamlOutput.value || ''),
+                    jsonString => {
+                        this.jsonInputEditor?.setValue(jsonString);
+                        this.jsonInput.setValue(jsonString);
+                        this.validateJson();
+                    },
+                    error =>
+                        this.showError(
+                            `Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`
+                        )
+                );
 
                 // Initialize the output editor if switching to JSON mode
                 setTimeout(() => {
@@ -627,36 +565,27 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     beautifyJson(): void {
-        try {
-            const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
-            this.applyTransformedJson(beautified);
-
-            this.showSuccess('JSON beautified successfully');
-        } catch (e: any) {
-            this.showError('Error beautifying JSON: ' + e.message);
-        }
+        this.runJsonTransform(
+            () => this.jsonService.beautifyJson(this.jsonInput.value || '{}'),
+            'JSON beautified successfully',
+            'Error beautifying JSON'
+        );
     }
 
     minifyJson(): void {
-        try {
-            const minified = this.jsonService.minifyJson(this.jsonInput.value || '{}');
-            this.applyTransformedJson(minified);
-
-            this.showSuccess('JSON minified successfully');
-        } catch (e: any) {
-            this.showError('Error minifying JSON: ' + e.message);
-        }
+        this.runJsonTransform(
+            () => this.jsonService.minifyJson(this.jsonInput.value || '{}'),
+            'JSON minified successfully',
+            'Error minifying JSON'
+        );
     }
 
     lintJson(): void {
-        try {
-            const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
-            this.applyTransformedJson(linted);
-
-            this.showSuccess('JSON linted successfully');
-        } catch (e: any) {
-            this.showError('Error linting JSON: ' + e.message);
-        }
+        this.runJsonTransform(
+            () => this.jsonService.lintJson(this.jsonInput.value || '{}'),
+            'JSON linted successfully',
+            'Error linting JSON'
+        );
     }
 
     sortObjectKeys(obj: any): any {
@@ -742,16 +671,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
-        const blob = new Blob([this.jsonOutput.value], {type: 'text/plain'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'json-data.txt';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
+        this.triggerBlobDownload(this.jsonOutput.value, 'text/plain', 'json-data.txt');
         this.showSuccess('Text file downloaded successfully');
     }
 
@@ -764,16 +684,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
-        const blob = new Blob([this.yamlOutput.value], {type: 'application/yaml'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'formatted-yaml.yaml';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
+        this.triggerBlobDownload(this.yamlOutput.value, 'application/yaml', 'formatted-yaml.yaml');
         this.showSuccess('YAML downloaded successfully');
     }
 
@@ -788,36 +699,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         try {
             // Convert JSON to CSV
-            const result = this.jsonService.jsonToCsv(this.jsonInput.value);
-
-            const processResult = (csvString: string) => {
-                if (!csvString) {
-                    this.showError('Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.');
-                    return;
-                }
-
-                // Download the CSV
-                const blob = new Blob([csvString], {type: 'text/csv'});
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'json-data.csv';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-                this.showSuccess('JSON converted to CSV and downloaded successfully');
-            };
-
-            if (result instanceof Promise) {
-                result.then(processResult).catch(error => {
+            this.resolveMaybeAsync(
+                this.jsonService.jsonToCsv(this.jsonInput.value),
+                csvString => {
+                    if (!csvString) {
+                        this.showError(
+                            'Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.'
+                        );
+                        return;
+                    }
+                    this.triggerBlobDownload(csvString, 'text/csv', 'json-data.csv');
+                    this.showSuccess('JSON converted to CSV and downloaded successfully');
+                },
+                error => {
                     const errorMessage = error instanceof Error ? error.message : String(error);
                     this.showError(`Error converting JSON to CSV: ${errorMessage}`);
-                });
-            } else {
-                processResult(result);
-            }
+                }
+            );
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             this.showError(`Error converting JSON to CSV: ${errorMessage}`);
@@ -835,36 +733,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         try {
             // Convert JSON to XML
-            const result = this.jsonService.jsonToXml(this.jsonInput.value);
-
-            const processResult = (xmlString: string) => {
-                if (!xmlString) {
-                    this.showError('Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.');
-                    return;
-                }
-
-                // Download the XML
-                const blob = new Blob([xmlString], {type: 'application/xml'});
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'json-data.xml';
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-                this.showSuccess('JSON converted to XML and downloaded successfully');
-            };
-
-            if (result instanceof Promise) {
-                result.then(processResult).catch(error => {
+            this.resolveMaybeAsync(
+                this.jsonService.jsonToXml(this.jsonInput.value),
+                xmlString => {
+                    if (!xmlString) {
+                        this.showError(
+                            'Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.'
+                        );
+                        return;
+                    }
+                    this.triggerBlobDownload(xmlString, 'application/xml', 'json-data.xml');
+                    this.showSuccess('JSON converted to XML and downloaded successfully');
+                },
+                error => {
                     const errorMessage = error instanceof Error ? error.message : String(error);
                     this.showError(`Error converting JSON to XML: ${errorMessage}`);
-                });
-            } else {
-                processResult(result);
-            }
+                }
+            );
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             this.showError(`Error converting JSON to XML: ${errorMessage}`);
@@ -892,16 +777,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
-        const blob = new Blob([this.jsonOutput.value], {type: 'application/json'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'formatted-json.json';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-
+        this.triggerBlobDownload(this.jsonOutput.value, 'application/json', 'formatted-json.json');
         this.showSuccess('JSON downloaded successfully');
     }
 
@@ -1221,15 +1097,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Toggles the search and replace panel
+     * Toggles the search and replace panel (single source of truth: SettingsService).
      */
     toggleSearchReplace(): void {
-        this.showSearchReplace = !this.showSearchReplace;
-
-        if (this.showSearchReplace) {
-            // Set the current text for search and replace
-            this.searchReplaceText = this.jsonInput.value || '';
-        }
+        this.settingsService.toggleSearchReplace();
     }
 
     /**
@@ -1474,23 +1345,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Get the context around the error position to help identify the issue
-     */
-    private getErrorContext(jsonString: string, position: number): string {
-        const start = Math.max(0, position - 10);
-        const end = Math.min(jsonString.length, position + 10);
-        let context = jsonString.substring(start, end);
-
-        // Highlight the error position with a marker
-        if (position >= start && position < end) {
-            const relativePos = position - start;
-            context = context.substring(0, relativePos) + '👉' + context.substring(relativePos);
-        }
-
-        return context;
-    }
-
-    /**
      * Initializes the JSON visualization
      */
     private initializeVisualization(): void {
@@ -1508,11 +1362,48 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    private applyTransformedJson(transformedJson: string): void {
-        if (this.jsonInputEditor) {
-            this.jsonInputEditor.setValue(transformedJson);
-        }
+    private focusQuerySelector(selector: string, delayMs = 100): void {
+        setTimeout(() => {
+            (document.querySelector(selector) as HTMLInputElement | null)?.focus();
+        }, delayMs);
+    }
 
+    private resolveMaybeAsync<T>(
+        result: T | Promise<T>,
+        onSuccess: (value: T) => void,
+        onError: (error: unknown) => void
+    ): void {
+        if (result instanceof Promise) {
+            result.then(onSuccess).catch(onError);
+        } else {
+            onSuccess(result);
+        }
+    }
+
+    private triggerBlobDownload(content: string, mimeType: string, filename: string): void {
+        const blob = new Blob([content], {type: mimeType});
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        URL.revokeObjectURL(url);
+        document.body.removeChild(anchor);
+    }
+
+    private runJsonTransform(transform: () => string, successMessage: string, errorLabel: string): void {
+        try {
+            this.applyTransformedJson(transform());
+            this.showSuccess(successMessage);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : String(error);
+            this.showError(`${errorLabel}: ${message}`);
+        }
+    }
+
+    private applyTransformedJson(transformedJson: string): void {
+        this.jsonInputEditor?.setValue(transformedJson);
         this.jsonInput.setValue(transformedJson);
         this.jsonOutput.setValue(transformedJson);
         this.validateJson();
