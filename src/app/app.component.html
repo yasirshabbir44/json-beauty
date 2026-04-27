@@ -6,10 +6,6 @@
             <mat-icon>settings</mat-icon>
         </button>
         <mat-menu #settingsMenu="matMenu">
-            <button (click)="toggleTheme()" mat-menu-item>
-                <mat-icon>brightness_medium</mat-icon>
-                <span>Theme</span>
-            </button>
             <button (click)="toggleFormattingOptions()" mat-menu-item>
                 <mat-icon>settings</mat-icon>
                 <span>Options</span>
@@ -21,23 +17,6 @@
             <button (click)="toggleSearchReplace()" mat-menu-item>
                 <mat-icon>find_replace</mat-icon>
                 <span>Search & Replace</span>
-            </button>
-        </mat-menu>
-        
-        <button [matMenuTriggerFor]="themeMenu" [matTooltip]="'Change Theme'"
-                aria-label="Change Theme" class="theme-toggle-btn"
-                mat-icon-button>
-            <mat-icon>palette</mat-icon>
-        </button>
-        <mat-menu #themeMenu="matMenu">
-            <button *ngFor="let theme of themeOptions" 
-                    (click)="setTheme(theme.value)" 
-                    mat-menu-item 
-                    [class.active-theme]="getCurrentTheme() === theme.value">
-                <mat-icon>{{ theme.value === 'light' ? 'light_mode' : 
-                             theme.value === 'dark' ? 'dark_mode' : 
-                             'color_lens' }}</mat-icon>
-                <span>{{ theme.label }}</span>
             </button>
         </mat-menu>
         <a aria-label="GitHub Repository" class="github-link" href="https://github.com/yasirshabbir44/json-beauty"

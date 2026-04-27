@@ -333,23 +333,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         document.body.classList.add('resizing-panels');
     }
 
-    toggleTheme(): void {
-        this.isDarkTheme = !this.isDarkTheme;
-        document.body.classList.toggle('dark-theme', this.isDarkTheme);
-
-        // Update themes in child components
-        if (this.jsonInputEditor) {
-            this.jsonInputEditor.updateEditorTheme();
-        }
-
-        if (this.jsonOutputEditor) {
-            this.jsonOutputEditor.updateOutputEditorTheme();
-        }
-
-        // Store theme preference in localStorage
-        localStorage.setItem('jsonBeautyTheme', this.isDarkTheme ? 'dark' : 'light');
-    }
-
     /**
      * Toggles the maximized state of the input section
      */
@@ -436,12 +419,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Load theme preference from localStorage
-        const savedTheme = localStorage.getItem('jsonBeautyTheme');
-        if (savedTheme === 'dark') {
-            this.isDarkTheme = true;
-            document.body.classList.add('dark-theme');
-        }
+        this.isDarkTheme = false;
 
         // Subscribe to settings service observables
         this.subscriptions.push(
