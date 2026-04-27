@@ -112,6 +112,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isInputMaximized = false;
     isOutputMaximized = false;
     inputPanelWidth = 50;
+    private hasLoadedSharedJson = false;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -441,25 +442,27 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         // Check for JSON data in URL (for shared links)
         this.loadJsonFromUrl();
 
-        // Set some sample JSON to help users get started if no JSON in URL
-        const sampleJson = {
-            "name": "JSON Beauty",
-            "version": "1.0.0",
-            "description": "A powerful JSON formatter and validator",
-            "features": [
-                "Beautify JSON",
-                "Minify JSON",
-                "Validate JSON",
-                "Lint JSON",
-                "Format nested JSON",
-                "Syntax highlighting"
-            ],
-            "isAwesome": true,
-            "numberOfUsers": 1000
-        };
+        if (!this.hasLoadedSharedJson) {
+            // Set some sample JSON to help users get started if no JSON in URL
+            const sampleJson = {
+                "name": "JSON Beauty",
+                "version": "1.0.0",
+                "description": "A powerful JSON formatter and validator",
+                "features": [
+                    "Beautify JSON",
+                    "Minify JSON",
+                    "Validate JSON",
+                    "Lint JSON",
+                    "Format nested JSON",
+                    "Syntax highlighting"
+                ],
+                "isAwesome": true,
+                "numberOfUsers": 1000
+            };
 
-        this.jsonInput.setValue(JSON.stringify(sampleJson, null, 2));
-        // The output will be updated after validation in the validateJson method
+            this.jsonInput.setValue(JSON.stringify(sampleJson, null, 2));
+            // The output will be updated after validation in the validateJson method
+        }
     }
 
     ngAfterViewInit(): void {
@@ -626,34 +629,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     beautifyJson(): void {
         try {
             const beautified = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
-
-            // Update the input editor
-            if (this.jsonInputEditor) {
-                this.jsonInputEditor.setValue(beautified);
-            }
-
-            this.jsonInput.setValue(beautified);
-            this.jsonOutput.setValue(beautified);
-
-            // After beautification, validate the JSON
-            this.validateJson();
-
-            // If the JSON is now valid, update other related data
-            if (this.isValidJson) {
-                this.updateJsonPaths();
-                this.updateYamlOutput();
-
-                // Update tree view if active
-                if (this.showTreeView) {
-                    try {
-                        this.jsonTreeData = JSON.parse(beautified);
-                        // Reset expanded nodes when JSON changes
-                        this.expandedNodes.clear();
-                    } catch (error) {
-                        this.jsonTreeData = null;
-                    }
-                }
-            }
+            this.applyTransformedJson(beautified);
 
             this.showSuccess('JSON beautified successfully');
         } catch (e: any) {
@@ -664,27 +640,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     minifyJson(): void {
         try {
             const minified = this.jsonService.minifyJson(this.jsonInput.value || '{}');
-            this.jsonOutput.setValue(minified);
-
-            // After minification, validate the JSON
-            this.validateJson();
-
-            // If the JSON is now valid, update other related data
-            if (this.isValidJson) {
-                this.updateJsonPaths();
-                this.updateYamlOutput();
-
-                // Update tree view if active
-                if (this.showTreeView) {
-                    try {
-                        this.jsonTreeData = JSON.parse(minified);
-                        // Reset expanded nodes when JSON changes
-                        this.expandedNodes.clear();
-                    } catch (error) {
-                        this.jsonTreeData = null;
-                    }
-                }
-            }
+            this.applyTransformedJson(minified);
 
             this.showSuccess('JSON minified successfully');
         } catch (e: any) {
@@ -695,34 +651,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     lintJson(): void {
         try {
             const linted = this.jsonService.lintJson(this.jsonInput.value || '{}');
-
-            // Update the input editor
-            if (this.jsonInputEditor) {
-                this.jsonInputEditor.setValue(linted);
-            }
-
-            this.jsonInput.setValue(linted);
-            this.jsonOutput.setValue(linted);
-
-            // After linting, validate the JSON
-            this.validateJson();
-
-            // If the JSON is now valid, update other related data
-            if (this.isValidJson) {
-                this.updateJsonPaths();
-                this.updateYamlOutput();
-
-                // Update tree view if active
-                if (this.showTreeView) {
-                    try {
-                        this.jsonTreeData = JSON.parse(linted);
-                        // Reset expanded nodes when JSON changes
-                        this.expandedNodes.clear();
-                    } catch (error) {
-                        this.jsonTreeData = null;
-                    }
-                }
-            }
+            this.applyTransformedJson(linted);
 
             this.showSuccess('JSON linted successfully');
         } catch (e: any) {
@@ -1496,6 +1425,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 // Set the input value
                 this.jsonInput.setValue(sanitizedJson);
+                this.hasLoadedSharedJson = true;
 
                 // Set the input editor value after it's initialized
                 setTimeout(() => {
@@ -1576,6 +1506,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             const errorMessage = error instanceof Error ? error.message : String(error);
             this.showError(`Error initializing visualization: ${errorMessage}`);
         }
+    }
+
+    private applyTransformedJson(transformedJson: string): void {
+        if (this.jsonInputEditor) {
+            this.jsonInputEditor.setValue(transformedJson);
+        }
+
+        this.jsonInput.setValue(transformedJson);
+        this.jsonOutput.setValue(transformedJson);
+        this.validateJson();
     }
 
     private showSuccess(message: string): void {

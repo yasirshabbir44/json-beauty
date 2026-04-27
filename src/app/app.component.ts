@@ -13,8 +13,8 @@ import {SettingsService} from './services/settings/settings.service';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    title = 'JSON Beauty';
-    currentYear: number = new Date().getFullYear();
+    readonly title = 'JSON Beauty';
+    readonly currentYear = new Date().getFullYear();
 
     constructor(
         private cspService: CSPService,
