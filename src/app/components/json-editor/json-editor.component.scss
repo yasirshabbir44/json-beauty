@@ -48,7 +48,7 @@
 .editor-columns {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
   transition: all 0.2s ease-out;
   position: relative;
@@ -132,6 +132,46 @@
     z-index: auto;
     overflow: visible;
   }
+
+  app-json-input-editor {
+    flex: 0 0 calc(var(--input-panel-width, 50%) - 4px);
+  }
+
+  app-json-output-editor {
+    flex: 1 1 auto;
+  }
+
+  .panel-divider {
+    width: 8px;
+    min-width: 8px;
+    cursor: col-resize;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.12), rgba(15, 23, 42, 0.2));
+    transition: background 0.2s ease, transform 0.2s ease;
+    position: relative;
+    align-self: stretch;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 14px 2px;
+      border-radius: inherit;
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    &:hover {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.24), rgba(15, 23, 42, 0.3));
+      transform: scaleX(1.05);
+    }
+  }
+
+  &.input-maximized,
+  &.output-maximized {
+    app-json-input-editor,
+    app-json-output-editor {
+      flex: 1 1 100%;
+    }
+  }
 }
 
 // Utility classes
@@ -170,5 +210,26 @@
     background-color 0.3s ease,
     color 0.3s ease,
     border-color 0.3s ease;
+  }
+
+  .editor-columns .panel-divider {
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.35), rgba(71, 85, 105, 0.45));
+
+    &::before {
+      background: rgba(15, 23, 42, 0.55);
+    }
+  }
+}
+
+@media (max-width: 991px) {
+  .editor-columns {
+    app-json-input-editor,
+    app-json-output-editor {
+      flex: 1 1 100%;
+    }
+
+    .panel-divider {
+      display: none;
+    }
   }
 }

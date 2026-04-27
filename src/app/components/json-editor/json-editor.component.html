@@ -38,7 +38,9 @@
                 </app-json-dialogs>
 
 
-                <div [class.input-maximized]="isInputMaximized" [class.output-maximized]="isOutputMaximized"
+                <div [class.input-maximized]="isInputMaximized"
+                     [class.output-maximized]="isOutputMaximized"
+                     [style.--input-panel-width.%]="inputPanelWidth"
                      class="editor-columns">
                     <!-- Input Editor Component -->
                     <app-json-input-editor
@@ -54,6 +56,13 @@
                             [isValidJson]="isValidJson"
                             [showInputSearchBar]="showInputSearchBar">
                     </app-json-input-editor>
+
+                    <div (mousedown)="startPanelResize($event)"
+                         *ngIf="!isInputMaximized && !isOutputMaximized"
+                         aria-label="Resize input and output panels"
+                         class="panel-divider"
+                         role="separator">
+                    </div>
 
                     <!-- Output Editor Component -->
                     <app-json-output-editor

@@ -36,6 +36,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscriptions for cleanup
     private subscriptions: Subscription[] = [];
+    private isResizingPanels = false;
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
     jsonInput = new FormControl('');
@@ -110,6 +111,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     // Maximize/minimize properties
     isInputMaximized = false;
     isOutputMaximized = false;
+    inputPanelWidth = 50;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -234,6 +236,27 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
+    @HostListener('window:mousemove', ['$event'])
+    onPanelResize(event: MouseEvent): void {
+        if (!this.isResizingPanels || window.innerWidth <= 991) {
+            return;
+        }
+
+        const viewportWidth = window.innerWidth;
+        const nextWidth = (event.clientX / viewportWidth) * 100;
+        this.inputPanelWidth = Math.min(75, Math.max(25, nextWidth));
+    }
+
+    @HostListener('window:mouseup')
+    stopPanelResize(): void {
+        if (!this.isResizingPanels) {
+            return;
+        }
+
+        this.isResizingPanels = false;
+        document.body.classList.remove('resizing-panels');
+    }
+
     /**
      * Toggles the search bar visibility
      */
@@ -298,6 +321,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleKeyboardShortcuts(): void {
         // Delegate to the settings service
         this.settingsService.toggleKeyboardShortcuts();
+    }
+
+    startPanelResize(event: MouseEvent): void {
+        if (window.innerWidth <= 991) {
+            return;
+        }
+
+        event.preventDefault();
+        this.isResizingPanels = true;
+        document.body.classList.add('resizing-panels');
     }
 
     toggleTheme(): void {

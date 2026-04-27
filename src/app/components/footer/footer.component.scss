@@ -1,13 +1,13 @@
 .footer-container {
-  background: linear-gradient(135deg, #0078D4, #106EBE); /* Microsoft blue gradient */
-  color: white;
-  padding: 0.5rem 0; /* Reduced from 1rem for better space utilization */
+  background: linear-gradient(180deg, #dff0ff 0%, #cde5fb 100%);
+  color: #214567;
+  padding: 0.55rem 0;
   margin-top: auto;
   width: 100%;
-  box-shadow: 0 -1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 -0.3px 0.9px 0 rgba(0, 0, 0, 0.108); /* Fluent UI shadow */
+  box-shadow: 0 -10px 24px rgba(2, 8, 23, 0.18);
   position: relative;
   z-index: 10;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #b9d8f0;
   height: auto; /* Ensure height is based on content */
   min-height: 40px; /* Set minimum height for the footer */
 }
@@ -46,7 +46,7 @@
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.2px;
-  color: white;
+  color: #214567;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -55,7 +55,7 @@
   opacity: 0.85;
   margin: 0;
   line-height: 1.5;
-  color: rgba(255, 255, 255, 0.9);
+  color: #4b6b87;
 }
 
 .footer-links {
@@ -66,7 +66,7 @@
 }
 
 .footer-link {
-  color: white;
+  color: #235680;
   text-decoration: none;
   font-size: 0.75rem; /* Reduced from 0.8125rem for better space utilization */
   opacity: 0.85;
@@ -74,11 +74,14 @@
   display: flex;
   align-items: center;
   padding: 0.2rem 0.4rem; /* Reduced from 0.25rem 0.5rem for better space utilization */
-  border-radius: 2px;
+  border-radius: 999px;
+  border: 1px solid #b4d6f1;
+  background: rgba(255, 255, 255, 0.72);
 
   &:hover {
     opacity: 1;
-    background: rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border-color: #9fc8ea;
     text-decoration: none;
   }
 
@@ -138,8 +141,8 @@
 /* Dark theme styles */
 :host-context(.dark-theme) {
   .footer-container {
-    background: linear-gradient(135deg, rgba(0, 120, 212, 0.95), rgba(16, 110, 190, 0.95));
+    background: linear-gradient(180deg, #274d70 0%, #223f58 100%);
     box-shadow: 0 -1.6px 3.6px 0 rgba(0, 0, 0, 0.22), 0 -0.3px 0.9px 0 rgba(0, 0, 0, 0.18);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(160, 205, 240, 0.2);
   }
 }
