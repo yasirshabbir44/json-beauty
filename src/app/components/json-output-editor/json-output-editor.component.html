@@ -3,19 +3,25 @@
         <div class="output-toolbar-primary">
             <mat-icon class="output-toolbar-brand-icon">output</mat-icon>
             <span class="output-toolbar-title">Output</span>
-            <div *ngIf="isValidJson" class="output-format-selector">
-                <mat-button-toggle-group (change)="onToggleOutputFormat()" [value]="selectedOutputFormat">
-                    <mat-button-toggle value="json">JSON</mat-button-toggle>
-                    <mat-button-toggle value="yaml">YAML</mat-button-toggle>
-                </mat-button-toggle-group>
-            </div>
-            <div *ngIf="isValidJson && selectedOutputFormat === 'json'" class="view-mode-selector"
-                 matTooltip="Switch how the output is shown">
-                <mat-button-toggle-group (change)="onViewModeSelect($event)" [value]="selectedViewMode">
-                    <mat-button-toggle value="text">Text</mat-button-toggle>
-                    <mat-button-toggle value="tree">Tree</mat-button-toggle>
-                    <mat-button-toggle value="table">Table</mat-button-toggle>
-                </mat-button-toggle-group>
+            <div *ngIf="isValidJson" class="output-toolbar-toggles">
+                <div class="output-format-selector">
+                    <mat-button-toggle-group (change)="onToggleOutputFormat()"
+                                             [hideSingleSelectionIndicator]="true"
+                                             [value]="selectedOutputFormat">
+                        <mat-button-toggle value="json">JSON</mat-button-toggle>
+                        <mat-button-toggle value="yaml">YAML</mat-button-toggle>
+                    </mat-button-toggle-group>
+                </div>
+                <div *ngIf="selectedOutputFormat === 'json'" class="view-mode-selector"
+                     matTooltip="Switch how the output is shown">
+                    <mat-button-toggle-group (change)="onViewModeSelect($event)"
+                                             [hideSingleSelectionIndicator]="true"
+                                             [value]="selectedViewMode">
+                        <mat-button-toggle value="text">Text</mat-button-toggle>
+                        <mat-button-toggle value="tree">Tree</mat-button-toggle>
+                        <mat-button-toggle value="table">Table</mat-button-toggle>
+                    </mat-button-toggle-group>
+                </div>
             </div>
         </div>
         <div class="output-toolbar-actions">
