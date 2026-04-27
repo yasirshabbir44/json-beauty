@@ -410,4 +410,28 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit {
             this.editor.execCommand('clearSelection');
         }
     }
+
+    /**
+     * Selects a range by UTF-16 string offsets and scrolls it into view (for search / replace panel).
+     */
+    revealDocumentOffsets(startOffset: number, length: number): void {
+        if (!this.editor || startOffset < 0 || length < 0) {
+            return;
+        }
+
+        const editor = this.editor as any;
+        const RangeCtor = ace.require('ace/range').Range;
+        const doc = editor.session.getDocument();
+        const textLen = doc.getValue().length;
+        const safeStart = Math.min(startOffset, textLen);
+        const safeEnd = Math.min(safeStart + length, textLen);
+
+        const start = doc.indexToPosition(safeStart, 0);
+        const end = doc.indexToPosition(safeEnd, 0);
+        const range = new RangeCtor(start.row, start.column, end.row, end.column);
+
+        editor.selection.setRange(range);
+        editor.renderer.scrollSelectionIntoView(editor.selection.anchor, editor.selection.cursor, 0.5);
+        editor.focus();
+    }
 }

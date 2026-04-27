@@ -46,7 +46,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
     // Keyboard shortcuts
     keyboardShortcuts = [
-        {key: 'Ctrl + F', action: 'Show/Hide Search Bar'},
+        {key: 'Ctrl / Cmd + F', action: 'Show/Hide editor search bar'},
+        {key: 'Ctrl / Cmd + Shift + F', action: 'Show/Hide Search & Replace panel'},
         {key: 'Ctrl + B', action: 'Beautify JSON'},
         {key: 'Ctrl + M', action: 'Minify JSON'},
         {key: 'Ctrl + L', action: 'Lint & Fix JSON'},
@@ -97,7 +98,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
 
     // Search and replace properties
     showSearchReplace = false;
-    searchReplaceText = '';
 
     // Maximize/minimize properties
     isInputMaximized = false;
@@ -172,53 +172,59 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
     // Listen for keyboard shortcuts
     @HostListener('window:keydown', ['$event'])
     handleKeyboardEvent(event: KeyboardEvent): void {
-        // Only process if Ctrl key is pressed
-        if (event.ctrlKey) {
-            switch (event.key.toLowerCase()) {
-                case 'f':
-                    event.preventDefault();
+        const mod = event.ctrlKey || event.metaKey;
+        if (!mod) {
+            return;
+        }
+
+        switch (event.key.toLowerCase()) {
+            case 'f':
+                event.preventDefault();
+                if (event.shiftKey) {
+                    this.settingsService.toggleSearchReplace();
+                } else {
                     this.toggleSearchBar();
-                    break;
-                case 'b':
+                }
+                break;
+            case 'b':
+                event.preventDefault();
+                this.beautifyJson();
+                break;
+            case 'm':
+                event.preventDefault();
+                this.minifyJson();
+                break;
+            case 'l':
+                event.preventDefault();
+                this.lintJson();
+                break;
+            case 'c':
+                // Let the browser handle copy if we're in an input field
+                if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
                     event.preventDefault();
-                    this.beautifyJson();
-                    break;
-                case 'm':
-                    event.preventDefault();
-                    this.minifyJson();
-                    break;
-                case 'l':
-                    event.preventDefault();
-                    this.lintJson();
-                    break;
-                case 'c':
-                    // Let the browser handle copy if we're in an input field
-                    if (document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
-                        event.preventDefault();
-                        this.copyToClipboard();
-                    }
-                    break;
-                case 's':
-                    event.preventDefault();
-                    this.downloadJson();
-                    break;
-                case 'd':
-                    event.preventDefault();
-                    this.clearEditor();
-                    break;
-                case 'k':
-                    event.preventDefault();
-                    this.toggleKeyboardShortcuts();
-                    break;
-                case '1':
-                    event.preventDefault();
-                    this.toggleInputMaximize();
-                    break;
-                case '2':
-                    event.preventDefault();
-                    this.toggleOutputMaximize();
-                    break;
-            }
+                    this.copyToClipboard();
+                }
+                break;
+            case 's':
+                event.preventDefault();
+                this.downloadJson();
+                break;
+            case 'd':
+                event.preventDefault();
+                this.clearEditor();
+                break;
+            case 'k':
+                event.preventDefault();
+                this.toggleKeyboardShortcuts();
+                break;
+            case '1':
+                event.preventDefault();
+                this.toggleInputMaximize();
+                break;
+            case '2':
+                event.preventDefault();
+                this.toggleOutputMaximize();
+                break;
         }
     }
 
@@ -400,9 +406,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(show => {
                 this.showSearchReplace = show;
-                if (show) {
-                    this.searchReplaceText = this.jsonInput.value || '';
-                }
             });
 
         // Check for JSON data in URL (for shared links)
@@ -1107,9 +1110,15 @@ export class JsonEditorComponent implements OnInit, AfterViewInit {
      * @param newText The updated text
      */
     onSearchReplaceTextChanged(newText: string): void {
-        this.searchReplaceText = newText;
         this.jsonInput.setValue(newText);
+        this.jsonInputEditor?.setValue(newText);
         this.validateJson();
+    }
+
+    onSearchReplaceActiveMatch(match: { start: number; length: number } | null): void {
+        if (match) {
+            this.jsonInputEditor?.revealDocumentOffsets(match.start, match.length);
+        }
     }
 
     getJsonSize(): string {

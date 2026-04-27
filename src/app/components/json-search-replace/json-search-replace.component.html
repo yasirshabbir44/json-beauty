@@ -3,38 +3,64 @@
         <div class="search-row">
             <mat-form-field appearance="outline" class="search-field">
                 <mat-label>Search</mat-label>
-                <input formControlName="searchPattern" matInput placeholder="Enter search text">
-                <button (click)="search()" mat-icon-button matSuffix matTooltip="Search">
-                    <mat-icon>search</mat-icon>
+                <input #searchPatternInput
+                       (keydown)="onSearchFieldKeydown($event)"
+                       formControlName="searchPattern"
+                       matInput
+                       placeholder="Type to search (live). Enter: next · Shift+Enter: previous">
+                <button (click)="search()" mat-icon-button matSuffix matTooltip="Refresh search" type="button">
+                    <mat-icon>refresh</mat-icon>
                 </button>
             </mat-form-field>
 
             <div class="search-controls">
-                <button (click)="findPrevious()" [disabled]="searchResults.length === 0" mat-icon-button
-                        matTooltip="Previous match">
+                <button (click)="findPrevious()"
+                        [disabled]="!searchForm.get('searchPattern')?.value || searchResults.length === 0"
+                        mat-icon-button
+                        matTooltip="Previous match (Shift+Enter)"
+                        type="button">
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
-                <button (click)="findNext()" [disabled]="searchResults.length === 0" mat-icon-button
-                        matTooltip="Next match">
+                <button (click)="findNext()"
+                        [disabled]="!searchForm.get('searchPattern')?.value || searchResults.length === 0"
+                        mat-icon-button
+                        matTooltip="Next match (Enter)"
+                        type="button">
                     <mat-icon>arrow_downward</mat-icon>
                 </button>
-                <span *ngIf="searchResults.length > 0" class="match-count">
-          {{ currentResultIndex + 1 }} of {{ searchResults.length }}
-        </span>
+                <span *ngIf="searchForm.get('searchPattern')?.value" class="match-count">
+                    <ng-container *ngIf="searchResults.length > 0; else noMatches">
+                        {{ currentResultIndex + 1 }} of {{ searchResults.length }}
+                    </ng-container>
+                    <ng-template #noMatches>No matches</ng-template>
+                </span>
             </div>
         </div>
+
+        <div *ngIf="regexError" class="regex-error" role="alert">{{ regexError }}</div>
 
         <div class="replace-row">
             <mat-form-field appearance="outline" class="replace-field">
                 <mat-label>Replace</mat-label>
-                <input formControlName="replacePattern" matInput placeholder="Enter replacement text">
+                <input (keydown)="onReplaceFieldKeydown($event)"
+                       formControlName="replacePattern"
+                       matInput
+                       placeholder="Replacement (Ctrl or Cmd + Enter: replace match)">
             </mat-form-field>
 
             <div class="replace-controls">
-                <button (click)="replace()" [disabled]="searchResults.length === 0" color="primary" mat-raised-button>
+                <button (click)="replace()"
+                        [disabled]="searchResults.length === 0"
+                        color="primary"
+                        mat-raised-button
+                        type="button">
                     Replace
                 </button>
-                <button (click)="replaceAll()" [disabled]="searchResults.length === 0" color="accent" mat-raised-button>
+                <button (click)="replaceAll()"
+                        [disabled]="searchResults.length === 0"
+                        color="accent"
+                        mat-raised-button
+                        type="button">
                     Replace All
                 </button>
             </div>
@@ -46,8 +72,8 @@
             <mat-checkbox color="primary" formControlName="isWholeWord">Whole word</mat-checkbox>
 
             <span *ngIf="totalReplacements > 0" class="replacement-count">
-        {{ totalReplacements }} replacement(s) made
-      </span>
+                {{ totalReplacements }} replacement(s) made
+            </span>
         </div>
     </form>
 </div>
