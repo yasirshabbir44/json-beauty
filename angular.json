@@ -38,7 +38,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/ace-builds/src-noconflict",
+                "output": "assets/ace"
+              }
             ],
             "styles": [
               "src/theme.scss",
@@ -110,7 +115,12 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "node_modules/ace-builds/src-noconflict",
+                "output": "assets/ace"
+              }
             ],
             "styles": [
               "src/theme.scss",

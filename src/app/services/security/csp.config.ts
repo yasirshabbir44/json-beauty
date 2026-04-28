@@ -7,7 +7,7 @@ export class CSPConfig {
      * Get the CSP directives as a string
      * @returns CSP directives string
      */
-    public static getCSPDirectives(): string {
+    private static getCommonDirectives(): string[] {
         return [
             // Default policy for all content types
             "default-src 'self'",
@@ -48,15 +48,12 @@ export class CSPConfig {
             // Form action restriction
             "form-action 'self'",
             
-            // Frame ancestors restriction (prevents clickjacking)
-            "frame-ancestors 'self'",
-            
             // Block mixed content
             "block-all-mixed-content",
             
             // Upgrade insecure requests
             "upgrade-insecure-requests"
-        ].join('; ');
+        ];
     }
 
     /**
@@ -64,7 +61,8 @@ export class CSPConfig {
      * @returns CSP meta tag content
      */
     public static getCSPMetaTag(): string {
-        return this.getCSPDirectives();
+        // frame-ancestors is ignored by browsers when CSP is delivered via meta.
+        return this.getCommonDirectives().join('; ');
     }
 
     /**
@@ -72,6 +70,9 @@ export class CSPConfig {
      * @returns CSP header value
      */
     public static getCSPHeader(): string {
-        return this.getCSPDirectives();
+        return [
+            ...this.getCommonDirectives(),
+            "frame-ancestors 'self'"
+        ].join('; ');
     }
 }

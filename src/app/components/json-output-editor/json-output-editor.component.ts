@@ -218,7 +218,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
         try {
             // Set the basePath for ace editor to load its modes, themes, and extensions
-            ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.32.0/src-noconflict/');
+            ace.config.set('basePath', '/assets/ace');
 
             // Initialize the output editor
             this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
