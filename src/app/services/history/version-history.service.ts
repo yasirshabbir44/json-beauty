@@ -15,6 +15,7 @@ export class VersionHistoryService {
     private readonly STORAGE_KEY = 'json_beauty_version_history';
     private readonly MAX_VERSIONS = 50;
     private readonly MAX_VERSION_CONTENT_BYTES = 512 * 1024; // 512 KB per snapshot
+    private readonly AUTOSAVE_COALESCE_WINDOW_MS = 4000;
 
     private versionsSubject = new BehaviorSubject<JsonVersion[]>([]);
     public versions$: Observable<JsonVersion[]> = this.versionsSubject.asObservable();
@@ -36,10 +37,28 @@ export class VersionHistoryService {
 
         const versions = this.versionsSubject.value;
         const latestVersion = versions[0];
+        const isNamedSave = !!name?.trim();
 
         // Skip creating duplicate snapshots when content did not change.
         if (latestVersion && latestVersion.content === content) {
             return latestVersion;
+        }
+
+        // Coalesce rapid auto-saves into the latest unnamed version while the user is typing.
+        if (!isNamedSave && latestVersion && !latestVersion.name && this.isWithinCoalesceWindow(latestVersion.timestamp)) {
+            const updatedLatestVersion: JsonVersion = {
+                ...latestVersion,
+                content,
+                timestamp: new Date()
+            };
+            const updatedVersions = [updatedLatestVersion, ...versions.slice(1)];
+            this.versionsSubject.next(updatedVersions);
+            const persisted = this.saveVersionsToStorage();
+            if (!persisted) {
+                this.versionsSubject.next(versions);
+                return null;
+            }
+            return updatedLatestVersion;
         }
 
         // Generate a unique ID
@@ -150,12 +169,24 @@ export class VersionHistoryService {
         try {
             const storedVersions = localStorage.getItem(this.STORAGE_KEY);
             if (storedVersions) {
-                const parsedVersions = JSON.parse(storedVersions);
-                // Convert string timestamps back to Date objects
-                const versions = parsedVersions.map((v: any) => ({
-                    ...v,
-                    timestamp: new Date(v.timestamp)
-                }));
+                const parsedVersions: unknown = JSON.parse(storedVersions);
+                if (!Array.isArray(parsedVersions)) {
+                    this.versionsSubject.next([]);
+                    return;
+                }
+
+                // Keep only valid entries, normalize timestamp, and enforce newest-first order.
+                const versions: JsonVersion[] = parsedVersions
+                    .filter(this.isValidStoredVersion)
+                    .map(v => ({
+                        id: v.id,
+                        content: v.content,
+                        name: typeof v.name === 'string' ? v.name : undefined,
+                        timestamp: new Date(v.timestamp)
+                    }))
+                    .filter(v => !Number.isNaN(v.timestamp.getTime()))
+                    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+                    .slice(0, this.MAX_VERSIONS);
                 this.versionsSubject.next(versions);
             }
         } catch (error) {
@@ -230,5 +261,27 @@ export class VersionHistoryService {
     private isQuotaExceededError(error: unknown): boolean {
         return error instanceof DOMException &&
             (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED');
+    }
+
+    private isWithinCoalesceWindow(timestamp: Date): boolean {
+        return Date.now() - timestamp.getTime() <= this.AUTOSAVE_COALESCE_WINDOW_MS;
+    }
+
+    private isValidStoredVersion(version: unknown): version is {
+        id: string;
+        content: string;
+        timestamp: string | number | Date;
+        name?: string;
+    } {
+        if (!version || typeof version !== 'object') {
+            return false;
+        }
+
+        const candidate = version as Partial<JsonVersion> & { timestamp?: unknown };
+        return (
+            typeof candidate.id === 'string' &&
+            typeof candidate.content === 'string' &&
+            candidate.timestamp !== undefined
+        );
     }
 }

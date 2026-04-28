@@ -49,8 +49,12 @@ export class VersionHistoryComponent implements OnInit, OnDestroy {
      * @param date The date to format
      * @returns Formatted date string
      */
-    formatDate(date: Date): string {
-        return date.toLocaleString();
+    formatDate(date: Date | string): string {
+        const resolvedDate = date instanceof Date ? date : new Date(date);
+        if (Number.isNaN(resolvedDate.getTime())) {
+            return 'Unknown date';
+        }
+        return resolvedDate.toLocaleString();
     }
 
     /**
