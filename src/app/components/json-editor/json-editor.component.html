@@ -221,70 +221,72 @@
                     <span class="split-hint">Drag the center bar to resize panels</span>
                 </div>
 
-                <div [class.input-maximized]="isInputMaximized"
-                     [class.output-maximized]="isOutputMaximized"
-                     [style.--input-panel-width.%]="inputPanelWidth"
-                     class="editor-columns">
-                    <app-json-input-editor
-                            (cursorPositionChange)="onInputCursorPosition($event)"
-                            (jsonInputChange)="onJsonInputChange($event)"
-                            (toggleMaximize)="toggleInputMaximize()"
-                            [errorMessage]="errorMessage"
-                            [isDarkTheme]="isDarkTheme"
-                            [isMaximized]="isInputMaximized"
-                            [isValidJson]="isValidJson">
-                    </app-json-input-editor>
+                <section class="editor-workspace-panel" aria-label="Editor workspace">
+                    <div [class.input-maximized]="isInputMaximized"
+                         [class.output-maximized]="isOutputMaximized"
+                         [style.--input-panel-width.%]="inputPanelWidth"
+                         class="editor-columns">
+                        <app-json-input-editor
+                                (cursorPositionChange)="onInputCursorPosition($event)"
+                                (jsonInputChange)="onJsonInputChange($event)"
+                                (toggleMaximize)="toggleInputMaximize()"
+                                [errorMessage]="errorMessage"
+                                [isDarkTheme]="isDarkTheme"
+                                [isMaximized]="isInputMaximized"
+                                [isValidJson]="isValidJson">
+                        </app-json-input-editor>
 
-                    <div (mousedown)="startPanelResize($event)"
-                         *ngIf="!isInputMaximized && !isOutputMaximized"
-                         aria-label="Resize input and output panels"
-                         class="panel-divider"
-                         role="separator">
+                        <div (mousedown)="startPanelResize($event)"
+                             *ngIf="!isInputMaximized && !isOutputMaximized"
+                             aria-label="Resize input and output panels"
+                             class="panel-divider"
+                             role="separator">
+                        </div>
+
+                        <app-json-output-editor
+                                (convertToCsv)="convertToCsv()"
+                                (convertToXml)="convertToXml()"
+                                (copy)="copyToClipboard()"
+                                (download)="downloadOutput()"
+                                (downloadText)="downloadText()"
+                                (generateSchema)="generateJsonSchema()"
+                                (share)="shareJson()"
+                                (toggleJsonCompare)="toggleJsonCompare()"
+                                (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                                (toggleJsonPaths)="toggleJsonPaths()"
+                                (toggleJsonVisualize)="toggleJsonVisualize()"
+                                (toggleMaximize)="toggleOutputMaximize()"
+                                (toggleNode)="toggleNode($event)"
+                                (toggleOutputFormat)="toggleOutputFormat()"
+                                (toggleSchemaEditor)="toggleSchemaEditor()"
+                                (toggleTreeView)="toggleTreeView()"
+                                (toggleViewMode)="handleViewModeChange($event)"
+                                (treeSearch)="searchInTree($event)"
+                                [expandedNodes]="expandedNodes"
+                                [isDarkTheme]="isDarkTheme"
+                                [isMaximized]="isOutputMaximized"
+                                [isValidJson]="isValidJson"
+                                [jsonOutput]="jsonOutput"
+                                [jsonTreeData]="jsonTreeData"
+                                [selectedOutputFormat]="selectedOutputFormat"
+                                [selectedViewMode]="selectedViewMode"
+                                [showTreeView]="showTreeView"
+                                [treeSearchHighlighted]="treeSearchHighlighted"
+                                [treeSearchResults]="treeSearchResults"
+                                [yamlOutput]="yamlOutput">
+                        </app-json-output-editor>
                     </div>
 
-                    <app-json-output-editor
-                            (convertToCsv)="convertToCsv()"
-                            (convertToXml)="convertToXml()"
-                            (copy)="copyToClipboard()"
-                            (download)="downloadOutput()"
-                            (downloadText)="downloadText()"
-                            (generateSchema)="generateJsonSchema()"
-                            (share)="shareJson()"
-                            (toggleJsonCompare)="toggleJsonCompare()"
-                            (toggleJsonPathQuery)="toggleJsonPathQuery()"
-                            (toggleJsonPaths)="toggleJsonPaths()"
-                            (toggleJsonVisualize)="toggleJsonVisualize()"
-                            (toggleMaximize)="toggleOutputMaximize()"
-                            (toggleNode)="toggleNode($event)"
-                            (toggleOutputFormat)="toggleOutputFormat()"
-                            (toggleSchemaEditor)="toggleSchemaEditor()"
-                            (toggleTreeView)="toggleTreeView()"
-                            (toggleViewMode)="handleViewModeChange($event)"
-                            (treeSearch)="searchInTree($event)"
-                            [expandedNodes]="expandedNodes"
-                            [isDarkTheme]="isDarkTheme"
-                            [isMaximized]="isOutputMaximized"
+                    <app-json-status
+                            [cursorColumn]="inputCursorColumn"
+                            [cursorLine]="inputCursorLine"
+                            [displaySize]="getDisplaySize()"
+                            [errorMessage]="errorMessage"
                             [isValidJson]="isValidJson"
-                            [jsonOutput]="jsonOutput"
-                            [jsonTreeData]="jsonTreeData"
                             [selectedOutputFormat]="selectedOutputFormat"
-                            [selectedViewMode]="selectedViewMode"
-                            [showTreeView]="showTreeView"
-                            [treeSearchHighlighted]="treeSearchHighlighted"
-                            [treeSearchResults]="treeSearchResults"
-                            [yamlOutput]="yamlOutput">
-                    </app-json-output-editor>
-                </div>
-
-                <app-json-status
-                        [cursorColumn]="inputCursorColumn"
-                        [cursorLine]="inputCursorLine"
-                        [displaySize]="getDisplaySize()"
-                        [errorMessage]="errorMessage"
-                        [isValidJson]="isValidJson"
-                        [selectedOutputFormat]="selectedOutputFormat"
-                        [selectedViewMode]="selectedViewMode">
-                </app-json-status>
+                            [selectedViewMode]="selectedViewMode">
+                    </app-json-status>
+                </section>
 
                 <app-json-paths
                         (toggleJsonPaths)="toggleJsonPaths()"
