@@ -217,8 +217,8 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         const ACE_CONFIG_ERROR = 'Failed to configure Ace editor';
 
         try {
-            // Set the basePath for ace editor to load its modes, themes, and extensions
             ace.config.set('basePath', '/assets/ace');
+            ace.config.setModuleUrl('ace/mode/json_worker', '/assets/ace/worker-json.js');
 
             // Initialize the output editor
             this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);

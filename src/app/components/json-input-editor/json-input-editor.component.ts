@@ -108,6 +108,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
     initializeEditor(): void {
         try {
             ace.config.set('basePath', '/assets/ace');
+            ace.config.setModuleUrl('ace/mode/json_worker', '/assets/ace/worker-json.js');
 
             // Initialize input editor
             this.editor = ace.edit(this.editorElement.nativeElement);
