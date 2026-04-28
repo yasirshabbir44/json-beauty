@@ -31,7 +31,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Prevent overflow issues */
+    overflow: hidden;
   }
 }
 
@@ -42,7 +42,7 @@
   gap: 10px;
   flex: 1;
   height: 100%;
-  overflow: hidden; /* Prevent overflow issues */
+  overflow: hidden;
   position: relative;
 }
 
@@ -165,11 +165,11 @@
 
   @media (max-width: 767px) {
     gap: 8px; /* Reduced from 12px */
-    min-height: 75vh; /* Increase min-height on smaller screens */
+    min-height: 60vh;
   }
 
   @media (max-width: 480px) {
-    min-height: 80vh; /* Further increase min-height on mobile screens */
+    min-height: 50vh;
   }
 
   // Input maximized state
@@ -347,6 +347,26 @@
 }
 
 @media (max-width: 991px) {
+  .editor-container {
+    min-height: 100dvh;
+    height: auto;
+  }
+
+  .editor-card {
+    min-height: 100dvh;
+    height: auto;
+
+    mat-card-content {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+  }
+
+  .editor-layout {
+    height: auto;
+    overflow: visible;
+  }
+
   .editor-columns {
     app-json-input-editor,
     app-json-output-editor {
