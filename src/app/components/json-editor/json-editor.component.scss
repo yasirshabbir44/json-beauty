@@ -46,6 +46,66 @@
   position: relative;
 }
 
+.launch-description {
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.9), rgba(255, 255, 255, 0.95));
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 2px 2px 0;
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  p {
+    margin: 0;
+    color: #334155;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  p + p {
+    margin-top: 6px;
+  }
+
+  .launch-description-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .launch-description-item {
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.82);
+    padding: 9px 10px;
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    p {
+      font-size: 0.84rem;
+      color: #475569;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+  }
+}
+
 .editor-feature-nav {
   display: flex;
   flex-wrap: wrap;
@@ -305,6 +365,33 @@
 
 // Dark theme styles - only the essential ones for this component
 .dark-theme {
+  .launch-description {
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.92));
+    border-color: rgba(96, 165, 250, 0.35);
+
+    h1 {
+      color: #dbeafe;
+    }
+
+    p {
+      color: #cbd5e1;
+    }
+
+    .launch-description-item {
+      border-color: rgba(148, 163, 184, 0.25);
+      background: rgba(15, 23, 42, 0.72);
+
+      h2 {
+        color: #dbeafe;
+      }
+
+      p,
+      ul {
+        color: #cbd5e1;
+      }
+    }
+  }
+
   .editor-card {
     background: #111827;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
@@ -347,6 +434,10 @@
 }
 
 @media (max-width: 991px) {
+  .launch-description .launch-description-grid {
+    grid-template-columns: 1fr;
+  }
+
   .editor-container {
     min-height: 100dvh;
     height: auto;
