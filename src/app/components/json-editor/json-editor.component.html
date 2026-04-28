@@ -172,6 +172,11 @@
                             <mat-icon>content_copy</mat-icon>
                             Copy
                         </button>
+                        <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
+                                matTooltip="Create a shareable URL">
+                            <mat-icon>share</mat-icon>
+                            Share
+                        </button>
                         <button type="button" mat-stroked-button class="toolbar-clear" (click)="clearEditor()"
                                 matTooltip="Clear (Ctrl+D)">
                             <mat-icon>delete_sweep</mat-icon>

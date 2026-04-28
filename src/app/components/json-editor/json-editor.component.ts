@@ -2,13 +2,11 @@ import {AfterViewInit, Component, DestroyRef, HostListener, OnDestroy, OnInit, V
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
-import {MatDialog} from '@angular/material/dialog';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {JsonService} from '../../services/json.service';
 import {VersionHistoryService} from '../../services/history/version-history.service';
 import {InputSanitizationService} from '../../services/security/input-sanitization.service';
 import {SecurityUtilsService} from '../../services/security/security-utils.service';
-import {ShareDialogComponent} from '../share-dialog/share-dialog.component';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
 import {SettingsService} from '../../services/settings/settings.service';
@@ -138,7 +136,6 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private snackBar: MatSnackBar,
         private jsonService: JsonService,
         private versionHistoryService: VersionHistoryService,
-        private dialog: MatDialog,
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
         private settingsService: SettingsService,
@@ -1466,8 +1463,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Generates a shareable URL with the current JSON data and opens a dialog
-     * with options to copy, share, and view the shared content
+     * Generates a shareable URL containing the current JSON.
+     * Everything remains client-side; no server storage is used.
      */
     shareJson(): void {
         if (!this.isValidJson) {
@@ -1485,21 +1482,17 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // Encode the JSON for the URL
             const encodedJson = encodeURIComponent(jsonString);
 
-            // Create the URL with the JSON data as a query parameter
-            const baseUrl = window.location.href.split('?')[0];
-            const shareableUrl = `${baseUrl}?json=${encodedJson}`;
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('json', encodedJson);
+            const shareableUrl = currentUrl.toString();
             
-            // Sanitize the URL
-            const sanitizedUrl = this.sanitizationService.sanitizeUrl(shareableUrl);
+            // Keep URL handling in string space for history/clipboard APIs.
+            const sanitizedUrl = this.sanitizationService.sanitizeString(shareableUrl);
 
-            // Open the share dialog
-            this.dialog.open(ShareDialogComponent, {
-                width: '550px',
-                data: {
-                    shareableUrl: sanitizedUrl,
-                    jsonContent: sanitizedInput
-                }
-            });
+            window.history.replaceState({}, '', sanitizedUrl);
+            void navigator.clipboard.writeText(sanitizedUrl)
+                .then(() => this.showSuccess('Share link copied to clipboard'))
+                .catch(() => this.showSuccess('Share link ready in your address bar'));
 
             // Save this version to history
             this.saveVersion('Shared version');
