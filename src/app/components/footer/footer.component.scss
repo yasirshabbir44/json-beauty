@@ -1,15 +1,15 @@
 .footer-container {
-  background: linear-gradient(180deg, #dff0ff 0%, #cde5fb 100%);
-  color: #214567;
-  padding: 0.55rem 0;
+  background: linear-gradient(100deg, #0f172a 0%, #1d4ed8 52%, #2563eb 100%);
+  color: #e2e8f0;
+  padding: 0.6rem 0;
   margin-top: auto;
   width: 100%;
-  box-shadow: 0 -10px 24px rgba(2, 8, 23, 0.18);
+  box-shadow: 0 -10px 28px rgba(15, 23, 42, 0.35);
   position: relative;
   z-index: 10;
-  border-top: 1px solid #b9d8f0;
-  height: auto; /* Ensure height is based on content */
-  min-height: 40px; /* Set minimum height for the footer */
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+  height: auto;
+  min-height: 48px;
 }
 
 .footer-content {
@@ -34,31 +34,44 @@
 .footer-logo {
   display: flex;
   align-items: center;
-  margin-bottom: 0.5rem; /* Reduced from 0.75rem for better space utilization */
+  margin-bottom: 0.5rem;
+}
+
+.footer-icon-shell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 0.5rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(191, 219, 254, 0.35);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.24);
 }
 
 .footer-icon {
-  font-size: 16px; /* Reduced from 18px for better space utilization */
-  height: 16px; /* Reduced from 18px for better space utilization */
-  width: 16px; /* Reduced from 18px for better space utilization */
-  margin-right: 0.35rem; /* Reduced from 0.5rem for better space utilization */
-  transition: all 0.2s ease-out;
+  font-size: 15px;
+  height: 15px;
+  width: 15px;
+  color: #dbeafe;
+  filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.35));
 }
 
 .footer-title {
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  color: #214567;
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #f8fafc;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
 .footer-copyright {
   font-size: 0.8125rem;
-  opacity: 0.85;
+  opacity: 0.95;
   margin: 0;
   line-height: 1.5;
-  color: #4b6b87;
+  color: #bfdbfe;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
@@ -73,29 +86,29 @@
 }
 
 .footer-link {
-  color: #235680;
+  color: #f8fafc;
   text-decoration: none;
-  font-size: 0.75rem; /* Reduced from 0.8125rem for better space utilization */
-  opacity: 0.85;
+  font-size: 0.75rem;
+  opacity: 0.95;
   transition: all 0.2s ease-out;
   display: flex;
   align-items: center;
-  padding: 0.2rem 0.4rem; /* Reduced from 0.25rem 0.5rem for better space utilization */
+  padding: 0.22rem 0.5rem;
   border-radius: 999px;
-  border: 1px solid #b4d6f1;
-  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(191, 219, 254, 0.42);
+  background: rgba(255, 255, 255, 0.14);
   white-space: nowrap;
   max-width: 100%;
 
   &:hover {
     opacity: 1;
-    background: #ffffff;
-    border-color: #9fc8ea;
+    background: rgba(255, 255, 255, 0.24);
+    border-color: rgba(191, 219, 254, 0.7);
     text-decoration: none;
   }
 
   &:active {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
   }
 
   .link-icon {
@@ -161,8 +174,8 @@
 /* Dark theme styles */
 :host-context(.dark-theme) {
   .footer-container {
-    background: linear-gradient(180deg, #274d70 0%, #223f58 100%);
-    box-shadow: 0 -1.6px 3.6px 0 rgba(0, 0, 0, 0.22), 0 -0.3px 0.9px 0 rgba(0, 0, 0, 0.18);
-    border-top: 1px solid rgba(160, 205, 240, 0.2);
+    background: linear-gradient(100deg, #020617 0%, #1e3a8a 55%, #1d4ed8 100%);
+    box-shadow: 0 -14px 30px rgba(2, 6, 23, 0.55);
+    border-top: 1px solid rgba(148, 163, 184, 0.35);
   }
 }
