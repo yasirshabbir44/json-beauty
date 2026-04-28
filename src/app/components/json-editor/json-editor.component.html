@@ -53,6 +53,10 @@
                                 {{ selectedViewMode | titlecase }} view
                             </span>
                             <span class="status-pill">
+                                <mat-icon aria-hidden="true">splitscreen</mat-icon>
+                                {{ workspaceLayout | titlecase }} pane
+                            </span>
+                            <span class="status-pill">
                                 <mat-icon aria-hidden="true">output</mat-icon>
                                 {{ selectedOutputFormat.toUpperCase() }}
                             </span>
@@ -186,6 +190,34 @@
                             <mat-icon>delete_sweep</mat-icon>
                             Clear
                         </button>
+                        <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
+                                [disabled]="workspaceLayout !== 'dual'"
+                                matTooltip="Swap input and output panel positions">
+                            <mat-icon>swap_horiz</mat-icon>
+                            Swap Panes
+                        </button>
+                        <button type="button" mat-stroked-button (click)="setWorkspaceLayout('single')"
+                                [class.active-action]="workspaceLayout === 'single'" matTooltip="Single pane workspace">
+                            <mat-icon>crop_portrait</mat-icon>
+                            Single Pane
+                        </button>
+                        <button type="button" mat-stroked-button (click)="setWorkspaceLayout('dual')"
+                                [class.active-action]="workspaceLayout === 'dual'" matTooltip="Dual pane workspace">
+                            <mat-icon>view_week</mat-icon>
+                            Dual Pane
+                        </button>
+                        <button *ngIf="workspaceLayout === 'single'" type="button" mat-stroked-button
+                                (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
+                                matTooltip="Focus raw input panel">
+                            <mat-icon>edit_note</mat-icon>
+                            Input
+                        </button>
+                        <button *ngIf="workspaceLayout === 'single'" type="button" mat-stroked-button
+                                (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
+                                matTooltip="Focus formatted output panel">
+                            <mat-icon>preview</mat-icon>
+                            Output
+                        </button>
                     </div>
                 </section>
 
@@ -227,7 +259,7 @@
                     </div>
                 </div>
 
-                <div *ngIf="!isInputMaximized && !isOutputMaximized" class="split-controls">
+                <div *ngIf="workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized" class="split-controls">
                     <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
                         Sync scroll
                     </mat-slide-toggle>
@@ -242,9 +274,13 @@
                          (drop)="onWorkspaceDrop($event)">
                     <div [class.input-maximized]="isInputMaximized"
                          [class.output-maximized]="isOutputMaximized"
+                         [class.single-pane-mode]="workspaceLayout === 'single'"
+                         [class.dual-pane-mode]="workspaceLayout === 'dual'"
+                         [class.input-panel-last]="!isInputPanelFirst"
                          [style.--input-panel-width.%]="inputPanelWidth"
                          class="editor-columns">
                         <app-json-input-editor
+                                *ngIf="workspaceLayout === 'dual' || singlePaneFocus === 'input'"
                                 (cursorPositionChange)="onInputCursorPosition($event)"
                                 (jsonInputChange)="onJsonInputChange($event)"
                                 (toggleMaximize)="toggleInputMaximize()"
@@ -256,13 +292,14 @@
                         </app-json-input-editor>
 
                         <div (mousedown)="startPanelResize($event)"
-                             *ngIf="!isInputMaximized && !isOutputMaximized"
+                             *ngIf="workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized"
                              aria-label="Resize input and output panels"
                              class="panel-divider"
                              role="separator">
                         </div>
 
                         <app-json-output-editor
+                                *ngIf="workspaceLayout === 'dual' || singlePaneFocus === 'output'"
                                 (convertToCsv)="convertToCsv()"
                                 (convertToXml)="convertToXml()"
                                 (copy)="copyToClipboard()"

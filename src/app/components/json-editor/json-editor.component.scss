@@ -452,6 +452,24 @@
     flex: 1 1 auto;
   }
 
+  &.single-pane-mode {
+    app-json-input-editor,
+    app-json-output-editor {
+      flex: 1 1 100%;
+      width: 100%;
+    }
+  }
+
+  &.dual-pane-mode {
+    app-json-input-editor {
+      flex: 0 0 calc(var(--input-panel-width, 50%) - 4px);
+    }
+
+    app-json-output-editor {
+      flex: 1 1 auto;
+    }
+  }
+
   .panel-divider {
     width: 8px;
     min-width: 8px;
@@ -473,6 +491,20 @@
     &:hover {
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.24), rgba(15, 23, 42, 0.3));
       transform: scaleX(1.05);
+    }
+  }
+
+  &.input-panel-last {
+    app-json-output-editor {
+      order: 1;
+    }
+
+    .panel-divider {
+      order: 2;
+    }
+
+    app-json-input-editor {
+      order: 3;
     }
   }
 

@@ -85,6 +85,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     showYamlOutput = false;
     selectedOutputFormat: 'json' | 'yaml' = 'json';
     selectedViewMode: 'text' | 'tree' | 'table' = 'text';
+    workspaceLayout: 'single' | 'dual' = 'dual';
+    singlePaneFocus: 'input' | 'output' = 'input';
+    isInputPanelFirst = true;
 
     // Tree search properties
     treeSearchResults: string[] = [];
@@ -534,6 +537,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Toggles the maximized state of the input section
      */
     toggleInputMaximize(): void {
+        if (this.workspaceLayout === 'single') {
+            this.singlePaneFocus = 'input';
+            return;
+        }
+
         this.isInputMaximized = !this.isInputMaximized;
 
         // If input is being maximized, ensure output is minimized
@@ -546,12 +554,39 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Toggles the maximized state of the output section
      */
     toggleOutputMaximize(): void {
+        if (this.workspaceLayout === 'single') {
+            this.singlePaneFocus = 'output';
+            return;
+        }
+
         this.isOutputMaximized = !this.isOutputMaximized;
 
         // If output is being maximized, ensure input is minimized
         if (this.isOutputMaximized) {
             this.isInputMaximized = false;
         }
+    }
+
+    setWorkspaceLayout(layout: 'single' | 'dual'): void {
+        this.workspaceLayout = layout;
+
+        if (layout === 'single') {
+            this.isInputMaximized = false;
+            this.isOutputMaximized = false;
+            this.syncScrollEnabled = false;
+            this.teardownScrollSync();
+            return;
+        }
+
+        this.scheduleScrollSyncBind();
+    }
+
+    setSinglePaneFocus(panel: 'input' | 'output'): void {
+        this.singlePaneFocus = panel;
+    }
+
+    togglePanelPlacement(): void {
+        this.isInputPanelFirst = !this.isInputPanelFirst;
     }
 
     /**
