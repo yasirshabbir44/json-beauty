@@ -49,11 +49,12 @@
 .editor-control-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.95));
-  padding: 10px 10px 8px;
+  gap: 12px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.96));
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  padding: 12px;
 }
 
 .editor-control-head {
@@ -67,16 +68,18 @@
 .editor-control-title {
   h2 {
     margin: 0;
-    font-size: 0.98rem;
+    font-size: 1.06rem;
     font-weight: 700;
     color: #0f172a;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.015em;
   }
 
   p {
-    margin: 4px 0 0;
-    font-size: 0.82rem;
+    margin: 6px 0 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
     color: #64748b;
+    max-width: 760px;
   }
 }
 
@@ -179,11 +182,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding: 0;
+  padding-top: 2px;
 
   .feature-nav-btn {
     border-radius: 8px;
-    font-weight: 500;
+    min-height: 34px;
+    font-weight: 600;
+    font-size: 0.82rem;
     letter-spacing: 0.01em;
 
     mat-icon {
@@ -439,6 +444,7 @@
   .editor-control-panel {
     background: linear-gradient(180deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.92));
     border-color: rgba(148, 163, 184, 0.25);
+    box-shadow: 0 12px 28px rgba(2, 6, 23, 0.35);
   }
 
   .editor-control-title {
