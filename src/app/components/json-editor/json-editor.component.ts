@@ -12,6 +12,7 @@ import {ShareDialogComponent} from '../share-dialog/share-dialog.component';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
 import {SettingsService} from '../../services/settings/settings.service';
+import {ThemeService} from '../../services/theme/theme.service';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -140,6 +141,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
         private settingsService: SettingsService,
+        private themeService: ThemeService,
         private destroyRef: DestroyRef
     ) {}
 
@@ -604,7 +606,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.isDarkTheme = false;
+        this.isDarkTheme = this.themeService.isDarkTheme();
+        this.themeService.currentTheme$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+                this.isDarkTheme = this.themeService.isDarkTheme();
+            });
 
         this.settingsService.showFormattingOptions$
             .pipe(takeUntilDestroyed(this.destroyRef))
