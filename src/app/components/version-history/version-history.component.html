@@ -62,6 +62,13 @@
 
                     <div class="version-actions">
                         <button
+                                (click)="compareWithVersion(version, $event)"
+                                aria-label="Compare with current JSON"
+                                mat-icon-button
+                                matTooltip="Compare with current JSON">
+                            <mat-icon>compare_arrows</mat-icon>
+                        </button>
+                        <button
                                 (click)="deleteVersion(version.id, $event)"
                                 aria-label="Delete version"
                                 mat-icon-button

@@ -39,6 +39,7 @@ export class JsonDialogsComponent {
     @Input() jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
     @Output() toggleJsonCompare = new EventEmitter<void>();
     @Output() compareJson = new EventEmitter<void>();
+    @Output() useLatestVersionForCompare = new EventEmitter<void>();
 
     // JSON visualization dialog
     @Input() showJsonVisualize: boolean = false;
@@ -112,6 +113,13 @@ export class JsonDialogsComponent {
      */
     onCompareJson(): void {
         this.compareJson.emit();
+    }
+
+    /**
+     * Requests prefilling compare input from latest saved version.
+     */
+    onUseLatestVersionForCompare(): void {
+        this.useLatestVersionForCompare.emit();
     }
 
     /**

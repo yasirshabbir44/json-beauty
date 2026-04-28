@@ -136,7 +136,8 @@
         [compareJsonInput]="compareJsonInput"
         [jsonDiffResult]="jsonDiffResult"
         (close)="closeJsonCompare()"
-        (compareComplete)="onCompareComplete($event)">
+        (compareComplete)="onCompareComplete($event)"
+        (useLatestVersionRequested)="onUseLatestVersionForCompare()">
     </app-json-comparison>
 </div>
 

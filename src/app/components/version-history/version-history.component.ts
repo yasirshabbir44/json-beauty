@@ -11,6 +11,7 @@ import {JsonVersion, VersionHistoryService} from '../../services/history/version
 })
 export class VersionHistoryComponent implements OnInit, OnDestroy {
     @Output() versionSelected = new EventEmitter<string>();
+    @Output() compareVersionSelected = new EventEmitter<string>();
 
     versions: JsonVersion[] = [];
     versionNameControl = new FormControl('');
@@ -64,6 +65,16 @@ export class VersionHistoryComponent implements OnInit, OnDestroy {
     loadVersion(version: JsonVersion): void {
         this.versionSelected.emit(version.content);
         this.showSuccess(`Loaded version from ${this.formatDate(version.timestamp)}`);
+    }
+
+    /**
+     * Emits a version to be compared with the current editor JSON.
+     * @param version The version to compare against
+     * @param event The click event
+     */
+    compareWithVersion(version: JsonVersion, event: MouseEvent): void {
+        event.stopPropagation();
+        this.compareVersionSelected.emit(version.content);
     }
 
     /**

@@ -7,17 +7,40 @@
   </div>
   
   <div class="comparison-content">
-    <p class="comparison-description">Enter JSON to compare with your current JSON:</p>
-    
-    <div class="comparison-input">
-      <textarea [formControl]="compareJsonInput" 
-                class="comparison-textarea"
-                placeholder="Enter JSON to compare..."></textarea>
+    <p class="comparison-description">Compare your current JSON against another JSON document.</p>
+
+    <div class="comparison-quick-actions">
+      <button mat-stroked-button type="button" (click)="requestLatestVersion()">
+        <mat-icon>history</mat-icon>
+        Use latest saved version
+      </button>
+      <button mat-stroked-button type="button" (click)="clearCompareInput()">
+        <mat-icon>clear</mat-icon>
+        Clear
+      </button>
+    </div>
+
+    <div class="comparison-panes">
+      <div class="comparison-pane">
+        <label class="pane-label">Current JSON</label>
+        <textarea
+          class="comparison-textarea"
+          [value]="getCurrentJsonPreview()"
+          readonly
+        ></textarea>
+      </div>
+
+      <div class="comparison-pane">
+        <label class="pane-label">Compare With</label>
+        <textarea [formControl]="compareJsonInput"
+                  class="comparison-textarea"
+                  placeholder="Paste JSON to compare..."></textarea>
+      </div>
     </div>
     
     <div class="comparison-actions">
       <button mat-raised-button color="primary" (click)="compareJson()">
-        Compare
+        Compare Now
       </button>
     </div>
     
@@ -32,7 +55,22 @@
       <div *ngIf="jsonDiffResult.hasChanges" class="has-differences">
         <mat-icon color="warn">compare</mat-icon>
         <span>Differences found between the JSON documents.</span>
-        
+
+        <div class="diff-summary">
+          <div class="summary-pill added">Added: {{ getDiffSummary().added }}</div>
+          <div class="summary-pill removed">Removed: {{ getDiffSummary().removed }}</div>
+          <div class="summary-pill changed">Changed: {{ getDiffSummary().changed }}</div>
+          <div class="summary-pill total">Total: {{ getDiffSummary().total }}</div>
+        </div>
+
+        <div class="readable-change-list" *ngIf="getReadableChanges().length > 0">
+          <h5>Quick change list</h5>
+          <div *ngFor="let item of getReadableChanges()" class="change-item">
+            <span class="change-kind" [class]="item.kind">{{ item.kind | titlecase }}</span>
+            <code>{{ item.path }}</code>
+          </div>
+        </div>
+
         <div class="diff-visualization" [innerHTML]="jsonDiffResult.htmlDiff"></div>
       </div>
     </div>

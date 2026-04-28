@@ -9,6 +9,7 @@
 
                         (toggleFormattingOptions)="onFormattingOptionsDialogToggle()"
                         (toggleJsonCompare)="toggleJsonCompare()"
+                        (useLatestVersionForCompare)="useLatestVersionForCompare()"
                         (toggleJsonPathQuery)="toggleJsonPathQuery()"
                         (toggleJsonVisualize)="toggleJsonVisualize()"
                         (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
@@ -84,6 +85,13 @@
                             [disabled]="!isValidJson" matTooltip="Compare JSON">
                         <mat-icon>compare_arrows</mat-icon>
                         Diff
+                    </button>
+                    <button type="button" mat-flat-button color="primary" class="feature-nav-btn"
+                            (click)="quickDiffWithLatestVersion()"
+                            [disabled]="!isValidJson"
+                            matTooltip="One-click diff with latest saved version">
+                        <mat-icon>bolt</mat-icon>
+                        Quick Diff
                     </button>
 
                     <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="toolsMenu">
@@ -252,6 +260,7 @@
 
                 <app-version-history
                         *ngIf="jsonInput.value"
+                        (compareVersionSelected)="compareWithVersionContent($event)"
                         (versionSelected)="loadVersionContent($event)">
                 </app-version-history>
 

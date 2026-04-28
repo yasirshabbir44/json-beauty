@@ -196,6 +196,76 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.updateOutput();
     }
 
+    /**
+     * Compares the current JSON against a selected history version.
+     * @param versionContent JSON content from version history
+     */
+    compareWithVersionContent(versionContent: string): void {
+        if (!versionContent || !this.isValidJson || !this.jsonInput.value) {
+            this.showError('Please ensure current JSON and selected version are valid');
+            return;
+        }
+
+        this.compareJsonInput.setValue(versionContent);
+
+        if (!this.showJsonCompare) {
+            this.toggleJsonCompare();
+        }
+
+        this.compareJson();
+    }
+
+    /**
+     * Prefills compare input with the latest saved version that differs from current JSON.
+     */
+    useLatestVersionForCompare(options: { silent?: boolean } = {}): boolean {
+        const current = this.jsonInput.value;
+        if (!current) {
+            if (!options.silent) {
+                this.showError('Please enter JSON before opening compare');
+            }
+            return false;
+        }
+
+        const latestDifferentVersion = this.versionHistoryService
+            .getVersions()
+            .find(version => version.content !== current);
+
+        if (!latestDifferentVersion) {
+            if (!options.silent) {
+                this.showError('No different saved version found to compare');
+            }
+            return false;
+        }
+
+        this.compareJsonInput.setValue(latestDifferentVersion.content);
+        if (!options.silent) {
+            this.showSuccess('Loaded latest saved version for comparison');
+        }
+        return true;
+    }
+
+    /**
+     * Opens compare dialog and runs comparison with latest different saved version.
+     */
+    quickDiffWithLatestVersion(): void {
+        if (!this.isValidJson || !this.jsonInput.value) {
+            this.showError('Please enter valid JSON to compare');
+            return;
+        }
+
+        const hasVersionToCompare = this.useLatestVersionForCompare();
+        if (!hasVersionToCompare) {
+            return;
+        }
+
+        if (!this.showJsonCompare) {
+            this.showJsonCompare = true;
+        }
+
+        this.compareJson();
+    }
+
     @HostListener('document:keydown', ['$event'])
     onDocumentEscape(event: KeyboardEvent): void {
         if (event.key === 'Escape' && this.floatingSearchOpen) {
@@ -1174,8 +1244,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.showJsonCompare = !this.showJsonCompare;
 
         if (this.showJsonCompare && !this.compareJsonInput.value) {
-            // Set a default value for comparison
-            this.compareJsonInput.setValue('{}');
+            this.useLatestVersionForCompare({silent: true});
         }
     }
 
