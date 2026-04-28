@@ -1,5 +1,8 @@
 .version-history-container {
-  position: relative;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1100;
 }
 
 .toggle-button {
@@ -28,10 +31,10 @@
 
 .version-panel {
   position: absolute;
-  top: 50px;
   right: 0;
+  bottom: 52px;
   width: 350px;
-  max-height: 500px;
+  max-height: min(500px, calc(100vh - 110px));
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -44,6 +47,20 @@
 
   &.open {
     transform: translateX(0);
+  }
+}
+
+@media (max-width: 767px) {
+  .version-history-container {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .version-panel {
+    width: min(92vw, 350px);
+    max-height: min(68vh, 500px);
+    right: 0;
+    bottom: 48px;
   }
 }
 
