@@ -52,6 +52,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     jsonOutput = new FormControl('');
     isValidJson = true;
     errorMessage = '';
+    jsonErrorLine: number | null = null;
     showKeyboardShortcuts = false;
     showFeatures = false;
     isDarkTheme = false;
@@ -652,9 +653,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     validateJson(): void {
         const jsonString = this.jsonInput.value || '';
         const result = this.jsonService.validateJson(jsonString);
+        const {line, message} = this.buildInlineJsonError(result.errorMessage, jsonString);
 
         this.isValidJson = result.isValid;
-        this.errorMessage = result.errorMessage;
+        this.errorMessage = this.isValidJson ? '' : message;
+        this.jsonErrorLine = this.isValidJson ? null : line;
 
         if (this.isValidJson) {
             // If JSON is valid, update the output and other related data
@@ -673,6 +676,43 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.showError('Tree view disabled due to invalid JSON');
             }
         }
+    }
+
+    private buildInlineJsonError(rawErrorMessage: string, jsonString: string): { line: number | null; message: string } {
+        const firstLine = (rawErrorMessage || '').split('\n')[0]?.trim() || 'Invalid JSON';
+        const line = this.extractErrorLine(rawErrorMessage, jsonString);
+
+        if (line) {
+            return {
+                line,
+                message: `Invalid JSON at line ${line}: ${firstLine}`
+            };
+        }
+
+        return {
+            line: null,
+            message: firstLine.startsWith('Invalid JSON') ? firstLine : `Invalid JSON: ${firstLine}`
+        };
+    }
+
+    private extractErrorLine(errorMessage: string, jsonString: string): number | null {
+        const lineMatch = errorMessage.match(/line\s+(\d+)/i);
+        if (lineMatch?.[1]) {
+            return Number.parseInt(lineMatch[1], 10);
+        }
+
+        const positionMatch = errorMessage.match(/position\s+(\d+)/i);
+        if (!positionMatch?.[1]) {
+            return null;
+        }
+
+        const position = Number.parseInt(positionMatch[1], 10);
+        if (!Number.isFinite(position) || position < 0) {
+            return null;
+        }
+
+        const safePosition = Math.min(position, jsonString.length);
+        return jsonString.slice(0, safePosition).split('\n').length;
     }
 
     /**

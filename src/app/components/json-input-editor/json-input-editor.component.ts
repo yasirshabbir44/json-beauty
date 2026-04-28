@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import * as ace from 'ace-builds';
 import 'ace-builds/src-noconflict/mode-json';
@@ -19,7 +19,7 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
     templateUrl: './json-input-editor.component.html',
     styleUrls: ['./json-input-editor.component.scss']
 })
-export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
     @ViewChild('editorSection', {static: true}) editorSectionElement!: ElementRef;
     @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
@@ -28,6 +28,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
     @Input() isMaximized: boolean = false;
     @Input() isValidJson: boolean = true;
     @Input() errorMessage: string = '';
+    @Input() errorLine: number | null = null;
 
     @Output() jsonInputChange = new EventEmitter<string>();
     @Output() toggleMaximize = new EventEmitter<void>();
@@ -36,6 +37,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
     editor: AceAjax.Editor | null = null;
     jsonInput = new FormControl('');
     isFullScreen: boolean = false;
+    private errorMarkerId: number | null = null;
 
     // Constants for error messages
     private readonly EDITOR_INIT_ERROR = 'Failed to initialize editor';
@@ -57,6 +59,12 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
         // Force initial render
         if (this.editor) {
             this.editor.renderer.updateFull(true);
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isValidJson'] || changes['errorLine']) {
+            this.updateErrorHighlight();
         }
     }
     
@@ -173,6 +181,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
             const ed = this.editor as unknown as { selection: { on: (ev: string, fn: () => void) => void } };
             ed.selection.on('changeCursor', this.boundEmitCursor);
             this.emitCursorPosition();
+            this.updateErrorHighlight();
         } catch (error) {
             console.error(`${this.EDITOR_INIT_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
         }
@@ -217,6 +226,7 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
         if (this.editor) {
             const ed = this.editor as unknown as { selection: { off: (ev: string, fn: () => void) => void } };
             ed.selection.off('changeCursor', this.boundEmitCursor);
+            this.clearErrorHighlight();
         }
     }
 
@@ -424,5 +434,56 @@ export class JsonInputEditorComponent implements OnInit, AfterViewInit, OnDestro
         editor.selection.setRange(range);
         editor.renderer.scrollSelectionIntoView(editor.selection.anchor, editor.selection.cursor, 0.5);
         editor.focus();
+    }
+
+    private updateErrorHighlight(): void {
+        if (!this.editor) {
+            return;
+        }
+
+        this.clearErrorHighlight();
+
+        if (this.isValidJson || !this.errorLine || this.errorLine < 1) {
+            return;
+        }
+
+        const row = this.errorLine - 1;
+        const session = this.editor.getSession() as unknown as {
+            addMarker: (range: any, clazz: string, type: string) => number;
+            setAnnotations: (annotations: Array<{ row: number; column: number; text: string; type: 'error' | 'warning' | 'info' }>) => void;
+            getLength: () => number;
+        };
+        const maxRow = Math.max(0, session.getLength() - 1);
+        const safeRow = Math.min(row, maxRow);
+        const RangeCtor = ace.require('ace/range').Range;
+        const markerRange = new RangeCtor(safeRow, 0, safeRow, 1);
+
+        this.errorMarkerId = session.addMarker(markerRange, 'json-error-line', 'fullLine');
+        session.setAnnotations([
+            {
+                row: safeRow,
+                column: 0,
+                text: this.errorMessage || 'Invalid JSON syntax',
+                type: 'error'
+            }
+        ]);
+    }
+
+    private clearErrorHighlight(): void {
+        if (!this.editor) {
+            return;
+        }
+
+        const session = this.editor.getSession() as unknown as {
+            removeMarker: (id: number) => void;
+            clearAnnotations: () => void;
+        };
+
+        if (this.errorMarkerId !== null) {
+            session.removeMarker(this.errorMarkerId);
+            this.errorMarkerId = null;
+        }
+
+        session.clearAnnotations();
     }
 }

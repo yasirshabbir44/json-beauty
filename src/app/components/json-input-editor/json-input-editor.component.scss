@@ -208,6 +208,12 @@
   border-radius: 0 0 8px 8px;
 }
 
+:host ::ng-deep .ace_editor .ace_marker-layer .json-error-line {
+  position: absolute;
+  background: rgba(211, 47, 47, 0.16);
+  border-left: 3px solid rgba(211, 47, 47, 0.75);
+}
+
 // Error message styles
 .error-message {
   position: absolute;
@@ -341,5 +347,10 @@
     &:focus-within {
       background-color: #252525;
     }
+  }
+
+  ::ng-deep .ace_editor .ace_marker-layer .json-error-line {
+    background: rgba(239, 68, 68, 0.24);
+    border-left-color: rgba(248, 113, 113, 0.9);
   }
 }
