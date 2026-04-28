@@ -135,27 +135,46 @@
                             </button>
                         </mat-menu>
                     </nav>
+                    <div class="editor-action-toolbar">
+                        <button type="button" mat-flat-button color="primary" class="toolbar-primary"
+                                (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
+                            <mat-icon>auto_fix_high</mat-icon>
+                            Beautify
+                        </button>
+                        <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
+                                matTooltip="Minify (Ctrl+M)">
+                            <mat-icon>compress</mat-icon>
+                            Minify
+                        </button>
+                        <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
+                                matTooltip="Lint &amp; fix (Ctrl+L)">
+                            <mat-icon>rule</mat-icon>
+                            Validate
+                        </button>
+                        <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
+                                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'tree'"
+                                matTooltip="Tree view">
+                            <mat-icon>account_tree</mat-icon>
+                            Tree
+                        </button>
+                        <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
+                                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'table'"
+                                matTooltip="Table view">
+                            <mat-icon>table_view</mat-icon>
+                            Table
+                        </button>
+                        <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
+                                matTooltip="Copy output (Ctrl+C)">
+                            <mat-icon>content_copy</mat-icon>
+                            Copy
+                        </button>
+                        <button type="button" mat-stroked-button class="toolbar-clear" (click)="clearEditor()"
+                                matTooltip="Clear (Ctrl+D)">
+                            <mat-icon>delete_sweep</mat-icon>
+                            Clear
+                        </button>
+                    </div>
                 </section>
-
-                <div class="editor-action-toolbar">
-                    <button type="button" mat-flat-button color="primary" class="toolbar-primary"
-                            (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
-                        Beautify
-                    </button>
-                    <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
-                            matTooltip="Minify (Ctrl+M)">Minify</button>
-                    <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
-                            matTooltip="Lint &amp; fix (Ctrl+L)">Validate</button>
-                    <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
-                            [disabled]="!isValidJson" matTooltip="Tree view">Tree</button>
-                    <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
-                            [disabled]="!isValidJson" matTooltip="Table view">Table</button>
-                    <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
-                            matTooltip="Copy output (Ctrl+C)">Copy</button>
-                    <button type="button" mat-stroked-button (click)="clearEditor()" matTooltip="Clear (Ctrl+D)">
-                        Clear
-                    </button>
-                </div>
 
                 <div *ngIf="floatingSearchOpen" class="floating-search-backdrop" (click)="closeFloatingSearch()">
                     <div class="floating-search-panel" (click)="$event.stopPropagation()" role="search"
