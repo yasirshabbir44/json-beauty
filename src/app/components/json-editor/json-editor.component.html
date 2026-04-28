@@ -73,6 +73,10 @@
                                 <mat-icon>upload_file</mat-icon>
                                 Import JSON
                             </button>
+                            <button mat-menu-item type="button" (click)="fetchJsonFromExternalUrl()">
+                                <mat-icon>language</mat-icon>
+                                Fetch from URL
+                            </button>
                             <button mat-menu-item type="button" (click)="downloadJson()" [disabled]="!isValidJson">
                                 <mat-icon>download</mat-icon>
                                 Export JSON
@@ -230,7 +234,12 @@
                     <span class="split-hint">Drag the center bar to resize panels</span>
                 </div>
 
-                <section class="editor-workspace-panel" aria-label="Editor workspace">
+                <section class="editor-workspace-panel"
+                         aria-label="Editor workspace"
+                         (dragenter)="onWorkspaceDragEnter($event)"
+                         (dragover)="onWorkspaceDragOver($event)"
+                         (dragleave)="onWorkspaceDragLeave($event)"
+                         (drop)="onWorkspaceDrop($event)">
                     <div [class.input-maximized]="isInputMaximized"
                          [class.output-maximized]="isOutputMaximized"
                          [style.--input-panel-width.%]="inputPanelWidth"

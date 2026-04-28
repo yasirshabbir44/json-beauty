@@ -131,6 +131,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isOutputMaximized = false;
     inputPanelWidth = 50;
     private hasLoadedSharedJson = false;
+    isFileDragActive = false;
+    private dragEventDepth = 0;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -434,6 +436,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     openImportPicker(): void {
         this.jsonInputEditor?.openFilePicker();
+    }
+
+    fetchJsonFromExternalUrl(): void {
+        const input = window.prompt('Enter a URL that returns JSON');
+        const trimmedInput = (input || '').trim();
+        if (!trimmedInput) {
+            return;
+        }
+        if (!this.securityUtils.validateUrl(trimmedInput)) {
+            this.showError('Please enter a valid http(s) URL');
+            return;
+        }
+        this.fetchJsonFromUrl(trimmedInput);
     }
 
     loadSampleJson(): void {
@@ -1048,58 +1063,54 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     importFile(event: any): void {
         const file = event.target.files[0];
         if (!file) return;
+        this.importJsonFile(file);
+        event.target.value = '';
+    }
 
-        // Validate file before processing
-        const allowedTypes = ['application/json', 'text/plain', 'text/json', 'application/x-javascript'];
-        const maxFileSize = 5 * 1024 * 1024; // 5MB
-        
-        if (!this.securityUtils.validateFile(file, allowedTypes, maxFileSize)) {
-            this.showError(`Invalid file: Only JSON files up to 5MB are allowed`);
-            event.target.value = '';
+    onWorkspaceDragEnter(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.hasFileDragPayload(event)) {
             return;
         }
+        this.dragEventDepth += 1;
+        this.isFileDragActive = true;
+    }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const content = e.target?.result as string;
+    onWorkspaceDragOver(event: DragEvent): void {
+        event.preventDefault();
+        if (!this.hasFileDragPayload(event)) {
+            return;
+        }
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'copy';
+        }
+        this.isFileDragActive = true;
+    }
 
-                // Sanitize the file content before processing
-                const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'json';
-                const sanitizedContent = this.sanitizationService.sanitizeFileContent(content, fileExtension);
+    onWorkspaceDragLeave(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!this.hasFileDragPayload(event)) {
+            return;
+        }
+        this.dragEventDepth = Math.max(0, this.dragEventDepth - 1);
+        if (this.dragEventDepth === 0) {
+            this.isFileDragActive = false;
+        }
+    }
 
-                // Try to parse the sanitized content to validate it's JSON
-                JSON.parse(sanitizedContent);
-
-                // Set the input editor value
-                if (this.jsonInputEditor) {
-                    this.jsonInputEditor.setValue(sanitizedContent);
-                }
-
-                this.jsonInput.setValue(sanitizedContent);
-                this.validateJson();
-                this.updateOutput();
-
-                // Sanitize file name before displaying in UI
-                const sanitizedFileName = this.sanitizationService.sanitizeString(file.name);
-                this.showSuccess(`File "${sanitizedFileName}" imported successfully`);
-            } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                // Sanitize error message before displaying
-                const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
-                this.showError(`Error importing file: ${sanitizedError}`);
-            }
-
-            // Reset the file input so the same file can be selected again
-            event.target.value = '';
-        };
-        
-        reader.onerror = () => {
-            this.showError('Error reading file');
-            event.target.value = '';
-        };
-
-        reader.readAsText(file);
+    onWorkspaceDrop(event: DragEvent): void {
+        event.preventDefault();
+        event.stopPropagation();
+        this.dragEventDepth = 0;
+        this.isFileDragActive = false;
+        const files = event.dataTransfer?.files;
+        if (!files || files.length === 0) {
+            return;
+        }
+        const jsonFile = Array.from(files).find(file => file.name.toLowerCase().endsWith('.json')) || files[0];
+        this.importJsonFile(jsonFile);
     }
 
     /**
@@ -1771,5 +1782,74 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             duration: 5000,
             panelClass: 'error-snackbar'
         });
+    }
+
+    private hasFileDragPayload(event: DragEvent): boolean {
+        const types = event.dataTransfer?.types;
+        if (!types) {
+            return false;
+        }
+        return Array.from(types).includes('Files');
+    }
+
+    private fetchJsonFromUrl(url: string): void {
+        fetch(url, {
+            method: 'GET',
+            headers: {Accept: 'application/json, text/plain, */*'}
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Request failed with status ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(content => {
+                this.applyImportedJsonContent(content, `Fetched JSON from ${url}`);
+            })
+            .catch(error => {
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                this.showError(`Could not fetch JSON from URL: ${errorMessage}`);
+            });
+    }
+
+    private importJsonFile(file: File): void {
+        const allowedTypes = ['application/json', 'text/plain', 'text/json', 'application/x-javascript'];
+        const maxFileSize = 5 * 1024 * 1024;
+        if (!this.securityUtils.validateFile(file, allowedTypes, maxFileSize)) {
+            this.showError('Invalid file: Only JSON files up to 5MB are allowed');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event: ProgressEvent<FileReader>) => {
+            const content = typeof event.target?.result === 'string' ? event.target.result : '';
+            if (!content) {
+                this.showError('Imported file is empty');
+                return;
+            }
+            const safeName = this.sanitizationService.sanitizeString(file.name);
+            this.applyImportedJsonContent(content, `File "${safeName}" imported successfully`, safeName);
+        };
+        reader.onerror = () => {
+            this.showError('Error reading file');
+        };
+        reader.readAsText(file);
+    }
+
+    private applyImportedJsonContent(content: string, successMessage: string, sourceName = 'JSON input'): void {
+        try {
+            const sanitizedContent = this.sanitizationService.sanitizeFileContent(content, 'json');
+            const parsedJson = JSON.parse(sanitizedContent);
+            const normalizedJson = JSON.stringify(parsedJson, null, this.indentSize);
+            this.jsonInputEditor?.setValue(normalizedJson);
+            this.jsonInput.setValue(normalizedJson);
+            this.validateJson();
+            this.updateOutput();
+            this.showSuccess(successMessage);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            this.showError(`Error importing ${sourceName}: ${sanitizedError}`);
+        }
     }
 }

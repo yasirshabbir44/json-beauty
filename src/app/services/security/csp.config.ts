@@ -24,8 +24,8 @@ export class CSPConfig {
             // Image sources
             "img-src 'self' data: https:",
             
-            // Connect sources (for API calls, WebSockets)
-            "connect-src 'self'",
+            // Connect sources (for API calls, WebSockets, remote JSON fetch)
+            "connect-src 'self' https: http:",
             
             // Frame sources
             "frame-src 'self'",
