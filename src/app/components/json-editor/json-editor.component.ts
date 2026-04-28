@@ -11,6 +11,14 @@ import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.c
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
 import {SettingsService} from '../../services/settings/settings.service';
 import {ThemeService} from '../../services/theme/theme.service';
+import {
+    CsvOutputConversionStrategy,
+    OutputConversionExecution,
+    OutputConversionStrategy,
+    OutputConversionType,
+    XmlOutputConversionStrategy
+} from './output-conversion.strategy';
+import {JsonEditorUiHelper, PanelFocus} from './json-editor-ui.helper';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -27,6 +35,8 @@ import 'ace-builds/src-noconflict/ext-searchbox';
     styleUrls: ['./json-editor.component.scss']
 })
 export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+    private static readonly DESKTOP_RESIZE_BREAKPOINT = 991;
+
     private static readonly DEFAULT_SAMPLE_OBJECT = {
         name: 'JSON Beauty',
         version: '1.0.0',
@@ -136,6 +146,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     private hasLoadedSharedJson = false;
     isFileDragActive = false;
     private dragEventDepth = 0;
+    private readonly outputConversionStrategies: Record<OutputConversionType, OutputConversionStrategy>;
 
     constructor(
         private snackBar: MatSnackBar,
@@ -146,7 +157,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private settingsService: SettingsService,
         private themeService: ThemeService,
         private destroyRef: DestroyRef
-    ) {}
+    ) {
+        this.outputConversionStrategies = {
+            csv: new CsvOutputConversionStrategy(this.jsonService),
+            xml: new XmlOutputConversionStrategy(this.jsonService)
+        };
+    }
 
     /**
      * Handles input changes from the JsonInputEditorComponent
@@ -174,11 +190,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param name Optional name for the version
      */
     saveVersion(name?: string): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
+        if (!this.hasValidNonEmptyInput()) {
             return;
         }
 
-        this.versionHistoryService.addVersion(this.jsonInput.value, name);
+        this.versionHistoryService.addVersion(this.jsonInput.value || '', name);
     }
 
     /**
@@ -206,7 +222,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * @param versionContent JSON content from version history
      */
     compareWithVersionContent(versionContent: string): void {
-        if (!versionContent || !this.isValidJson || !this.jsonInput.value) {
+        if (!versionContent || !this.hasValidNonEmptyInput()) {
             this.showError('Please ensure current JSON and selected version are valid');
             return;
         }
@@ -254,7 +270,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Opens compare dialog and runs comparison with latest different saved version.
      */
     quickDiffWithLatestVersion(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
+        if (!this.hasValidNonEmptyInput()) {
             this.showError('Please enter valid JSON to compare');
             return;
         }
@@ -339,13 +355,13 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @HostListener('window:mousemove', ['$event'])
     onPanelResize(event: MouseEvent): void {
-        if (!this.isResizingPanels || window.innerWidth <= 991) {
+        if (!this.isResizingPanels || !this.canResizePanels()) {
             return;
         }
 
         const viewportWidth = window.innerWidth;
         const nextWidth = (event.clientX / viewportWidth) * 100;
-        this.inputPanelWidth = Math.min(75, Math.max(25, nextWidth));
+        this.inputPanelWidth = JsonEditorUiHelper.clampPanelWidth(nextWidth);
     }
 
     @HostListener('window:mouseup')
@@ -524,7 +540,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     startPanelResize(event: MouseEvent): void {
-        if (window.innerWidth <= 991) {
+        if (!this.canResizePanels()) {
             return;
         }
 
@@ -537,34 +553,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Toggles the maximized state of the input section
      */
     toggleInputMaximize(): void {
-        if (this.workspaceLayout === 'single') {
-            this.singlePaneFocus = 'input';
-            return;
-        }
-
-        this.isInputMaximized = !this.isInputMaximized;
-
-        // If input is being maximized, ensure output is minimized
-        if (this.isInputMaximized) {
-            this.isOutputMaximized = false;
-        }
+        this.togglePanelMaximize('input');
     }
 
     /**
      * Toggles the maximized state of the output section
      */
     toggleOutputMaximize(): void {
-        if (this.workspaceLayout === 'single') {
-            this.singlePaneFocus = 'output';
-            return;
-        }
-
-        this.isOutputMaximized = !this.isOutputMaximized;
-
-        // If output is being maximized, ensure input is minimized
-        if (this.isOutputMaximized) {
-            this.isInputMaximized = false;
-        }
+        this.togglePanelMaximize('output');
     }
 
     setWorkspaceLayout(layout: 'single' | 'dual'): void {
@@ -620,13 +616,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.showTreeView = viewMode === 'tree' || viewMode === 'table';
 
         if ((viewMode === 'tree' || viewMode === 'table') && this.isValidJson) {
-            try {
-                // Parse the JSON to create the tree data
-                this.jsonTreeData = JSON.parse(this.jsonOutput.value || '{}');
-                // Keep the root open so users immediately see content.
-                this.expandedNodes.clear();
-                this.expandedNodes.add('$');
-            } catch (error) {
+            if (!this.tryUpdateTreeDataFromOutput()) {
                 this.showError('Error parsing JSON for ' + viewMode + ' view');
                 this.selectedViewMode = 'text';
                 this.showTreeView = false;
@@ -710,11 +700,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // If JSON is valid, update the output and other related data
             this.updateOutput();
         } else {
-            // If JSON is invalid, clear the output
-            this.jsonOutput.setValue('');
-            this.yamlOutput.setValue('');
-            this.jsonPaths = [];
-            this.jsonTreeData = null;
+            this.resetDerivedOutputState();
 
             // Disable tree view if it's active
             if (this.showTreeView) {
@@ -834,10 +820,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                         this.jsonInput.setValue(jsonString);
                         this.validateJson();
                     },
-                    error =>
-                        this.showError(
-                            `Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`
-                        )
+                    error => this.showError(`Error converting YAML to JSON: ${this.toErrorMessage(error)}`)
                 );
 
                 // Initialize the output editor if switching to JSON mode
@@ -849,7 +832,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.updateOutput();
                 }, 100);
             } catch (error) {
-                this.showError(`Error converting YAML to JSON: ${error instanceof Error ? error.message : String(error)}`);
+                this.showError(`Error converting YAML to JSON: ${this.toErrorMessage(error)}`);
                 // Stay in YAML mode if conversion fails
                 this.selectedOutputFormat = 'yaml';
             }
@@ -915,14 +898,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
                 // Update tree view data if tree view is active
                 if (this.showTreeView) {
-                    try {
-                        this.jsonTreeData = JSON.parse(jsonString);
-                        // Reset expanded nodes when JSON changes
-                        this.expandedNodes.clear();
-                        this.expandedNodes.add('$');
-                    } catch (error) {
-                        this.jsonTreeData = null;
-                        // Disable tree view if parsing fails
+                    if (!this.tryUpdateTreeDataFromJsonString(jsonString)) {
                         this.showTreeView = false;
                         this.showError('Tree view disabled due to JSON parsing error');
                     }
@@ -936,10 +912,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.jsonOutput.setValue(jsonString);
             }
         } else {
-            this.jsonOutput.setValue('');
-            this.yamlOutput.setValue('');
-            this.jsonPaths = [];
-            this.jsonTreeData = null;
+            this.resetDerivedOutputState();
         }
     }
 
@@ -984,68 +957,20 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Converts JSON to CSV and downloads it
      */
     convertToCsv(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to convert to CSV');
-            return;
-        }
-
-        try {
-            // Convert JSON to CSV
-            this.resolveMaybeAsync(
-                this.jsonService.jsonToCsv(this.jsonInput.value),
-                csvString => {
-                    if (!csvString) {
-                        this.showError(
-                            'Could not convert JSON to CSV. The JSON structure may not be suitable for CSV conversion.'
-                        );
-                        return;
-                    }
-                    this.triggerBlobDownload(csvString, 'text/csv', 'json-data.csv');
-                    this.showSuccess('JSON converted to CSV and downloaded successfully');
-                },
-                error => {
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-                    this.showError(`Error converting JSON to CSV: ${errorMessage}`);
-                }
-            );
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error converting JSON to CSV: ${errorMessage}`);
-        }
+        this.convertUsingStrategy('csv');
     }
 
     /**
      * Converts JSON to XML and downloads it
      */
     convertToXml(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to convert to XML');
-            return;
-        }
+        this.convertUsingStrategy('xml');
+    }
 
-        try {
-            // Convert JSON to XML
-            this.resolveMaybeAsync(
-                this.jsonService.jsonToXml(this.jsonInput.value),
-                xmlString => {
-                    if (!xmlString) {
-                        this.showError(
-                            'Could not convert JSON to XML. The JSON structure may not be suitable for XML conversion.'
-                        );
-                        return;
-                    }
-                    this.triggerBlobDownload(xmlString, 'application/xml', 'json-data.xml');
-                    this.showSuccess('JSON converted to XML and downloaded successfully');
-                },
-                error => {
-                    const errorMessage = error instanceof Error ? error.message : String(error);
-                    this.showError(`Error converting JSON to XML: ${errorMessage}`);
-                }
-            );
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error converting JSON to XML: ${errorMessage}`);
-        }
+    private convertUsingStrategy(type: OutputConversionType): void {
+        const strategy = this.outputConversionStrategies[type];
+        const execution = strategy.createExecution(this.jsonInput.value || '');
+        this.convertAndDownload(execution);
     }
 
     copyToClipboard(): void {
@@ -1259,14 +1184,13 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Generates a JSON schema from the current JSON data
      */
     generateJsonSchema(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to generate a schema');
+        if (!this.ensureValidJsonInput('Please enter valid JSON to generate a schema')) {
             return;
         }
 
         try {
             // Generate the schema
-            const schema = this.jsonService.generateJsonSchema(this.jsonInput.value);
+            const schema = this.jsonService.generateJsonSchema(this.jsonInput.value || '');
 
             // Set the schema to the schema input
             this.schemaInput.setValue(schema);
@@ -1276,8 +1200,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
             this.showSuccess('JSON schema generated successfully');
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error generating JSON schema: ${errorMessage}`);
+            this.showError(`Error generating JSON schema: ${this.toErrorMessage(error)}`);
         }
     }
 
@@ -1302,8 +1225,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Executes a JSONPath query on the current JSON data
      */
     executeJsonPathQuery(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to query');
+        if (!this.ensureValidJsonInput('Please enter valid JSON to query')) {
             return;
         }
 
@@ -1315,14 +1237,13 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         try {
             // Execute the query
             this.jsonPathQueryResult = this.jsonService.queryJsonPath(
-                this.jsonInput.value,
+                this.jsonInput.value || '',
                 this.jsonPathQuery.value
             );
 
             this.showSuccess('JSONPath query executed successfully');
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error executing JSONPath query: ${errorMessage}`);
+            this.showError(`Error executing JSONPath query: ${this.toErrorMessage(error)}`);
             this.jsonPathQueryResult = '';
         }
     }
@@ -1342,8 +1263,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Compares the current JSON with another JSON document
      */
     compareJson(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to compare');
+        if (!this.ensureValidJsonInput('Please enter valid JSON to compare')) {
             return;
         }
 
@@ -1355,7 +1275,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         try {
             // Compare the JSON documents
             this.jsonDiffResult = this.jsonService.compareJson(
-                this.jsonInput.value,
+                this.jsonInput.value || '',
                 this.compareJsonInput.value
             );
 
@@ -1365,8 +1285,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.showSuccess('JSON comparison completed. No differences found.');
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error comparing JSON: ${errorMessage}`);
+            this.showError(`Error comparing JSON: ${this.toErrorMessage(error)}`);
             this.jsonDiffResult = null;
         }
     }
@@ -1544,9 +1463,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.saveVersion('Shared version');
 
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            // Sanitize error message before displaying
-            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
             this.showError(`Error generating shareable URL: ${sanitizedError}`);
         }
     }
@@ -1587,9 +1504,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 }, 100);
             }
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            // Sanitize error message before displaying
-            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
             this.showError(`Error loading JSON from URL: ${sanitizedError}`);
         }
     }
@@ -1632,7 +1547,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.settingsService.toggleFormattingOptions();
             }
         } catch (error) {
-            this.showError(`Error applying formatting: ${error instanceof Error ? error.message : String(error)}`);
+            this.showError(`Error applying formatting: ${this.toErrorMessage(error)}`);
         }
     }
 
@@ -1640,8 +1555,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Initializes the JSON visualization
      */
     private initializeVisualization(): void {
-        if (!this.isValidJson || !this.jsonInput.value) {
-            this.showError('Please enter valid JSON to visualize');
+        if (!this.ensureValidJsonInput('Please enter valid JSON to visualize')) {
             return;
         }
 
@@ -1649,8 +1563,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // For now, just show a message that visualization is not fully implemented
             this.showSuccess('JSON visualization feature is coming soon!');
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            this.showError(`Error initializing visualization: ${errorMessage}`);
+            this.showError(`Error initializing visualization: ${this.toErrorMessage(error)}`);
         }
     }
 
@@ -1789,16 +1702,99 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.applyTransformedJson(transform());
             this.showSuccess(successMessage);
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : String(error);
-            this.showError(`${errorLabel}: ${message}`);
+            this.showError(`${errorLabel}: ${this.toErrorMessage(error)}`);
         }
     }
 
     private applyTransformedJson(transformedJson: string): void {
         this.jsonInputEditor?.setValue(transformedJson);
         this.jsonInput.setValue(transformedJson);
-        this.jsonOutput.setValue(transformedJson);
         this.validateJson();
+    }
+
+    private hasValidNonEmptyInput(): boolean {
+        return this.isValidJson && !!this.jsonInput.value;
+    }
+
+    private ensureValidJsonInput(errorMessage: string): boolean {
+        if (this.hasValidNonEmptyInput()) {
+            return true;
+        }
+        this.showError(errorMessage);
+        return false;
+    }
+
+    private toErrorMessage(error: unknown): string {
+        return error instanceof Error ? error.message : String(error);
+    }
+
+    private canResizePanels(): boolean {
+        return window.innerWidth > JsonEditorComponent.DESKTOP_RESIZE_BREAKPOINT;
+    }
+
+    private togglePanelMaximize(panel: 'input' | 'output'): void {
+        const nextState = JsonEditorUiHelper.applyPanelMaximize(
+            {
+                workspaceLayout: this.workspaceLayout,
+                singlePaneFocus: this.singlePaneFocus,
+                isInputMaximized: this.isInputMaximized,
+                isOutputMaximized: this.isOutputMaximized
+            },
+            panel as PanelFocus
+        );
+
+        this.singlePaneFocus = nextState.singlePaneFocus;
+        this.isInputMaximized = nextState.isInputMaximized;
+        this.isOutputMaximized = nextState.isOutputMaximized;
+    }
+
+    private resetDerivedOutputState(): void {
+        this.jsonOutput.setValue('');
+        this.yamlOutput.setValue('');
+        this.jsonPaths = [];
+        this.jsonTreeData = null;
+    }
+
+    private tryUpdateTreeDataFromOutput(): boolean {
+        return this.tryUpdateTreeDataFromJsonString(this.jsonOutput.value || '{}');
+    }
+
+    private tryUpdateTreeDataFromJsonString(jsonString: string): boolean {
+        const parseResult = JsonEditorUiHelper.tryParseTreeData(jsonString);
+        if (parseResult.success) {
+            this.jsonTreeData = parseResult.value;
+            this.expandedNodes.clear();
+            this.expandedNodes.add(JsonEditorUiHelper.DEFAULT_ROOT_TREE_NODE);
+            return true;
+        }
+        this.jsonTreeData = parseResult.value;
+        return false;
+    }
+
+    private convertAndDownload(options: OutputConversionExecution): void {
+        if (!this.hasValidNonEmptyInput()) {
+            this.showError(options.invalidInputMessage);
+            return;
+        }
+
+        const onSuccess = (output: string): void => {
+            if (!output) {
+                this.showError(options.emptyResultMessage);
+                return;
+            }
+            this.triggerBlobDownload(output, options.mimeType, options.filename);
+            this.showSuccess(options.successMessage);
+        };
+
+        const onError = (error: unknown): void => {
+            this.showError(`${options.errorLabel}: ${this.toErrorMessage(error)}`);
+        };
+
+        try {
+            this.resolveMaybeAsync(options.convert(), onSuccess, onError);
+        } catch (error) {
+            onError(error);
+        }
     }
 
     private showSuccess(message: string): void {
@@ -1842,8 +1838,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.applyImportedJsonContent(content, `Fetched JSON from ${url}`);
             })
             .catch(error => {
-                const errorMessage = error instanceof Error ? error.message : String(error);
-                this.showError(`Could not fetch JSON from URL: ${errorMessage}`);
+                this.showError(`Could not fetch JSON from URL: ${this.toErrorMessage(error)}`);
             });
     }
 
@@ -1882,8 +1877,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.updateOutput();
             this.showSuccess(successMessage);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
+            const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
             this.showError(`Error importing ${sourceName}: ${sanitizedError}`);
         }
     }
