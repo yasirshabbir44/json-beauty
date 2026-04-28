@@ -14,6 +14,7 @@ export interface JsonVersion {
 export class VersionHistoryService {
     private readonly STORAGE_KEY = 'json_beauty_version_history';
     private readonly MAX_VERSIONS = 50;
+    private readonly MAX_VERSION_CONTENT_BYTES = 512 * 1024; // 512 KB per snapshot
 
     private versionsSubject = new BehaviorSubject<JsonVersion[]>([]);
     public versions$: Observable<JsonVersion[]> = this.versionsSubject.asObservable();
@@ -28,8 +29,18 @@ export class VersionHistoryService {
      * @param name Optional name for the version
      * @returns The newly created version
      */
-    addVersion(content: string, name?: string): JsonVersion {
+    addVersion(content: string, name?: string): JsonVersion | null {
+        if (!this.isStorableContentSize(content)) {
+            return null;
+        }
+
         const versions = this.versionsSubject.value;
+        const latestVersion = versions[0];
+
+        // Skip creating duplicate snapshots when content did not change.
+        if (latestVersion && latestVersion.content === content) {
+            return latestVersion;
+        }
 
         // Generate a unique ID
         const id = Date.now().toString(36) + Math.random().toString(36).substring(2);
@@ -51,7 +62,13 @@ export class VersionHistoryService {
         }
 
         this.versionsSubject.next(updatedVersions);
-        this.saveVersionsToStorage();
+        const persisted = this.saveVersionsToStorage();
+
+        if (!persisted) {
+            // Revert in-memory addition when persistence fails after trimming attempts.
+            this.versionsSubject.next(versions);
+            return null;
+        }
 
         return newVersion;
     }
@@ -150,14 +167,68 @@ export class VersionHistoryService {
     /**
      * Saves versions to local storage
      */
-    private saveVersionsToStorage(): void {
+    private saveVersionsToStorage(): boolean {
         try {
             localStorage.setItem(
                 this.STORAGE_KEY,
                 JSON.stringify(this.versionsSubject.value)
             );
+            return true;
         } catch (error) {
+            if (this.isQuotaExceededError(error)) {
+                return this.trimAndRetryStorageSave();
+            }
             console.error('Error saving versions to storage:', error);
+            return false;
         }
+    }
+
+    private trimAndRetryStorageSave(): boolean {
+        const versions = [...this.versionsSubject.value];
+
+        while (versions.length > 1) {
+            versions.pop();
+            try {
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(versions));
+                this.versionsSubject.next(versions);
+                return true;
+            } catch (error) {
+                if (!this.isQuotaExceededError(error)) {
+                    console.error('Error saving versions to storage:', error);
+                    return false;
+                }
+            }
+        }
+
+        // Last attempt with a single version.
+        try {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(versions));
+            this.versionsSubject.next(versions);
+            return true;
+        } catch (error) {
+            console.error('Error saving versions to storage after trimming:', error);
+            return false;
+        }
+    }
+
+    private isStorableContentSize(content: string): boolean {
+        if (!content) {
+            return false;
+        }
+
+        const bytes = new Blob([content]).size;
+        if (bytes <= this.MAX_VERSION_CONTENT_BYTES) {
+            return true;
+        }
+
+        console.warn(
+            `Skipping version snapshot: content size ${bytes} bytes exceeds ${this.MAX_VERSION_CONTENT_BYTES} bytes limit.`
+        );
+        return false;
+    }
+
+    private isQuotaExceededError(error: unknown): boolean {
+        return error instanceof DOMException &&
+            (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED');
     }
 }
