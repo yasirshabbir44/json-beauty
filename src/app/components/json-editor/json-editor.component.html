@@ -67,6 +67,16 @@
                 <mat-icon aria-hidden="true">data_object</mat-icon>
                 {{ selectedOutputFormat | uppercase }}
               </span>
+              @if (isValidJson && objectCount !== null) {
+                <span class="status-pill status-pill-muted">
+                  <mat-icon aria-hidden="true">straighten</mat-icon>
+                  {{ getDisplaySize() }}
+                </span>
+                <span class="status-pill status-pill-muted">
+                  <mat-icon aria-hidden="true">hub</mat-icon>
+                  {{ objectCount }} obj · {{ keyCount }} keys
+                </span>
+              }
             </div>
           </div>
 
@@ -75,7 +85,7 @@
               <mat-icon>folder_open</mat-icon>
               File
             </button>
-            <mat-menu #fileMenu="matMenu">
+            <mat-menu #fileMenu="matMenu" class="recent-files-menu">
               <button mat-menu-item type="button" (click)="openImportPicker()">
                 <mat-icon>upload_file</mat-icon>
                 Import JSON
@@ -92,6 +102,32 @@
                 <mat-icon>auto_awesome</mat-icon>
                 Load sample
               </button>
+              @if (recentFiles.length > 0) {
+                <mat-divider></mat-divider>
+                <div class="recent-files-heading" mat-menu-item disabled>
+                  <mat-icon>history</mat-icon>
+                  Recent files
+                </div>
+                @for (file of recentFiles; track file.id) {
+                  <button mat-menu-item type="button" class="recent-file-item" (click)="openRecentFile(file)">
+                    <mat-icon>description</mat-icon>
+                    <span class="recent-file-label">
+                      <span class="recent-file-name">{{ file.name }}</span>
+                      <span class="recent-file-meta">{{ formatRecentSize(file.sizeBytes) }}</span>
+                    </span>
+                    <button type="button" mat-icon-button class="recent-file-remove"
+                      (click)="removeRecentFile($event, file.id)" matTooltip="Remove from recent"
+                      aria-label="Remove from recent">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </button>
+                }
+                <mat-divider></mat-divider>
+                <button mat-menu-item type="button" (click)="clearRecentFiles()">
+                  <mat-icon>delete_sweep</mat-icon>
+                  Clear recent files
+                </button>
+              }
             </mat-menu>
 
             <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="formatMenu">
@@ -153,8 +189,11 @@
           <div class="editor-action-toolbar">
             <div class="toolbar-group toolbar-group-primary">
               <span class="toolbar-group-label">Actions</span>
-              <button type="button" mat-flat-button color="primary" class="toolbar-primary"
-                (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
+              <button type="button" mat-flat-button color="primary" class="toolbar-primary jb-beautify-btn"
+                (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)"
+                [@beautifyPulse]="beautifyAnimState"
+                (@beautifyPulse.done)="onBeautifyAnimationDone()"
+                [class.jb-beautify-active]="beautifyAnimState === 'active'">
                 <mat-icon>auto_fix_high</mat-icon>
                 Beautify
               </button>
@@ -408,6 +447,8 @@
             [displaySize]="getDisplaySize()"
             [errorMessage]="errorMessage"
             [isValidJson]="isValidJson"
+            [keyCount]="keyCount"
+            [objectCount]="objectCount"
             [selectedOutputFormat]="selectedOutputFormat"
             [selectedViewMode]="selectedViewMode">
           </app-json-status>

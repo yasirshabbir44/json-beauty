@@ -12,6 +12,8 @@ export class JsonStatusComponent {
     @Input() isValidJson: boolean = true;
     /** Human-readable size (for example 2.1 KB). */
     @Input() displaySize: string = '0 B';
+    @Input() objectCount: number | null = null;
+    @Input() keyCount: number | null = null;
     @Input() selectedOutputFormat: 'json' | 'yaml' = 'json';
     @Input() selectedViewMode: 'text' | 'tree' | 'table' = 'text';
     /** 1-based line in the input editor. */

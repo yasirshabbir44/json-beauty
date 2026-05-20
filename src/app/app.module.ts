@@ -1,4 +1,5 @@
-import {NgModule} from '@angular/core';
+import {isDevMode, NgModule} from '@angular/core';
+import {ServiceWorkerModule} from '@angular/service-worker';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -69,7 +70,11 @@ import {WorkerModule} from './services/worker/worker.module';
         MatDialogModule,
         MatChipsModule,
         MatButtonToggleModule,
-        MatCheckboxModule],
+        MatCheckboxModule,
+        ServiceWorkerModule.register('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+        })],
     providers: [
         provideHttpClient(withInterceptorsFromDi()),
         {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: {disabled: true, animation: {enterDuration: 0, exitDuration: 0}}},
