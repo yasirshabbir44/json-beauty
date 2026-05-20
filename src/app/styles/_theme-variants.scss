@@ -1,0 +1,65 @@
+// Alternate themes — override --jb-* tokens only. Material skin follows via _material-overrides.scss.
+
+.solarized-theme {
+  --jb-bg-app: #fdf6e3;
+  --jb-bg-surface: #eee8d5;
+  --jb-bg-muted: #fdf6e3;
+  --jb-bg-toolbar: #eee8d5;
+  --jb-bg-code: #fdf6e3;
+  --jb-bg-elevated: #eee8d5;
+  --jb-border: #93a1a1;
+  --jb-border-strong: #839496;
+  --jb-text: #586e75;
+  --jb-text-secondary: #657b83;
+  --jb-text-muted: #93a1a1;
+  --jb-accent: #268bd2;
+  --jb-accent-hover: #2aa198;
+  --jb-accent-subtle: rgba(38, 139, 210, 0.12);
+  --jb-accent-border: rgba(38, 139, 210, 0.35);
+  --jb-panel-input: #268bd2;
+  --jb-panel-input-bg: rgba(38, 139, 210, 0.08);
+  --jb-panel-output: #2aa198;
+  --jb-panel-output-bg: rgba(42, 161, 152, 0.08);
+  --jb-success: #859900;
+  --jb-success-bg: rgba(133, 153, 0, 0.12);
+  --jb-error: #dc322f;
+  --jb-error-bg: rgba(220, 50, 47, 0.1);
+  --jb-header-from: #073642;
+  --jb-header-mid: #268bd2;
+  --jb-header-to: #2aa198;
+  --jb-shadow-sm: 0 1px 2px rgba(0, 43, 54, 0.08);
+  --jb-shadow-md: 0 4px 16px rgba(0, 43, 54, 0.1);
+  --jb-shadow-lg: 0 12px 32px rgba(0, 43, 54, 0.12);
+}
+
+.monokai-theme {
+  --jb-bg-app: #272822;
+  --jb-bg-surface: #1e1f1c;
+  --jb-bg-muted: #272822;
+  --jb-bg-toolbar: #1e1f1c;
+  --jb-bg-code: #272822;
+  --jb-bg-elevated: #1e1f1c;
+  --jb-border: #3e3d32;
+  --jb-border-strong: #49483e;
+  --jb-text: #f8f8f2;
+  --jb-text-secondary: #a59f85;
+  --jb-text-muted: #75715e;
+  --jb-accent: #66d9ef;
+  --jb-accent-hover: #a6e22e;
+  --jb-accent-subtle: rgba(102, 217, 239, 0.12);
+  --jb-accent-border: rgba(102, 217, 239, 0.35);
+  --jb-panel-input: #66d9ef;
+  --jb-panel-input-bg: rgba(102, 217, 239, 0.08);
+  --jb-panel-output: #a6e22e;
+  --jb-panel-output-bg: rgba(166, 226, 46, 0.06);
+  --jb-success: #a6e22e;
+  --jb-success-bg: rgba(166, 226, 46, 0.12);
+  --jb-error: #f92672;
+  --jb-error-bg: rgba(249, 38, 114, 0.12);
+  --jb-header-from: #1e1f1c;
+  --jb-header-mid: #49483e;
+  --jb-header-to: #66d9ef;
+  --jb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --jb-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.45);
+  --jb-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+}

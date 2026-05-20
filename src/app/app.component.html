@@ -1,4 +1,4 @@
-<div class="app-container">
+<div id="jb-root" class="app-container min-h-screen flex flex-col bg-jb-app text-jb-text font-sans">
     <app-header [title]="title" subtitle="Format • Validate • Compare • Convert">
         <button
             type="button"
@@ -31,7 +31,7 @@
         </mat-menu>
     </app-header>
 
-    <div class="main-content">
+    <div class="main-content" [class.main-content--landing]="isLandingRoute">
         <router-outlet></router-outlet>
     </div>
 

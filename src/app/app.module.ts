@@ -22,6 +22,9 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MAT_RIPPLE_GLOBAL_OPTIONS} from '@angular/material/core';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS} from '@angular/material/form-field';
+import {MAT_BUTTON_TOGGLE_DEFAULT_OPTIONS} from '@angular/material/button-toggle';
 
 // App Components
 import {AppComponent} from './app.component';
@@ -66,6 +69,12 @@ import {WorkerModule} from './services/worker/worker.module';
         MatDialogModule,
         MatChipsModule,
         MatButtonToggleModule,
-        MatCheckboxModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+        MatCheckboxModule],
+    providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: {disabled: true, animation: {enterDuration: 0, exitDuration: 0}}},
+        {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline', subscriptSizing: 'dynamic'}},
+        {provide: MAT_BUTTON_TOGGLE_DEFAULT_OPTIONS, useValue: {hideSingleSelectionIndicator: true}},
+    ]})
 export class AppModule {
 }

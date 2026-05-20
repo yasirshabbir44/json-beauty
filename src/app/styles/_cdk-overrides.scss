@@ -1,0 +1,44 @@
+// CDK overlay / scroll — keep portals on-brand without fighting Tailwind scope.
+
+.cdk-overlay-container {
+  z-index: 1100;
+}
+
+.cdk-overlay-pane {
+  .mat-mdc-select-panel,
+  .mat-mdc-autocomplete-panel {
+    border-radius: var(--jb-radius-md);
+    border: 1px solid var(--jb-border);
+    box-shadow: var(--jb-shadow-lg);
+    background: var(--jb-bg-elevated);
+  }
+}
+
+.cdk-virtual-scroll-viewport {
+  scrollbar-color: var(--jb-border-strong) var(--jb-bg-muted);
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--jb-border-strong);
+    border-radius: var(--jb-radius-pill);
+
+    &:hover {
+      background: var(--jb-text-muted);
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--jb-bg-muted);
+  }
+}
+
+.cdk-drag-preview {
+  border-radius: var(--jb-radius-md);
+  border: 1px solid var(--jb-border);
+  box-shadow: var(--jb-shadow-lg);
+  background: var(--jb-bg-elevated);
+}

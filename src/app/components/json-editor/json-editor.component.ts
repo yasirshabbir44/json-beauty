@@ -28,6 +28,7 @@ import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
+import {KEYBOARD_SHORTCUTS} from '../../data/keyboard-shortcuts.data';
 
 /**
  * Coordinates JSON input/output editors, dialogs, and panels.
@@ -81,22 +82,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     indentSize = 2;
     indentChar = ' ';
 
-    // Keyboard shortcuts
-    keyboardShortcuts = [
-        {key: 'Ctrl / Cmd + F', action: 'Show/Hide floating find bar'},
-        {key: 'Ctrl / Cmd + Shift + F', action: 'Show/Hide Search & Replace panel'},
-        {key: 'Ctrl + B', action: 'Beautify JSON'},
-        {key: 'Ctrl + M', action: 'Minify JSON'},
-        {key: 'Ctrl + L', action: 'Lint & Fix JSON'},
-        {key: 'Ctrl + C', action: 'Copy to Clipboard'},
-        {key: 'Ctrl + S', action: 'Download JSON'},
-        {key: 'Ctrl + D', action: 'Clear Editor'},
-        {key: 'Ctrl + K', action: 'Show/Hide Keyboard Shortcuts'},
-        {key: 'Ctrl + 1', action: 'Maximize/Minimize Input'},
-        {key: 'Ctrl + 2', action: 'Maximize/Minimize Output'},
-        {key: 'Ctrl + Alt + 0', action: 'Fold All Code'},
-        {key: 'Ctrl + Alt + Shift + 0', action: 'Unfold All Code'}
-    ];
+    keyboardShortcuts = KEYBOARD_SHORTCUTS;
 
     // Properties for new features
     yamlOutput = new FormControl('');
