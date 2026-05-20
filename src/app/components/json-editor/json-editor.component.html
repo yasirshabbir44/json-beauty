@@ -6,6 +6,8 @@
           (applyFormatting)="applyFormatting($event)"
           (compareJson)="compareJson()"
           (executeJsonPathQuery)="executeJsonPathQuery()"
+          (formatCompareInput)="formatCompareInput()"
+          (swapCompareSides)="swapCompareSides()"
 
           (toggleFormattingOptions)="onFormattingOptionsDialogToggle()"
           (toggleJsonCompare)="toggleJsonCompare()"
@@ -17,8 +19,11 @@
           (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
           (validateJsonSchema)="validateJsonSchema()"
           [compareJsonInput]="compareJsonInput"
+          [compareError]="compareError"
+          [currentJson]="jsonInput.value || ''"
           [indentChar]="indentChar"
           [indentSize]="indentSize"
+          [isCompareInputValid]="isCompareInputValid"
 
           [jsonData]="jsonTreeData"
           [jsonDiffResult]="jsonDiffResult"
