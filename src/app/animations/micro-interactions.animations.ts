@@ -68,6 +68,19 @@ export const validationPulse: AnimationTriggerMetadata = trigger('validationPuls
     ]),
 ]);
 
+/** Primary action (Beautify) success pulse with sparkle settle. */
+export const beautifyPulse: AnimationTriggerMetadata = trigger('beautifyPulse', [
+    state('idle', style({transform: 'scale(1)', boxShadow: 'none'})),
+    state('active', style({transform: 'scale(1)', boxShadow: 'none'})),
+    transition('idle => active', [
+        animate(`620ms ${JB_SPRING}`, keyframes([
+            style({transform: 'scale(1)', boxShadow: '0 0 0 0 rgba(66, 133, 244, 0)', offset: 0}),
+            style({transform: 'scale(1.06) rotate(-1deg)', boxShadow: '0 0 0 8px rgba(66, 133, 244, 0.35)', offset: 0.35}),
+            style({transform: 'scale(1) rotate(0deg)', boxShadow: '0 0 0 0 rgba(66, 133, 244, 0)', offset: 1}),
+        ])),
+    ]),
+]);
+
 /** Copy button success flash. */
 export const copySuccess: AnimationTriggerMetadata = trigger('copySuccess', [
     state('idle', style({transform: 'scale(1)'})),
@@ -86,5 +99,6 @@ export const MICRO_INTERACTION_ANIMATIONS: AnimationTriggerMetadata[] = [
     fadeBackdrop,
     expandCollapse,
     validationPulse,
+    beautifyPulse,
     copySuccess,
 ];

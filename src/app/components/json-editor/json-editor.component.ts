@@ -6,6 +6,8 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {JsonService} from '../../services/json.service';
 import {VersionHistoryService} from '../../services/history/version-history.service';
+import {RecentFile, RecentFilesService} from '../../services/history/recent-files.service';
+import {countJsonStructure, JsonStructureStats} from '../../utils/json-stats.util';
 import {InputSanitizationService} from '../../services/security/input-sanitization.service';
 import {SecurityUtilsService} from '../../services/security/security-utils.service';
 import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.component';
@@ -64,7 +66,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     /** Exposed for template: disables panel width transition while dragging. */
     panelResizing = false;
     copyFeedbackState: 'idle' | 'copied' = 'idle';
+    beautifyAnimState: 'idle' | 'active' = 'idle';
     private copyFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
+    private beautifyAnimTimer: ReturnType<typeof setTimeout> | null = null;
+    jsonStructureStats: JsonStructureStats | null = null;
+    recentFiles: RecentFile[] = [];
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
     jsonInput = new FormControl('');
@@ -173,6 +179,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private settingsService: SettingsService,
         private themeService: ThemeService,
         private shareService: ShareService,
+        private recentFilesService: RecentFilesService,
         private destroyRef: DestroyRef
     ) {
         this.outputConversionStrategies = {
@@ -573,7 +580,22 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     getDisplaySize(): string {
         const raw = this.jsonInput.value || '';
-        const bytes = new Blob([raw]).size;
+        return this.formatByteSize(new Blob([raw]).size);
+    }
+
+    get objectCount(): number | null {
+        return this.jsonStructureStats?.objects ?? null;
+    }
+
+    get keyCount(): number | null {
+        return this.jsonStructureStats?.keys ?? null;
+    }
+
+    formatRecentSize(bytes: number): string {
+        return this.recentFilesService.formatSize(bytes);
+    }
+
+    private formatByteSize(bytes: number): string {
         if (bytes < 1024) {
             return `${bytes} B`;
         }
@@ -583,6 +605,15 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     }
 
+    private updateStructureStats(jsonString: string): void {
+        try {
+            const parsed = JSON.parse(jsonString);
+            this.jsonStructureStats = countJsonStructure(parsed);
+        } catch {
+            this.jsonStructureStats = null;
+        }
+    }
+
     ngOnDestroy(): void {
         if (this.floatingSearchTimer) {
             clearTimeout(this.floatingSearchTimer);
@@ -590,7 +621,44 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.copyFeedbackTimer) {
             clearTimeout(this.copyFeedbackTimer);
         }
+        if (this.beautifyAnimTimer) {
+            clearTimeout(this.beautifyAnimTimer);
+        }
         this.teardownScrollSync();
+    }
+
+    onBeautifyAnimationDone(): void {
+        if (this.beautifyAnimState === 'active') {
+            this.beautifyAnimState = 'idle';
+        }
+    }
+
+    private triggerBeautifyAnimation(): void {
+        if (this.beautifyAnimTimer) {
+            clearTimeout(this.beautifyAnimTimer);
+        }
+        this.beautifyAnimState = 'idle';
+        requestAnimationFrame(() => {
+            this.beautifyAnimState = 'active';
+            this.beautifyAnimTimer = setTimeout(() => {
+                if (this.beautifyAnimState === 'active') {
+                    this.beautifyAnimState = 'idle';
+                }
+            }, 700);
+        });
+    }
+
+    openRecentFile(file: RecentFile): void {
+        this.applyImportedJsonContent(file.content, `Opened "${file.name}"`, file.name);
+    }
+
+    removeRecentFile(event: Event, id: string): void {
+        event.stopPropagation();
+        this.recentFilesService.removeRecent(id);
+    }
+
+    clearRecentFiles(): void {
+        this.recentFilesService.clearAll();
     }
 
     toggleKeyboardShortcuts(): void {
@@ -725,6 +793,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.showSearchReplace = show;
             });
 
+        this.recentFilesService.recentFiles$
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(files => (this.recentFiles = files));
+
         // Check for JSON data in URL (for shared links)
         void this.loadJsonFromUrl().then(() => {
             if (!this.hasLoadedSharedJson) {
@@ -758,9 +830,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.jsonErrorLine = this.isValidJson ? null : line;
 
         if (this.isValidJson) {
-            // If JSON is valid, update the output and other related data
+            this.updateStructureStats(jsonString);
             this.updateOutput();
         } else {
+            this.jsonStructureStats = null;
             this.resetDerivedOutputState();
 
             // Disable tree view if it's active
@@ -904,7 +977,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.runJsonTransform(
             () => this.jsonService.beautifyJson(this.jsonInput.value || '{}'),
             'JSON beautified successfully',
-            'Error beautifying JSON'
+            'Error beautifying JSON',
+            true
         );
     }
 
@@ -1841,9 +1915,17 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         document.body.removeChild(anchor);
     }
 
-    private runJsonTransform(transform: () => string, successMessage: string, errorLabel: string): void {
+    private runJsonTransform(
+        transform: () => string,
+        successMessage: string,
+        errorLabel: string,
+        animateBeautify = false
+    ): void {
         try {
             this.applyTransformedJson(transform());
+            if (animateBeautify) {
+                this.triggerBeautifyAnimation();
+            }
             this.showSuccess(successMessage);
         } catch (error: unknown) {
             this.showError(`${errorLabel}: ${this.toErrorMessage(error)}`);
@@ -2020,6 +2102,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.jsonInput.setValue(normalizedJson);
             this.validateJson();
             this.updateOutput();
+            this.recentFilesService.addRecent(sourceName, normalizedJson);
             this.showSuccess(successMessage);
         } catch (error) {
             const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));

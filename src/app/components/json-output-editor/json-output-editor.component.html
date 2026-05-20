@@ -196,7 +196,7 @@
 
 <!-- Tree Node Template -->
 <ng-template #treeNode let-level="level" let-node let-path="path">
-  <div [style.padding-left.px]="level * 20" class="tree-level">
+  <div [style.padding-left.px]="getTreePadding(level)" class="tree-level">
     <!-- Object Node -->
     @if (isObject(node) && !isArray(node)) {
       <div>

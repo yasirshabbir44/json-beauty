@@ -290,8 +290,13 @@
 .tree-view {
   height: 100%;
   overflow: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 12px;
   background-color: #fff;
+
+  @media (max-width: 767px) {
+    padding: 8px 4px;
+  }
 }
 
 .tree-container {
@@ -299,7 +304,17 @@
   font-size: 14px;
   line-height: 1.5;
   width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  @media (max-width: 767px) {
+    font-size: 13px;
+  }
+}
+
+.tree-level {
+  min-width: min-content;
 }
 
 .tree-node {
@@ -312,6 +327,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: 36px;
 
   &:hover {
     background-color: rgba(66, 133, 244, 0.08);
@@ -320,10 +336,31 @@
   .tree-icon {
     color: #5f6368;
     margin-right: 8px;
+    flex-shrink: 0;
     transition: transform var(--jb-duration-slow) var(--jb-ease-spring);
 
     &.expanded {
       transform: rotate(90deg);
+    }
+  }
+
+  @media (max-width: 767px) {
+    min-height: 44px;
+    padding: 8px 6px;
+    white-space: normal;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    .tree-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 28px;
+    }
+
+    .node-label,
+    .node-info {
+      flex: 1 1 auto;
+      min-width: 0;
     }
   }
 }
@@ -332,6 +369,11 @@
   margin-left: 12px;
   border-left: 1px dashed #e0e0e0;
   padding-left: 6px;
+
+  @media (max-width: 767px) {
+    margin-left: 8px;
+    padding-left: 4px;
+  }
   overflow: visible;
   max-height: none;
   opacity: 1;

@@ -7,6 +7,12 @@
     <mat-icon>straighten</mat-icon>
     <span>Size: {{ displaySize }}</span>
   </div>
+  @if (objectCount !== null && keyCount !== null) {
+    <div class="status-item stats">
+      <mat-icon>data_object</mat-icon>
+      <span>{{ objectCount }} {{ objectCount === 1 ? 'object' : 'objects' }} · {{ keyCount }} {{ keyCount === 1 ? 'key' : 'keys' }}</span>
+    </div>
+  }
   <div class="status-item validation-status"
     [class.success]="isValidJson"
     [class.error]="!isValidJson"

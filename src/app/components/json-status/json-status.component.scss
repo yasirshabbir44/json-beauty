@@ -99,6 +99,10 @@
     color: var(--jb-text-muted);
   }
 
+  &.stats mat-icon {
+    color: var(--jb-accent);
+  }
+
   @media (max-width: 767px) {
     width: 100%;
     justify-content: flex-start;

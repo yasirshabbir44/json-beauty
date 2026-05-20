@@ -468,6 +468,12 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         return Object.keys(obj);
     }
 
+    /** Responsive tree indent (smaller on narrow screens). */
+    getTreePadding(level: number): number {
+        const step = typeof window !== 'undefined' && window.innerWidth <= 767 ? 12 : 20;
+        return level * step;
+    }
+
     /**
      * Checks if a value is expandable (object or array)
      * @param value The value to check
