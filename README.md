@@ -89,6 +89,10 @@ When contributing to this project, please follow these guidelines:
 3. Update documentation for any changes
 4. Use meaningful commit messages
 
+## Sustainability
+
+JSON Beauty is **free and client-side**. Optional support (GitHub star, Buy Me a Coffee, GitHub Sponsors) is configured in `src/app/constants/sponsorship.constants.ts`. See [docs/MONETIZATION.md](docs/MONETIZATION.md) and the in-app **Support** page (`/support`) for the Pro roadmap.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.

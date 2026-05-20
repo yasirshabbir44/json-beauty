@@ -21,6 +21,48 @@
                 <h2 class="footer__heading">Support</h2>
                 <ul class="footer__links">
                     <li>
+                        <a class="footer__link" routerLink="/support">Support the project</a>
+                    </li>
+                    @if (showProRoadmap) {
+                        <li>
+                            <a class="footer__link" routerLink="/support">Pro roadmap</a>
+                        </li>
+                    }
+                    <li>
+                        <a
+                            class="footer__link footer__link--external"
+                            [href]="githubRepoUrl"
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            <mat-icon aria-hidden="true">star</mat-icon>
+                            Star on GitHub
+                        </a>
+                    </li>
+                    @if (buyMeACoffeeUrl) {
+                        <li>
+                            <a
+                                class="footer__link footer__link--external"
+                                [href]="buyMeACoffeeUrl"
+                                rel="noopener noreferrer"
+                                target="_blank">
+                                <mat-icon aria-hidden="true">local_cafe</mat-icon>
+                                Buy me a coffee
+                            </a>
+                        </li>
+                    }
+                    @if (githubSponsorsUrl) {
+                        <li>
+                            <a
+                                class="footer__link footer__link--external"
+                                [href]="githubSponsorsUrl"
+                                rel="noopener noreferrer"
+                                target="_blank">
+                                <mat-icon aria-hidden="true">favorite</mat-icon>
+                                GitHub Sponsors
+                            </a>
+                        </li>
+                    }
+                    <li>
                         <a
                             class="footer__link"
                             href="https://github.com/yasirshabbir44/json-beauty/issues"
