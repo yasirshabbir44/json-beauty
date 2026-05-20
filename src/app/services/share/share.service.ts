@@ -37,18 +37,25 @@ export class ShareService {
     }
 
     /**
+     * Stable editor URL used as the base for share links (respects `<base href>`).
+     */
+    getShareBaseHref(): string {
+        const base = document.querySelector('base')?.getAttribute('href') ?? '/';
+        const basePath = new URL(base, window.location.origin).pathname.replace(/\/$/, '') || '';
+        return `${window.location.origin}${basePath}/editor`;
+    }
+
+    /**
      * Builds a shareable URL for minified JSON. Uses gzip+base64 (`jc`) when shorter or when the raw URL is long.
      */
     async buildShareUrl(
         minifiedJson: string,
-        baseHref: string = window.location.href,
+        baseHref: string = this.getShareBaseHref(),
         mode: ShareCompressionMode = 'auto'
     ): Promise<ShareUrlResult> {
-        const base = new URL(baseHref);
-        base.searchParams.delete(this.jsonParam);
-        base.searchParams.delete(this.compressedParam);
+        const base = this.resolveShareBaseUrl(baseHref);
 
-        const uncompressed = this.buildUrlWithParam(base, this.jsonParam, encodeURIComponent(minifiedJson));
+        const uncompressed = this.buildUrlWithParam(base, this.jsonParam, minifiedJson);
         const compressionSupported = this.supportsCompression();
 
         if (!compressionSupported || mode === 'off') {
@@ -86,7 +93,21 @@ export class ShareService {
         }
 
         const raw = params.get(this.jsonParam);
-        return raw ? decodeURIComponent(raw) : null;
+        if (!raw) {
+            return null;
+        }
+
+        // Prefer single-encoded values from URLSearchParams; support legacy double-encoded links.
+        if (this.isValidJsonString(raw)) {
+            return raw;
+        }
+
+        try {
+            const decoded = decodeURIComponent(raw);
+            return this.isValidJsonString(decoded) ? decoded : raw;
+        } catch {
+            return raw;
+        }
     }
 
     getUrlStats(url: string): ShareUrlStats {
@@ -134,7 +155,7 @@ export class ShareService {
                 id: 'whatsapp',
                 label: 'WhatsApp',
                 icon: 'chat',
-                href: `https://wa.me/?text=${encodedUrl}`
+                href: `https://wa.me/?text=${encodeURIComponent(`${title} ${shareUrl}`)}`
             },
             {
                 id: 'telegram',
@@ -188,10 +209,30 @@ export class ShareService {
         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(shareUrl)}`;
     }
 
+    private resolveShareBaseUrl(baseHref: string): URL {
+        const url = new URL(baseHref, window.location.origin);
+        url.hash = '';
+        url.searchParams.delete(this.jsonParam);
+        url.searchParams.delete(this.compressedParam);
+
+        const editorBase = new URL(this.getShareBaseHref());
+        url.pathname = editorBase.pathname;
+        return url;
+    }
+
     private buildUrlWithParam(base: URL, key: string, value: string): string {
         const url = new URL(base.toString());
         url.searchParams.set(key, value);
         return url.toString();
+    }
+
+    private isValidJsonString(value: string): boolean {
+        try {
+            JSON.parse(value);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     private async compress(text: string): Promise<string> {

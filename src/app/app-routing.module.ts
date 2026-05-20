@@ -2,9 +2,11 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
 const routes: Routes = [
-    // Default route redirects to the main page
-    {path: '', redirectTo: '/editor', pathMatch: 'full'},
-    // Lazy loaded feature modules
+    // Root loads the editor so shared `?json=` / `?jc=` links are not stripped by redirects
+    {
+        path: '',
+        loadChildren: () => import('./modules/editor/editor.module').then(m => m.EditorModule)
+    },
     {
         path: 'editor',
         loadChildren: () => import('./modules/editor/editor.module').then(m => m.EditorModule)
