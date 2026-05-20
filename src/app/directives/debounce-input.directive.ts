@@ -11,7 +11,8 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
  * <input [appDebounceInput]="500" (debounceInput)="handleInput($event)">
  */
 @Directive({
-  selector: '[appDebounceInput]'
+    selector: '[appDebounceInput]',
+    standalone: false
 })
 export class DebounceInputDirective implements OnInit, OnDestroy {
   @Input('appDebounceInput') debounceTime: number = 300;

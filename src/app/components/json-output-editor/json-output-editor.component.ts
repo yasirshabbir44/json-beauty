@@ -31,7 +31,8 @@ import 'ace-builds/src-noconflict/ext-linking';
 @Component({
     selector: 'app-json-output-editor',
     templateUrl: './json-output-editor.component.html',
-    styleUrls: ['./json-output-editor.component.scss']
+    styleUrls: ['./json-output-editor.component.scss'],
+    standalone: false
 })
 export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
     @ViewChild('outputEditor', {static: false}) outputEditorElement!: ElementRef;
@@ -93,17 +94,17 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
         });
     }
 
-    @HostListener('document:keydown.escape', ['$event'])
-    onEscapeKey(event: KeyboardEvent): void {
+    @HostListener('document:keydown.escape')
+    onEscapeKey(): void {
         if (this.isFullScreen) {
             this.exitFullScreen();
         }
     }
 
-    @HostListener('document:fullscreenchange', ['$event'])
-    @HostListener('document:webkitfullscreenchange', ['$event'])
-    @HostListener('document:mozfullscreenchange', ['$event'])
-    @HostListener('document:MSFullscreenChange', ['$event'])
+    @HostListener('document:fullscreenchange')
+    @HostListener('document:webkitfullscreenchange')
+    @HostListener('document:mozfullscreenchange')
+    @HostListener('document:MSFullscreenChange')
     onFullScreenChange(): void {
         // Handle different browser implementations of fullscreen API
         interface FullScreenDocument extends Document {

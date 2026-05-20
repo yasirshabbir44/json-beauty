@@ -7,9 +7,10 @@ import { LazyJsonParserService } from '../../services/parsing/lazy-json-parser.s
  * to improve performance and reduce memory usage
  */
 @Component({
-  selector: 'app-json-pagination',
-  templateUrl: './json-pagination.component.html',
-  styleUrls: ['./json-pagination.component.scss']
+    selector: 'app-json-pagination',
+    templateUrl: './json-pagination.component.html',
+    styleUrls: ['./json-pagination.component.scss'],
+    standalone: false
 })
 export class JsonPaginationComponent implements OnChanges {
   @Input() jsonArray: any[] = [];

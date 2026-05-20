@@ -1,435 +1,450 @@
 <div [class.dark-theme]="isDarkTheme" class="editor-container">
-    <mat-card class="editor-card">
-        <mat-card-content class="p-1">
-            <div class="editor-layout">
-                <app-json-dialogs
-                        (applyFormatting)="applyFormatting($event)"
-                        (compareJson)="compareJson()"
-                        (executeJsonPathQuery)="executeJsonPathQuery()"
+  <mat-card class="editor-card">
+    <mat-card-content class="p-1">
+      <div class="editor-layout">
+        <app-json-dialogs
+          (applyFormatting)="applyFormatting($event)"
+          (compareJson)="compareJson()"
+          (executeJsonPathQuery)="executeJsonPathQuery()"
 
-                        (toggleFormattingOptions)="onFormattingOptionsDialogToggle()"
-                        (toggleJsonCompare)="toggleJsonCompare()"
-                        (useLatestVersionForCompare)="useLatestVersionForCompare()"
-                        (toggleJsonPathQuery)="toggleJsonPathQuery()"
-                        (toggleJsonVisualize)="toggleJsonVisualize()"
-                        (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
+          (toggleFormattingOptions)="onFormattingOptionsDialogToggle()"
+          (toggleJsonCompare)="toggleJsonCompare()"
+          (useLatestVersionForCompare)="useLatestVersionForCompare()"
+          (toggleJsonPathQuery)="toggleJsonPathQuery()"
+          (toggleJsonVisualize)="toggleJsonVisualize()"
+          (toggleKeyboardShortcuts)="toggleKeyboardShortcuts()"
 
-                        (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
-                        (validateJsonSchema)="validateJsonSchema()"
-                        [compareJsonInput]="compareJsonInput"
-                        [indentChar]="indentChar"
-                        [indentSize]="indentSize"
+          (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
+          (validateJsonSchema)="validateJsonSchema()"
+          [compareJsonInput]="compareJsonInput"
+          [indentChar]="indentChar"
+          [indentSize]="indentSize"
 
-                        [jsonData]="jsonTreeData"
-                        [jsonDiffResult]="jsonDiffResult"
-                        [jsonPathQueryResult]="jsonPathQueryResult"
-                        [jsonPathQuery]="jsonPathQuery"
-                        [keyboardShortcuts]="keyboardShortcuts"
-                        [schemaInput]="schemaInput"
+          [jsonData]="jsonTreeData"
+          [jsonDiffResult]="jsonDiffResult"
+          [jsonPathQueryResult]="jsonPathQueryResult"
+          [jsonPathQuery]="jsonPathQuery"
+          [keyboardShortcuts]="keyboardShortcuts"
+          [schemaInput]="schemaInput"
 
-                        [schemaValidationResult]="schemaValidationResult"
-                        [showFormattingOptions]="showFormattingOptions"
-                        [showJsonCompare]="showJsonCompare"
-                        [showJsonPathQueryDialog]="showJsonPathQueryDialog"
-                        [showJsonVisualize]="showJsonVisualize"
+          [schemaValidationResult]="schemaValidationResult"
+          [showFormattingOptions]="showFormattingOptions"
+          [showJsonCompare]="showJsonCompare"
+          [showJsonPathQueryDialog]="showJsonPathQueryDialog"
+          [showJsonVisualize]="showJsonVisualize"
 
-                        [showKeyboardShortcuts]="showKeyboardShortcuts"
-                        [showSchemaEditor]="showSchemaEditor">
-                </app-json-dialogs>
+          [showKeyboardShortcuts]="showKeyboardShortcuts"
+          [showSchemaEditor]="showSchemaEditor">
+        </app-json-dialogs>
 
-                <section class="editor-control-panel" aria-label="Editor controls">
-                    <div class="editor-control-head">
-                        <div class="editor-control-title">
-                            <h2>JSON Workspace</h2>
-                            <p>Professional JSON formatting, validation, comparison, and data conversion in one place.</p>
-                        </div>
-                        <div class="editor-status-pills" aria-live="polite">
-                            <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
-                                <mat-icon aria-hidden="true">{{ isValidJson ? 'verified' : 'error_outline' }}</mat-icon>
-                                {{ isValidJson ? 'Valid JSON' : 'Invalid JSON' }}
-                            </span>
-                            <span class="status-pill">
-                                <mat-icon aria-hidden="true">view_sidebar</mat-icon>
-                                {{ selectedViewMode | titlecase }} view
-                            </span>
-                            <span class="status-pill">
-                                <mat-icon aria-hidden="true">splitscreen</mat-icon>
-                                {{ workspaceLayout | titlecase }} pane
-                            </span>
-                            <span class="status-pill">
-                                <mat-icon aria-hidden="true">output</mat-icon>
-                                {{ selectedOutputFormat.toUpperCase() }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="trust-banner" role="note" aria-label="Privacy and trust notice">
-                        <mat-icon aria-hidden="true">lock</mat-icon>
-                        <span>Your data stays in your browser. Nothing is stored.</span>
-                    </div>
-
-                    <nav class="editor-feature-nav" aria-label="Editor menus">
-                        <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="fileMenu">
-                            <mat-icon>folder_open</mat-icon>
-                            File
-                        </button>
-                        <mat-menu #fileMenu="matMenu">
-                            <button mat-menu-item type="button" (click)="openImportPicker()">
-                                <mat-icon>upload_file</mat-icon>
-                                Import JSON
-                            </button>
-                            <button mat-menu-item type="button" (click)="fetchJsonFromExternalUrl()">
-                                <mat-icon>language</mat-icon>
-                                Fetch from URL
-                            </button>
-                            <button mat-menu-item type="button" (click)="downloadJson()" [disabled]="!isValidJson">
-                                <mat-icon>download</mat-icon>
-                                Export JSON
-                            </button>
-                            <button mat-menu-item type="button" (click)="loadSampleJson()">
-                                <mat-icon>auto_awesome</mat-icon>
-                                Load sample
-                            </button>
-                        </mat-menu>
-
-                        <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="formatMenu">
-                            <mat-icon>auto_fix_high</mat-icon>
-                            Format
-                        </button>
-                        <mat-menu #formatMenu="matMenu">
-                            <button mat-menu-item type="button" (click)="beautifyJson()" [disabled]="!isValidJson">
-                                <mat-icon>format_align_left</mat-icon>
-                                Beautify
-                            </button>
-                            <button mat-menu-item type="button" (click)="minifyJson()" [disabled]="!isValidJson">
-                                <mat-icon>compress</mat-icon>
-                                Minify
-                            </button>
-                            <button mat-menu-item type="button" (click)="sortKeysJson()" [disabled]="!isValidJson">
-                                <mat-icon>sort_by_alpha</mat-icon>
-                                Sort keys
-                            </button>
-                        </mat-menu>
-
-                        <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleSearchBar()"
-                                matTooltip="Find (Ctrl+F)">
-                            <mat-icon>search</mat-icon>
-                            Search
-                        </button>
-                        <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleJsonCompare()"
-                                [disabled]="!isValidJson" matTooltip="Compare JSON">
-                            <mat-icon>compare_arrows</mat-icon>
-                            Diff
-                        </button>
-                        <button type="button" mat-flat-button color="primary" class="feature-nav-btn"
-                                (click)="quickDiffWithLatestVersion()"
-                                [disabled]="!isValidJson"
-                                matTooltip="One-click diff with latest saved version">
-                            <mat-icon>bolt</mat-icon>
-                            Quick Diff
-                        </button>
-
-                        <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="toolsMenu">
-                            <mat-icon>construction</mat-icon>
-                            Tools
-                        </button>
-                        <mat-menu #toolsMenu="matMenu">
-                            <button mat-menu-item type="button" (click)="openToolYaml()" [disabled]="!isValidJson">
-                                <mat-icon>description</mat-icon>
-                                JSON → YAML
-                            </button>
-                            <button mat-menu-item type="button" (click)="convertToCsv()" [disabled]="!isValidJson">
-                                <mat-icon>table_chart</mat-icon>
-                                JSON → CSV
-                            </button>
-                            <button mat-menu-item type="button" (click)="convertToXml()" [disabled]="!isValidJson">
-                                <mat-icon>code</mat-icon>
-                                JSON → XML
-                            </button>
-                        </mat-menu>
-                    </nav>
-                    <div class="editor-action-toolbar">
-                        <button type="button" mat-flat-button color="primary" class="toolbar-primary"
-                                (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
-                            <mat-icon>auto_fix_high</mat-icon>
-                            Beautify
-                        </button>
-                        <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
-                                matTooltip="Minify (Ctrl+M)">
-                            <mat-icon>compress</mat-icon>
-                            Minify
-                        </button>
-                        <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
-                                matTooltip="Lint &amp; fix (Ctrl+L)">
-                            <mat-icon>rule</mat-icon>
-                            Validate
-                        </button>
-                        <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
-                                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'tree'"
-                                matTooltip="Tree view">
-                            <mat-icon>account_tree</mat-icon>
-                            Tree
-                        </button>
-                        <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
-                                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'table'"
-                                matTooltip="Table view">
-                            <mat-icon>table_view</mat-icon>
-                            Table
-                        </button>
-                        <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
-                                matTooltip="Copy output (Ctrl+C)">
-                            <mat-icon>content_copy</mat-icon>
-                            Copy
-                        </button>
-                        <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
-                                matTooltip="Create a shareable URL">
-                            <mat-icon>share</mat-icon>
-                            Share
-                        </button>
-                        <button type="button" mat-stroked-button class="toolbar-clear" (click)="clearEditor()"
-                                matTooltip="Clear (Ctrl+D)">
-                            <mat-icon>delete_sweep</mat-icon>
-                            Clear
-                        </button>
-                        <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
-                                [disabled]="workspaceLayout !== 'dual'"
-                                matTooltip="Swap input and output panel positions">
-                            <mat-icon>swap_horiz</mat-icon>
-                            Swap Panes
-                        </button>
-                        <button type="button" mat-stroked-button (click)="setWorkspaceLayout('single')"
-                                [class.active-action]="workspaceLayout === 'single'" matTooltip="Single pane workspace">
-                            <mat-icon>crop_portrait</mat-icon>
-                            Single Pane
-                        </button>
-                        <button type="button" mat-stroked-button (click)="setWorkspaceLayout('dual')"
-                                [class.active-action]="workspaceLayout === 'dual'" matTooltip="Dual pane workspace">
-                            <mat-icon>view_week</mat-icon>
-                            Dual Pane
-                        </button>
-                        <button *ngIf="workspaceLayout === 'single'" type="button" mat-stroked-button
-                                (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
-                                matTooltip="Focus raw input panel">
-                            <mat-icon>edit_note</mat-icon>
-                            Input
-                        </button>
-                        <button *ngIf="workspaceLayout === 'single'" type="button" mat-stroked-button
-                                (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
-                                matTooltip="Focus formatted output panel">
-                            <mat-icon>preview</mat-icon>
-                            Output
-                        </button>
-                    </div>
-                </section>
-
-                <div *ngIf="floatingSearchOpen" class="floating-search-backdrop" (click)="closeFloatingSearch()">
-                    <div class="floating-search-panel" (click)="$event.stopPropagation()" role="search"
-                         aria-label="Find in editor">
-                        <mat-icon class="floating-search-lead-icon" aria-hidden="true">search</mat-icon>
-                        <mat-button-toggle-group class="floating-search-targets" [hideSingleSelectionIndicator]="true"
-                                                 [value]="floatingSearchTarget"
-                                                 (change)="onFloatingSearchTargetChange($event)">
-                            <mat-button-toggle value="input">Input</mat-button-toggle>
-                            <mat-button-toggle value="output" [disabled]="!canSearchOutputAce()">Output
-                            </mat-button-toggle>
-                            <mat-button-toggle value="tree" [disabled]="selectedViewMode !== 'tree'">Tree
-                            </mat-button-toggle>
-                        </mat-button-toggle-group>
-                        <mat-form-field appearance="outline" class="floating-search-field" subscriptSizing="dynamic">
-                            <mat-label>Find</mat-label>
-                            <input matInput class="floating-search-query" [(ngModel)]="floatingSearchQuery"
-                                   (ngModelChange)="onFloatingSearchQueryChange($event)"
-                                   (keyup.enter)="runFloatingSearch()" placeholder="Search…" />
-                        </mat-form-field>
-                        <span *ngIf="floatingSearchMatchCount > 0 && floatingSearchTarget !== 'tree'"
-                              class="floating-search-count">{{ floatingSearchMatchCount }} matches</span>
-                        <button type="button" mat-icon-button matTooltip="Previous" (click)="floatingSearchPrevious()"
-                                [disabled]="floatingSearchTarget === 'tree'">
-                            <mat-icon>keyboard_arrow_up</mat-icon>
-                        </button>
-                        <button type="button" mat-icon-button matTooltip="Next" (click)="floatingSearchNext()"
-                                [disabled]="floatingSearchTarget === 'tree'">
-                            <mat-icon>keyboard_arrow_down</mat-icon>
-                        </button>
-                        <button type="button" mat-icon-button matTooltip="Find" (click)="runFloatingSearch()">
-                            <mat-icon>play_arrow</mat-icon>
-                        </button>
-                        <button type="button" mat-icon-button matTooltip="Close" (click)="closeFloatingSearch()">
-                            <mat-icon>close</mat-icon>
-                        </button>
-                    </div>
-                </div>
-
-                <div *ngIf="workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized" class="split-controls">
-                    <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
-                        Sync scroll
-                    </mat-slide-toggle>
-                    <span class="split-hint">Drag the center bar to resize panels</span>
-                </div>
-
-                <section class="editor-workspace-panel"
-                         aria-label="Editor workspace"
-                         (dragenter)="onWorkspaceDragEnter($event)"
-                         (dragover)="onWorkspaceDragOver($event)"
-                         (dragleave)="onWorkspaceDragLeave($event)"
-                         (drop)="onWorkspaceDrop($event)">
-                    <div [class.input-maximized]="isInputMaximized"
-                         [class.output-maximized]="isOutputMaximized"
-                         [class.single-pane-mode]="workspaceLayout === 'single'"
-                         [class.dual-pane-mode]="workspaceLayout === 'dual'"
-                         [class.input-panel-last]="!isInputPanelFirst"
-                         [style.--input-panel-width.%]="inputPanelWidth"
-                         class="editor-columns">
-                        <app-json-input-editor
-                                *ngIf="workspaceLayout === 'dual' || singlePaneFocus === 'input'"
-                                (cursorPositionChange)="onInputCursorPosition($event)"
-                                (jsonInputChange)="onJsonInputChange($event)"
-                                (toggleMaximize)="toggleInputMaximize()"
-                                [errorLine]="jsonErrorLine"
-                                [errorMessage]="errorMessage"
-                                [isDarkTheme]="isDarkTheme"
-                                [isMaximized]="isInputMaximized"
-                                [isValidJson]="isValidJson">
-                        </app-json-input-editor>
-
-                        <div (mousedown)="startPanelResize($event)"
-                             *ngIf="workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized"
-                             aria-label="Resize input and output panels"
-                             class="panel-divider"
-                             role="separator">
-                        </div>
-
-                        <app-json-output-editor
-                                *ngIf="workspaceLayout === 'dual' || singlePaneFocus === 'output'"
-                                (convertToCsv)="convertToCsv()"
-                                (convertToXml)="convertToXml()"
-                                (copy)="copyToClipboard()"
-                                (download)="downloadOutput()"
-                                (downloadText)="downloadText()"
-                                (generateSchema)="generateJsonSchema()"
-                                (share)="shareJson()"
-                                (toggleJsonCompare)="toggleJsonCompare()"
-                                (toggleJsonPathQuery)="toggleJsonPathQuery()"
-                                (toggleJsonPaths)="toggleJsonPaths()"
-                                (toggleJsonVisualize)="toggleJsonVisualize()"
-                                (toggleMaximize)="toggleOutputMaximize()"
-                                (toggleNode)="toggleNode($event)"
-                                (toggleOutputFormat)="toggleOutputFormat()"
-                                (toggleSchemaEditor)="toggleSchemaEditor()"
-                                (toggleTreeView)="toggleTreeView()"
-                                (toggleViewMode)="handleViewModeChange($event)"
-                                (treeSearch)="searchInTree($event)"
-                                [expandedNodes]="expandedNodes"
-                                [isDarkTheme]="isDarkTheme"
-                                [isMaximized]="isOutputMaximized"
-                                [isValidJson]="isValidJson"
-                                [jsonOutput]="jsonOutput"
-                                [jsonTreeData]="jsonTreeData"
-                                [selectedOutputFormat]="selectedOutputFormat"
-                                [selectedViewMode]="selectedViewMode"
-                                [showTreeView]="showTreeView"
-                                [treeSearchHighlighted]="treeSearchHighlighted"
-                                [treeSearchResults]="treeSearchResults"
-                                [yamlOutput]="yamlOutput">
-                        </app-json-output-editor>
-                    </div>
-
-                    <app-json-status
-                            [cursorColumn]="inputCursorColumn"
-                            [cursorLine]="inputCursorLine"
-                            [displaySize]="getDisplaySize()"
-                            [errorMessage]="errorMessage"
-                            [isValidJson]="isValidJson"
-                            [selectedOutputFormat]="selectedOutputFormat"
-                            [selectedViewMode]="selectedViewMode">
-                    </app-json-status>
-                </section>
-
-                <app-json-paths
-                        (toggleJsonPaths)="toggleJsonPaths()"
-                        [isValidJson]="isValidJson"
-                        [jsonPaths]="jsonPaths"
-                        [showJsonPaths]="showJsonPaths">
-                </app-json-paths>
-
-                <app-json-search-replace
-                        (activeMatchChange)="onSearchReplaceActiveMatch($event)"
-                        (textChanged)="onSearchReplaceTextChanged($event)"
-                        *ngIf="showSearchReplace"
-                        [text]="jsonInput.value || ''">
-                </app-json-search-replace>
-
-                <app-version-history
-                        *ngIf="jsonInput.value"
-                        (compareVersionSelected)="compareWithVersionContent($event)"
-                        (versionSelected)="loadVersionContent($event)">
-                </app-version-history>
-
-                <section class="launch-description" aria-label="About this tool">
-                    <h1>JSON Beauty - Professional JSON Formatter and Validator</h1>
-                    <p>
-                        JSON Beauty is a fast, privacy-first JSON toolkit built for developers, QA engineers, analysts,
-                        and students. No account required - open the app and start working immediately.
-                    </p>
-                    <p>
-                        All processing happens in your browser. Your JSON stays on your device, and saved versions remain
-                        in local browser storage only.
-                    </p>
-                    <p>
-                        Use JSON Beauty to beautify, minify, validate, compare versions, run JSONPath queries, and convert
-                        JSON to YAML, CSV, or XML with confidence.
-                    </p>
-                    <div class="launch-description-grid">
-                        <article class="launch-description-item">
-                            <h2>What it does</h2>
-                            <p>
-                                Clean, inspect, and transform JSON without switching between multiple tools.
-                            </p>
-                        </article>
-                        <article class="launch-description-item">
-                            <h2>Core features</h2>
-                            <ul>
-                                <li>Beautify, minify, lint, and validate JSON instantly</li>
-                                <li>Explore data using tree and table views</li>
-                                <li>Search, replace, and query with JSONPath</li>
-                                <li>Compare versions and inspect structured diffs</li>
-                                <li>Convert JSON to YAML, CSV, and XML formats</li>
-                                <li>Import and export files in one click</li>
-                            </ul>
-                        </article>
-                        <article class="launch-description-item">
-                            <h2>Built for productivity</h2>
-                            <p>
-                                Keyboard shortcuts, quick actions, and local history help you move faster through everyday
-                                API and data workflows.
-                            </p>
-                        </article>
-                        <article class="launch-description-item">
-                            <h2>Why teams use it</h2>
-                            <p>
-                                Ideal for API testing, payload debugging, log cleanup, response reviews, and preparing
-                                client-ready JSON data.
-                            </p>
-                        </article>
-                        <article class="launch-description-item">
-                            <h2>Privacy first</h2>
-                            <ul>
-                                <li>No account needed</li>
-                                <li>No server-side JSON storage</li>
-                                <li>Local browser history only</li>
-                                <li>Secure for internal and personal use</li>
-                            </ul>
-                        </article>
-                        <article class="launch-description-item">
-                            <h2>Professional by design</h2>
-                            <p>
-                                A clean, modern interface that is simple for beginners and powerful for advanced users.
-                                Free, reliable, and ready whenever you need it.
-                            </p>
-                        </article>
-                    </div>
-                </section>
-
+        <section class="editor-control-panel" aria-label="Editor controls">
+          <div class="editor-control-head">
+            <div class="editor-control-title">
+              <h2>JSON Workspace</h2>
+              <p>Professional JSON formatting, validation, comparison, and data conversion in one place.</p>
             </div>
-        </mat-card-content>
-    </mat-card>
+            <div class="editor-status-pills" aria-live="polite">
+              <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
+                <mat-icon aria-hidden="true">{{ isValidJson ? 'verified' : 'error_outline' }}</mat-icon>
+                {{ isValidJson ? 'Valid JSON' : 'Invalid JSON' }}
+              </span>
+              <span class="status-pill">
+                <mat-icon aria-hidden="true">view_sidebar</mat-icon>
+                {{ selectedViewMode | titlecase }} view
+              </span>
+              <span class="status-pill">
+                <mat-icon aria-hidden="true">splitscreen</mat-icon>
+                {{ workspaceLayout | titlecase }} pane
+              </span>
+              <span class="status-pill">
+                <mat-icon aria-hidden="true">output</mat-icon>
+                {{ selectedOutputFormat.toUpperCase() }}
+              </span>
+            </div>
+          </div>
+          <div class="trust-banner" role="note" aria-label="Privacy and trust notice">
+            <mat-icon aria-hidden="true">lock</mat-icon>
+            <span>Your data stays in your browser. Nothing is stored.</span>
+          </div>
+
+          <nav class="editor-feature-nav" aria-label="Editor menus">
+            <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="fileMenu">
+              <mat-icon>folder_open</mat-icon>
+              File
+            </button>
+            <mat-menu #fileMenu="matMenu">
+              <button mat-menu-item type="button" (click)="openImportPicker()">
+                <mat-icon>upload_file</mat-icon>
+                Import JSON
+              </button>
+              <button mat-menu-item type="button" (click)="fetchJsonFromExternalUrl()">
+                <mat-icon>language</mat-icon>
+                Fetch from URL
+              </button>
+              <button mat-menu-item type="button" (click)="downloadJson()" [disabled]="!isValidJson">
+                <mat-icon>download</mat-icon>
+                Export JSON
+              </button>
+              <button mat-menu-item type="button" (click)="loadSampleJson()">
+                <mat-icon>auto_awesome</mat-icon>
+                Load sample
+              </button>
+            </mat-menu>
+
+            <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="formatMenu">
+              <mat-icon>auto_fix_high</mat-icon>
+              Format
+            </button>
+            <mat-menu #formatMenu="matMenu">
+              <button mat-menu-item type="button" (click)="beautifyJson()" [disabled]="!isValidJson">
+                <mat-icon>format_align_left</mat-icon>
+                Beautify
+              </button>
+              <button mat-menu-item type="button" (click)="minifyJson()" [disabled]="!isValidJson">
+                <mat-icon>compress</mat-icon>
+                Minify
+              </button>
+              <button mat-menu-item type="button" (click)="sortKeysJson()" [disabled]="!isValidJson">
+                <mat-icon>sort_by_alpha</mat-icon>
+                Sort keys
+              </button>
+            </mat-menu>
+
+            <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleSearchBar()"
+              matTooltip="Find (Ctrl+F)">
+              <mat-icon>search</mat-icon>
+              Search
+            </button>
+            <button type="button" mat-stroked-button class="feature-nav-btn" (click)="toggleJsonCompare()"
+              [disabled]="!isValidJson" matTooltip="Compare JSON">
+              <mat-icon>compare_arrows</mat-icon>
+              Diff
+            </button>
+            <button type="button" mat-flat-button color="primary" class="feature-nav-btn"
+              (click)="quickDiffWithLatestVersion()"
+              [disabled]="!isValidJson"
+              matTooltip="One-click diff with latest saved version">
+              <mat-icon>bolt</mat-icon>
+              Quick Diff
+            </button>
+
+            <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="toolsMenu">
+              <mat-icon>construction</mat-icon>
+              Tools
+            </button>
+            <mat-menu #toolsMenu="matMenu">
+              <button mat-menu-item type="button" (click)="openToolYaml()" [disabled]="!isValidJson">
+                <mat-icon>description</mat-icon>
+                JSON → YAML
+              </button>
+              <button mat-menu-item type="button" (click)="convertToCsv()" [disabled]="!isValidJson">
+                <mat-icon>table_chart</mat-icon>
+                JSON → CSV
+              </button>
+              <button mat-menu-item type="button" (click)="convertToXml()" [disabled]="!isValidJson">
+                <mat-icon>code</mat-icon>
+                JSON → XML
+              </button>
+            </mat-menu>
+          </nav>
+          <div class="editor-action-toolbar">
+            <button type="button" mat-flat-button color="primary" class="toolbar-primary"
+              (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
+              <mat-icon>auto_fix_high</mat-icon>
+              Beautify
+            </button>
+            <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
+              matTooltip="Minify (Ctrl+M)">
+              <mat-icon>compress</mat-icon>
+              Minify
+            </button>
+            <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
+              matTooltip="Lint &amp; fix (Ctrl+L)">
+              <mat-icon>rule</mat-icon>
+              Validate
+            </button>
+            <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
+              [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'tree'"
+              matTooltip="Tree view">
+              <mat-icon>account_tree</mat-icon>
+              Tree
+            </button>
+            <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
+              [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'table'"
+              matTooltip="Table view">
+              <mat-icon>table_view</mat-icon>
+              Table
+            </button>
+            <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
+              matTooltip="Copy output (Ctrl+C)">
+              <mat-icon>content_copy</mat-icon>
+              Copy
+            </button>
+            <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
+              matTooltip="Create a shareable URL">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+            <button type="button" mat-stroked-button class="toolbar-clear" (click)="clearEditor()"
+              matTooltip="Clear (Ctrl+D)">
+              <mat-icon>delete_sweep</mat-icon>
+              Clear
+            </button>
+            <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
+              [disabled]="workspaceLayout !== 'dual'"
+              matTooltip="Swap input and output panel positions">
+              <mat-icon>swap_horiz</mat-icon>
+              Swap Panes
+            </button>
+            <button type="button" mat-stroked-button (click)="setWorkspaceLayout('single')"
+              [class.active-action]="workspaceLayout === 'single'" matTooltip="Single pane workspace">
+              <mat-icon>crop_portrait</mat-icon>
+              Single Pane
+            </button>
+            <button type="button" mat-stroked-button (click)="setWorkspaceLayout('dual')"
+              [class.active-action]="workspaceLayout === 'dual'" matTooltip="Dual pane workspace">
+              <mat-icon>view_week</mat-icon>
+              Dual Pane
+            </button>
+            @if (workspaceLayout === 'single') {
+              <button type="button" mat-stroked-button
+                (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
+                matTooltip="Focus raw input panel">
+                <mat-icon>edit_note</mat-icon>
+                Input
+              </button>
+            }
+            @if (workspaceLayout === 'single') {
+              <button type="button" mat-stroked-button
+                (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
+                matTooltip="Focus formatted output panel">
+                <mat-icon>preview</mat-icon>
+                Output
+              </button>
+            }
+          </div>
+        </section>
+
+        @if (floatingSearchOpen) {
+          <div class="floating-search-backdrop" (click)="closeFloatingSearch()">
+            <div class="floating-search-panel" (click)="$event.stopPropagation()" role="search"
+              aria-label="Find in editor">
+              <mat-icon class="floating-search-lead-icon" aria-hidden="true">search</mat-icon>
+              <mat-button-toggle-group class="floating-search-targets" [hideSingleSelectionIndicator]="true"
+                [value]="floatingSearchTarget"
+                (change)="onFloatingSearchTargetChange($event)">
+                <mat-button-toggle value="input">Input</mat-button-toggle>
+                <mat-button-toggle value="output" [disabled]="!canSearchOutputAce()">Output
+                </mat-button-toggle>
+                <mat-button-toggle value="tree" [disabled]="selectedViewMode !== 'tree'">Tree
+                </mat-button-toggle>
+              </mat-button-toggle-group>
+              <mat-form-field appearance="outline" class="floating-search-field" subscriptSizing="dynamic">
+                <mat-label>Find</mat-label>
+                <input matInput class="floating-search-query" [(ngModel)]="floatingSearchQuery"
+                  (ngModelChange)="onFloatingSearchQueryChange($event)"
+                  (keyup.enter)="runFloatingSearch()" placeholder="Search…" />
+              </mat-form-field>
+              @if (floatingSearchMatchCount > 0 && floatingSearchTarget !== 'tree') {
+                <span
+                class="floating-search-count">{{ floatingSearchMatchCount }} matches</span>
+              }
+              <button type="button" mat-icon-button matTooltip="Previous" (click)="floatingSearchPrevious()"
+                [disabled]="floatingSearchTarget === 'tree'">
+                <mat-icon>keyboard_arrow_up</mat-icon>
+              </button>
+              <button type="button" mat-icon-button matTooltip="Next" (click)="floatingSearchNext()"
+                [disabled]="floatingSearchTarget === 'tree'">
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </button>
+              <button type="button" mat-icon-button matTooltip="Find" (click)="runFloatingSearch()">
+                <mat-icon>play_arrow</mat-icon>
+              </button>
+              <button type="button" mat-icon-button matTooltip="Close" (click)="closeFloatingSearch()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized) {
+          <div class="split-controls">
+            <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
+              Sync scroll
+            </mat-slide-toggle>
+            <span class="split-hint">Drag the center bar to resize panels</span>
+          </div>
+        }
+
+        <section class="editor-workspace-panel"
+          aria-label="Editor workspace"
+          (dragenter)="onWorkspaceDragEnter($event)"
+          (dragover)="onWorkspaceDragOver($event)"
+          (dragleave)="onWorkspaceDragLeave($event)"
+          (drop)="onWorkspaceDrop($event)">
+          <div [class.input-maximized]="isInputMaximized"
+            [class.output-maximized]="isOutputMaximized"
+            [class.single-pane-mode]="workspaceLayout === 'single'"
+            [class.dual-pane-mode]="workspaceLayout === 'dual'"
+            [class.input-panel-last]="!isInputPanelFirst"
+            [style.--input-panel-width.%]="inputPanelWidth"
+            class="editor-columns">
+            @if (workspaceLayout === 'dual' || singlePaneFocus === 'input') {
+              <app-json-input-editor
+                (cursorPositionChange)="onInputCursorPosition($event)"
+                (jsonInputChange)="onJsonInputChange($event)"
+                (toggleMaximize)="toggleInputMaximize()"
+                [errorLine]="jsonErrorLine"
+                [errorMessage]="errorMessage"
+                [isDarkTheme]="isDarkTheme"
+                [isMaximized]="isInputMaximized"
+                [isValidJson]="isValidJson">
+              </app-json-input-editor>
+            }
+
+            @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized) {
+              <div (mousedown)="startPanelResize($event)"
+                aria-label="Resize input and output panels"
+                class="panel-divider"
+                role="separator">
+              </div>
+            }
+
+            @if (workspaceLayout === 'dual' || singlePaneFocus === 'output') {
+              <app-json-output-editor
+                (convertToCsv)="convertToCsv()"
+                (convertToXml)="convertToXml()"
+                (copy)="copyToClipboard()"
+                (download)="downloadOutput()"
+                (downloadText)="downloadText()"
+                (generateSchema)="generateJsonSchema()"
+                (share)="shareJson()"
+                (toggleJsonCompare)="toggleJsonCompare()"
+                (toggleJsonPathQuery)="toggleJsonPathQuery()"
+                (toggleJsonPaths)="toggleJsonPaths()"
+                (toggleJsonVisualize)="toggleJsonVisualize()"
+                (toggleMaximize)="toggleOutputMaximize()"
+                (toggleNode)="toggleNode($event)"
+                (toggleOutputFormat)="toggleOutputFormat()"
+                (toggleSchemaEditor)="toggleSchemaEditor()"
+                (toggleTreeView)="toggleTreeView()"
+                (toggleViewMode)="handleViewModeChange($event)"
+                (treeSearch)="searchInTree($event)"
+                [expandedNodes]="expandedNodes"
+                [isDarkTheme]="isDarkTheme"
+                [isMaximized]="isOutputMaximized"
+                [isValidJson]="isValidJson"
+                [jsonOutput]="jsonOutput"
+                [jsonTreeData]="jsonTreeData"
+                [selectedOutputFormat]="selectedOutputFormat"
+                [selectedViewMode]="selectedViewMode"
+                [showTreeView]="showTreeView"
+                [treeSearchHighlighted]="treeSearchHighlighted"
+                [treeSearchResults]="treeSearchResults"
+                [yamlOutput]="yamlOutput">
+              </app-json-output-editor>
+            }
+          </div>
+
+          <app-json-status
+            [cursorColumn]="inputCursorColumn"
+            [cursorLine]="inputCursorLine"
+            [displaySize]="getDisplaySize()"
+            [errorMessage]="errorMessage"
+            [isValidJson]="isValidJson"
+            [selectedOutputFormat]="selectedOutputFormat"
+            [selectedViewMode]="selectedViewMode">
+          </app-json-status>
+        </section>
+
+        <app-json-paths
+          (toggleJsonPaths)="toggleJsonPaths()"
+          [isValidJson]="isValidJson"
+          [jsonPaths]="jsonPaths"
+          [showJsonPaths]="showJsonPaths">
+        </app-json-paths>
+
+        @if (showSearchReplace) {
+          <app-json-search-replace
+            (activeMatchChange)="onSearchReplaceActiveMatch($event)"
+            (textChanged)="onSearchReplaceTextChanged($event)"
+            [text]="jsonInput.value || ''">
+          </app-json-search-replace>
+        }
+
+        @if (jsonInput.value) {
+          <app-version-history
+            (compareVersionSelected)="compareWithVersionContent($event)"
+            (versionSelected)="loadVersionContent($event)">
+          </app-version-history>
+        }
+
+        <section class="launch-description" aria-label="About this tool">
+          <h1>JSON Beauty - Professional JSON Formatter and Validator</h1>
+          <p>
+            JSON Beauty is a fast, privacy-first JSON toolkit built for developers, QA engineers, analysts,
+            and students. No account required - open the app and start working immediately.
+          </p>
+          <p>
+            All processing happens in your browser. Your JSON stays on your device, and saved versions remain
+            in local browser storage only.
+          </p>
+          <p>
+            Use JSON Beauty to beautify, minify, validate, compare versions, run JSONPath queries, and convert
+            JSON to YAML, CSV, or XML with confidence.
+          </p>
+          <div class="launch-description-grid">
+            <article class="launch-description-item">
+              <h2>What it does</h2>
+              <p>
+                Clean, inspect, and transform JSON without switching between multiple tools.
+              </p>
+            </article>
+            <article class="launch-description-item">
+              <h2>Core features</h2>
+              <ul>
+                <li>Beautify, minify, lint, and validate JSON instantly</li>
+                <li>Explore data using tree and table views</li>
+                <li>Search, replace, and query with JSONPath</li>
+                <li>Compare versions and inspect structured diffs</li>
+                <li>Convert JSON to YAML, CSV, and XML formats</li>
+                <li>Import and export files in one click</li>
+              </ul>
+            </article>
+            <article class="launch-description-item">
+              <h2>Built for productivity</h2>
+              <p>
+                Keyboard shortcuts, quick actions, and local history help you move faster through everyday
+                API and data workflows.
+              </p>
+            </article>
+            <article class="launch-description-item">
+              <h2>Why teams use it</h2>
+              <p>
+                Ideal for API testing, payload debugging, log cleanup, response reviews, and preparing
+                client-ready JSON data.
+              </p>
+            </article>
+            <article class="launch-description-item">
+              <h2>Privacy first</h2>
+              <ul>
+                <li>No account needed</li>
+                <li>No server-side JSON storage</li>
+                <li>Local browser history only</li>
+                <li>Secure for internal and personal use</li>
+              </ul>
+            </article>
+            <article class="launch-description-item">
+              <h2>Professional by design</h2>
+              <p>
+                A clean, modern interface that is simple for beginners and powerful for advanced users.
+                Free, reliable, and ready whenever you need it.
+              </p>
+            </article>
+          </div>
+        </section>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

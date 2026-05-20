@@ -4,7 +4,8 @@ import {FormControl} from '@angular/forms';
 @Component({
     selector: 'app-json-dialogs',
     templateUrl: './json-dialogs.component.html',
-    styleUrls: ['./json-dialogs.component.scss']
+    styleUrls: ['./json-dialogs.component.scss'],
+    standalone: false
 })
 export class JsonDialogsComponent {
     // Keyboard shortcuts dialog

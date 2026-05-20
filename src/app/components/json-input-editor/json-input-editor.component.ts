@@ -17,7 +17,8 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
 @Component({
     selector: 'app-json-input-editor',
     templateUrl: './json-input-editor.component.html',
-    styleUrls: ['./json-input-editor.component.scss']
+    styleUrls: ['./json-input-editor.component.scss'],
+    standalone: false
 })
 export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
@@ -68,17 +69,17 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
         }
     }
     
-    @HostListener('document:keydown.escape', ['$event'])
-    onEscapeKey(event: KeyboardEvent): void {
+    @HostListener('document:keydown.escape')
+    onEscapeKey(): void {
         if (this.isFullScreen) {
             this.exitFullScreen();
         }
     }
 
-    @HostListener('document:fullscreenchange', ['$event'])
-    @HostListener('document:webkitfullscreenchange', ['$event'])
-    @HostListener('document:mozfullscreenchange', ['$event'])
-    @HostListener('document:MSFullscreenChange', ['$event'])
+    @HostListener('document:fullscreenchange')
+    @HostListener('document:webkitfullscreenchange')
+    @HostListener('document:mozfullscreenchange')
+    @HostListener('document:MSFullscreenChange')
     onFullScreenChange(): void {
         // Handle different browser implementations of fullscreen API
         interface FullScreenDocument extends Document {

@@ -7,7 +7,8 @@ import {JsonVersion, VersionHistoryService} from '../../services/history/version
 @Component({
     selector: 'app-version-history',
     templateUrl: './version-history.component.html',
-    styleUrls: ['./version-history.component.scss']
+    styleUrls: ['./version-history.component.scss'],
+    standalone: false
 })
 export class VersionHistoryComponent implements OnInit, OnDestroy {
     @Output() versionSelected = new EventEmitter<string>();

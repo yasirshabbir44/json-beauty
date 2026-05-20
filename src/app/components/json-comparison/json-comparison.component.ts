@@ -3,9 +3,10 @@ import { FormControl } from '@angular/forms';
 import { JsonService } from '../../services/json.service';
 
 @Component({
-  selector: 'app-json-comparison',
-  templateUrl: './json-comparison.component.html',
-  styleUrls: ['./json-comparison.component.scss']
+    selector: 'app-json-comparison',
+    templateUrl: './json-comparison.component.html',
+    styleUrls: ['./json-comparison.component.scss'],
+    standalone: false
 })
 export class JsonComparisonComponent implements OnInit {
   @Input() jsonData: any;

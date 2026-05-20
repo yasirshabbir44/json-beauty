@@ -1,27 +1,29 @@
 <div #editorSection [class.maximized]="isMaximized" [class.fullscreen-mode]="isFullScreen" class="editor-section">
-    <h3 class="input-toolbar">
-        <div class="input-toolbar-primary">
-            <mat-icon class="input-toolbar-brand-icon">input</mat-icon>
-            <span class="input-toolbar-title">Input JSON</span>
-            <span class="input-toolbar-sub">Editable</span>
-        </div>
-        <div class="input-toolbar-actions">
-            <button (click)="fileInput.click()" mat-icon-button matTooltip="Import JSON">
-                <mat-icon>upload_file</mat-icon>
-            </button>
-            <input #fileInput (change)="importFile($event)" accept=".json,.txt" style="display: none" type="file">
-            <button (click)="toggleInputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn"
-                    mat-icon-button>
-                <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
-            </button>
-        </div>
-    </h3>
-    <div class="editor-wrapper">
-        <div #editor class="ace-editor"></div>
-        <div *ngIf="!isValidJson" class="error-message">
-            <mat-icon color="warn">error_outline</mat-icon>
-            <span>{{ errorMessage }}</span>
-        </div>
-
+  <h3 class="input-toolbar">
+    <div class="input-toolbar-primary">
+      <mat-icon class="input-toolbar-brand-icon">input</mat-icon>
+      <span class="input-toolbar-title">Input JSON</span>
+      <span class="input-toolbar-sub">Editable</span>
     </div>
+    <div class="input-toolbar-actions">
+      <button (click)="fileInput.click()" mat-icon-button matTooltip="Import JSON">
+        <mat-icon>upload_file</mat-icon>
+      </button>
+      <input #fileInput (change)="importFile($event)" accept=".json,.txt" style="display: none" type="file">
+      <button (click)="toggleInputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'" class="maximize-btn"
+        mat-icon-button>
+        <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+    </div>
+  </h3>
+  <div class="editor-wrapper">
+    <div #editor class="ace-editor"></div>
+    @if (!isValidJson) {
+      <div class="error-message">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+  </div>
 </div>

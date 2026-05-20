@@ -6,9 +6,10 @@ import { Component, Input } from '@angular/core';
  * for long-running operations like parsing large JSON documents
  */
 @Component({
-  selector: 'app-loading-indicator',
-  templateUrl: './loading-indicator.component.html',
-  styleUrls: ['./loading-indicator.component.scss']
+    selector: 'app-loading-indicator',
+    templateUrl: './loading-indicator.component.html',
+    styleUrls: ['./loading-indicator.component.scss'],
+    standalone: false
 })
 export class LoadingIndicatorComponent {
   @Input() isLoading: boolean = false;

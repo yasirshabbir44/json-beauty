@@ -3,7 +3,8 @@ import {Component, Input} from '@angular/core';
 @Component({
     selector: 'app-json-status',
     templateUrl: './json-status.component.html',
-    styleUrls: ['./json-status.component.scss']
+    styleUrls: ['./json-status.component.scss'],
+    standalone: false
 })
 export class JsonStatusComponent {
     @Input() isValidJson: boolean = true;
