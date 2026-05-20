@@ -7,9 +7,6 @@ import {Component, Input} from '@angular/core';
     standalone: false
 })
 export class FooterComponent {
-    @Input() copyright: string = '';
-    currentYear: number = new Date().getFullYear();
-
-    constructor() {
-    }
+    @Input() tagline = '';
+    currentYear = new Date().getFullYear();
 }

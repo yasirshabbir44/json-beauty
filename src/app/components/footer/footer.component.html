@@ -1,32 +1,79 @@
-<footer class="footer-container">
-    <div class="footer-content">
-        <div class="footer-main">
-            <div class="footer-logo">
-                <div class="footer-icon-shell" aria-hidden="true">
-                    <mat-icon class="footer-icon">data_object</mat-icon>
+<footer class="footer" role="contentinfo">
+    <div class="footer__inner">
+        <div class="footer__grid">
+            <div class="footer__brand">
+                <div class="footer__logo">
+                    <div class="footer__logo-icon" aria-hidden="true">
+                        <mat-icon>data_object</mat-icon>
+                    </div>
+                    <span class="footer__logo-text">JSON Beauty</span>
                 </div>
-                <span class="footer-title">JSON Beauty</span>
+                <p class="footer__description">
+                    A fast, private JSON formatter, validator, and beautifier—built for developers.
+                </p>
+                <p class="footer__privacy" role="note">
+                    <mat-icon aria-hidden="true">lock</mat-icon>
+                    <span>100% client-side. Your data never leaves your device.</span>
+                </p>
             </div>
-            <p class="footer-trust" role="note">
-                <mat-icon class="footer-trust-icon" aria-hidden="true">lock</mat-icon>
-                <span>
-                    <strong>100% Secure:</strong>
-                    All processing happens entirely in your browser. Your data never leaves your machine.
-                </span>
-            </p>
-            <p class="footer-copyright">
-                &copy; {{ currentYear }} {{ copyright }}
-            </p>
+
+            <nav class="footer__nav" aria-label="Support">
+                <h2 class="footer__heading">Support</h2>
+                <ul class="footer__links">
+                    <li>
+                        <a
+                            class="footer__link"
+                            href="https://github.com/yasirshabbir44/json-beauty/issues"
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            Report an issue
+                        </a>
+                    </li>
+                    <li>
+                        <a class="footer__link" href="mailto:yasirshabbir44@gmail.com">Contact</a>
+                    </li>
+                </ul>
+            </nav>
+
+            <nav class="footer__nav" aria-label="Legal">
+                <h2 class="footer__heading">Legal</h2>
+                <ul class="footer__links">
+                    <li>
+                        <a
+                            class="footer__link"
+                            href="https://github.com/yasirshabbir44/json-beauty/blob/main/LICENSE"
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            License
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <nav class="footer__nav" aria-label="Connect">
+                <h2 class="footer__heading">Connect</h2>
+                <ul class="footer__links">
+                    <li>
+                        <a
+                            class="footer__link footer__link--external"
+                            href="https://github.com/yasirshabbir44/json-beauty"
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            <mat-icon aria-hidden="true">code</mat-icon>
+                            GitHub
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
 
-        <div class="footer-links">
-            <a class="footer-link" href="https://github.com/yasirshabbir44/json-beauty/blob/main/LICENSE" rel="noopener noreferrer" target="_blank">License</a>
-            <a class="footer-link" href="https://github.com/yasirshabbir44/json-beauty/issues" rel="noopener noreferrer" target="_blank">Report Issue</a>
-            <a class="footer-link" href="mailto:yasirshabbir44@gmail.com">Contact</a>
-            <a class="footer-link" href="https://github.com/yasirshabbir44/json-beauty" rel="noopener noreferrer" target="_blank">
-                <mat-icon class="link-icon">code</mat-icon>
-                GitHub
-            </a>
+        <div class="footer__bottom">
+            <p class="footer__copyright">
+                &copy; {{ currentYear }} JSON Beauty. All rights reserved.
+            </p>
+            @if (tagline) {
+                <p class="footer__tagline">{{ tagline }}</p>
+            }
         </div>
     </div>
 </footer>
