@@ -46,8 +46,8 @@
               }
             ],
             "styles": [
-              "src/theme.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "scripts": []
           },
@@ -126,8 +126,8 @@
               }
             ],
             "styles": [
-              "src/theme.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/theme.scss"
             ],
             "scripts": []
           }

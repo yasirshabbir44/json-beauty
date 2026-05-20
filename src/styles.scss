@@ -1,13 +1,56 @@
 @use 'app/styles/design-tokens';
 @use 'app/styles/motion';
+@use 'app/styles/material-overrides';
+@use 'app/styles/cdk-overrides';
 
-/* Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global Styles */
-html, body {
+@layer components {
+  .jb-surface {
+    @apply bg-jb-surface border border-jb-border rounded-jb shadow-jb-sm;
+  }
+
+  .jb-toolbar-strip {
+    @apply flex items-center gap-2 px-3 py-2 bg-jb-toolbar border border-jb-border rounded-jb-sm;
+  }
+
+  .jb-btn-ghost {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold
+      text-jb-secondary rounded-jb-sm transition-colors duration-jb-fast ease-jb
+      hover:text-jb-accent hover:bg-jb-muted;
+  }
+
+  .jb-input-native {
+    @apply w-full h-9 px-3 text-sm font-sans text-jb-text bg-jb-muted border border-jb-border-strong
+      rounded-jb-sm outline-none transition-[border-color,box-shadow] duration-jb;
+
+    &::placeholder {
+      @apply text-jb-muted;
+    }
+
+    &:focus {
+      @apply border-jb-accent bg-jb-surface;
+      box-shadow: var(--jb-focus-ring);
+    }
+  }
+
+  .jb-badge {
+    @apply inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-jb-pill
+      bg-jb-muted text-jb-secondary;
+  }
+
+  .jb-badge--accent {
+    @apply text-jb-accent;
+    background: var(--jb-accent-subtle);
+    border: 1px solid var(--jb-accent-border);
+  }
+}
+
+/* Global */
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: var(--jb-font-sans);
@@ -28,8 +71,12 @@ body.resizing-panels {
   user-select: none;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin-top: 0;
   font-weight: 600;
   line-height: 1.25;
@@ -37,7 +84,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: 2.25rem; margin-bottom: 1.5rem; font-weight: 600; }
+h1 { font-size: 2.25rem; margin-bottom: 1.5rem; }
 h2 { font-size: 1.875rem; margin-bottom: 1.25rem; }
 h3 { font-size: 1.5rem; margin-bottom: 1rem; }
 h4 { font-size: 1.25rem; margin-bottom: 0.75rem; }
@@ -62,7 +109,6 @@ a {
   }
 }
 
-/* Responsive layout */
 .container {
   width: 100%;
   max-width: 1280px;
@@ -71,114 +117,33 @@ a {
   box-sizing: border-box;
 }
 
-/* Elevation - Microsoft Fluent UI inspired shadows */
-.elevation-1 {
-  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
-}
-
-.elevation-2 {
-  box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
-}
-
-.elevation-3 {
-  box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
-}
-
-.elevation-4 {
-  box-shadow: 0 12.8px 28.8px 0 rgba(0, 0, 0, 0.132), 0 2.4px 7.2px 0 rgba(0, 0, 0, 0.108);
-}
+.elevation-1 { box-shadow: var(--jb-shadow-sm); }
+.elevation-2 { box-shadow: var(--jb-shadow-md); }
+.elevation-3 { box-shadow: var(--jb-shadow-lg); }
+.elevation-4 { box-shadow: var(--jb-shadow-xl); }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 0 16px;
-  }
-
-  body {
-    font-size: 15px;
-  }
-
+  .container { padding: 0 16px; }
+  body { font-size: 15px; }
   h1 { font-size: 2rem; }
   h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.5rem; }
-  h4 { font-size: 1.25rem; }
-  h5 { font-size: 1.1rem; }
-  h6 { font-size: 1rem; }
 }
 
 @media (max-width: 576px) {
-  .container {
-    padding: 0 12px;
-  }
-
-  body {
-    font-size: 14px;
-  }
+  .container { padding: 0 12px; }
+  body { font-size: 14px; }
 }
 
-/* Utility classes */
-.full-width {
-  width: 100%;
+:focus-visible {
+  outline: 2px solid var(--jb-accent);
+  outline-offset: 2px;
 }
 
-.text-center {
-  text-align: center;
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
 }
 
-.text-right {
-  text-align: right;
-}
-
-.text-left {
-  text-align: left;
-}
-
-.d-flex {
-  display: flex;
-}
-
-.flex-column {
-  flex-direction: column;
-}
-
-.align-items-center {
-  align-items: center;
-}
-
-.justify-content-center {
-  justify-content: center;
-}
-
-.justify-content-between {
-  justify-content: space-between;
-}
-
-.mt-1 { margin-top: 8px; }
-.mt-2 { margin-top: 16px; }
-.mt-3 { margin-top: 24px; }
-.mt-4 { margin-top: 32px; }
-.mt-5 { margin-top: 48px; }
-
-.mb-1 { margin-bottom: 8px; }
-.mb-2 { margin-bottom: 16px; }
-.mb-3 { margin-bottom: 24px; }
-.mb-4 { margin-bottom: 32px; }
-.mb-5 { margin-bottom: 48px; }
-
-.mx-1 { margin-left: 8px; margin-right: 8px; }
-.mx-2 { margin-left: 16px; margin-right: 16px; }
-.mx-3 { margin-left: 24px; margin-right: 24px; }
-
-.my-1 { margin-top: 8px; margin-bottom: 8px; }
-.my-2 { margin-top: 16px; margin-bottom: 16px; }
-.my-3 { margin-top: 24px; margin-bottom: 24px; }
-
-.p-1 { padding: 8px; }
-.p-2 { padding: 16px; }
-.p-3 { padding: 24px; }
-.p-4 { padding: 32px; }
-.p-5 { padding: 48px; }
-
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -193,88 +158,31 @@ a {
   background: var(--jb-border-strong);
   border-radius: 5px;
   transition: background var(--jb-transition);
-}
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--jb-text-muted);
-}
-
-/* Focus visibility for keyboard users */
-:focus-visible {
-  outline: 2px solid var(--jb-accent);
-  outline-offset: 2px;
-}
-
-button:focus:not(:focus-visible),
-a:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Material menus — readable, compact */
-.mat-mdc-menu-panel {
-  border-radius: var(--jb-radius-md) !important;
-  border: 1px solid var(--jb-border);
-  box-shadow: var(--jb-shadow-lg) !important;
-}
-
-.mat-mdc-menu-item {
-  min-height: 40px;
-  font-size: 0.8125rem;
-}
-
-.mat-mdc-menu-item .mat-icon {
-  color: var(--jb-accent);
-  margin-right: 12px;
-}
-
-/* Material buttons — consistent dev-tool sizing */
-.mat-mdc-button,
-.mat-mdc-unelevated-button,
-.mat-mdc-outlined-button,
-.mat-mdc-icon-button {
-  letter-spacing: 0.01em;
-}
-
-.mat-mdc-outlined-button,
-.mat-mdc-unelevated-button {
-  --mdc-outlined-button-container-height: 34px;
-  font-weight: 600;
-  font-size: 0.8125rem;
-}
-
-/* Segmented controls — compact, professional */
-.mat-button-toggle-group {
-  border: 1px solid var(--jb-border) !important;
-  border-radius: var(--jb-radius-sm) !important;
-  overflow: hidden;
-  box-shadow: var(--jb-shadow-sm);
-}
-
-.mat-button-toggle {
-  font-size: 0.75rem !important;
-  font-weight: 600 !important;
-  color: var(--jb-text-secondary) !important;
-  background: var(--jb-bg-muted) !important;
-  border: none !important;
-
-  &.mat-button-toggle-checked {
-    background: var(--jb-accent-subtle) !important;
-    color: var(--jb-accent) !important;
+  &:hover {
+    background: var(--jb-text-muted);
   }
 }
 
-.mat-button-toggle .mat-button-toggle-label-content {
-  line-height: 30px;
-  padding: 0 10px;
+/* Snackbar motion */
+.mat-mdc-snack-bar-container.success-snackbar,
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
+  animation: jbSnackbarIn 380ms var(--jb-ease-spring) both;
 }
 
-.mat-mdc-slide-toggle .mdc-label {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--jb-text-secondary);
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface {
+  animation: jbSnackbarIn 320ms var(--jb-ease-standard) both;
 }
 
-/* Animations */
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  @extend .jb-btn-press;
+}
+
 .fade-in {
   animation: fadeIn var(--jb-duration-slow) var(--jb-ease-standard);
 }
@@ -291,31 +199,4 @@ a:focus:not(:focus-visible) {
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
-}
-
-/* Snackbar micro-interactions (copy / validation success) */
-.mat-mdc-snack-bar-container.success-snackbar,
-.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
-  animation: jbSnackbarIn 380ms var(--jb-ease-spring) both;
-}
-
-.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
-  background: var(--jb-success) !important;
-  color: #fff !important;
-  border-radius: var(--jb-radius-md) !important;
-  box-shadow: var(--jb-shadow-lg) !important;
-}
-
-.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface {
-  animation: jbSnackbarIn 320ms var(--jb-ease-standard) both;
-}
-
-/* Global button press feedback */
-.mat-mdc-button,
-.mat-mdc-unelevated-button,
-.mat-mdc-outlined-button,
-.mat-mdc-icon-button,
-.mat-mdc-fab,
-.mat-mdc-mini-fab {
-  @extend .jb-btn-press;
 }
