@@ -45,8 +45,9 @@
         <section class="editor-control-panel" aria-label="Editor controls">
           <div class="editor-control-head">
             <div class="editor-control-title">
-              <h2>Workspace</h2>
-              <p>Paste or drop JSON below — beautify, validate, and explore. Everything runs in your browser.</p>
+              <span class="workspace-label">Workspace</span>
+              <h2>JSON editor</h2>
+              <p>Paste or drop JSON — beautify, validate, and explore. All processing stays in your browser.</p>
             </div>
             <div class="editor-status-pills" aria-live="polite">
               <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
@@ -121,7 +122,7 @@
               <mat-icon>compare_arrows</mat-icon>
               Diff
             </button>
-            <button type="button" mat-flat-button color="primary" class="feature-nav-btn"
+            <button type="button" mat-flat-button color="primary" class="feature-nav-btn quick-diff-btn"
               (click)="quickDiffWithLatestVersion()"
               [disabled]="!isValidJson"
               matTooltip="One-click diff with latest saved version">

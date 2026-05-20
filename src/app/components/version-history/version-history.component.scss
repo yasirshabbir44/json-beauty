@@ -9,19 +9,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--jb-accent);
+  background: linear-gradient(145deg, var(--jb-accent), var(--jb-accent-hover));
   color: white;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
-  box-shadow: var(--jb-shadow-md);
-  transition: background-color var(--jb-transition), box-shadow var(--jb-transition);
+  box-shadow: var(--jb-shadow-lg);
+  transition: transform var(--jb-transition), box-shadow var(--jb-transition);
 
   &:hover {
-    background-color: var(--jb-accent-hover);
-    box-shadow: var(--jb-shadow-lg);
+    transform: translateY(-2px);
+    box-shadow: var(--jb-shadow-xl);
+  }
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 }
 

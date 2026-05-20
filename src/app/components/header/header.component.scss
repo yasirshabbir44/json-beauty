@@ -1,14 +1,16 @@
 .header-container {
   width: 100%;
-  background: linear-gradient(105deg, var(--jb-header-from) 0%, var(--jb-header-mid) 48%, var(--jb-header-to) 100%);
+  background:
+    linear-gradient(105deg, var(--jb-header-from) 0%, var(--jb-header-mid) 42%, var(--jb-header-to) 100%);
   color: #e2e8f0;
   padding: 0;
-  box-shadow: var(--jb-shadow-md);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, var(--jb-shadow-md);
   position: sticky;
   top: 0;
   z-index: 1000;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   min-height: var(--jb-header-h);
+  backdrop-filter: blur(12px);
 }
 
 .header-content {
@@ -35,13 +37,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: var(--jb-radius-md);
-  width: 36px;
-  height: 36px;
-  margin-right: 0.65rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--jb-radius-sm);
+  width: 38px;
+  height: 38px;
+  margin-right: 0.75rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .logo-icon {
@@ -58,11 +61,11 @@
 }
 
 .logo-text {
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: #f8fafc;
   white-space: nowrap;
   overflow: hidden;
