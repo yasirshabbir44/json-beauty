@@ -3,158 +3,35 @@
   flex-direction: column;
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: #f8f9fa;
-  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #3c4043; /* Google's text color for better readability */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--jb-bg-app);
+  font-family: var(--jb-font-sans);
+  color: var(--jb-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .main-content {
   flex: 1;
-  padding: 0.75rem 1rem; /* Adjusted vertical padding to work better with compact header/footer */
+  padding: 0.75rem 1.25rem 1rem;
   width: 100%;
-  max-width: 1600px; /* Increased max-width for better utilization on large screens */
+  max-width: 1680px;
   margin: 0 auto;
   box-sizing: border-box;
-  min-height: 85vh; /* Further increased minimum height for content area */
-  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* App header styles moved to header component */
-
-/* Toolbar container styles moved to header component */
-
-/* Logo styles moved to header component */
-
-/* Header action styles moved to header component */
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-/* Duplicate main-content styles removed */
-
-.app-footer {
-  padding: 0;
-  background-color: #f8f9fa; // Google's light gray background
-  border-top: 1px solid #dadce0; // Google's border color
-
-  .footer-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    @media (min-width: 768px) {
-      flex-direction: row;
-      justify-content: space-between;
-    }
-  }
-
-  .copyright {
-    margin: 0;
-    color: #5f6368; // Google gray text
-    font-size: 12px;
-    text-align: center;
-
-    @media (min-width: 768px) {
-      text-align: left;
-    }
-  }
-
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 12px;
-
-    @media (min-width: 768px) {
-      margin-top: 0;
-    }
-  }
-
-  .footer-link {
-    color: #5f6368; // Google gray text
-    text-decoration: none;
-    margin: 0 16px 0 0; // Google-style spacing
-    font-size: 12px;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #4285F4; // Google blue
-      text-decoration: none;
-    }
-  }
-}
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .main-content {
-    padding: 0.5rem 0.75rem; /* Reduced padding for better space utilization */
-    min-height: 88vh; /* Increased min-height for better screen utilization */
-  }
-}
-
-@media (max-width: 599px) {
-  .main-content {
-    padding: 0.4rem 0.5rem; /* Reduced padding for better space utilization */
-    min-height: 90vh; /* Increased min-height for better screen utilization */
+    padding: 0.5rem 0.75rem 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
   .main-content {
-    padding: 0.25rem; /* Minimal padding on smallest screens */
-    min-height: 92vh; /* Maximized content height on smallest screens */
+    padding: 0.4rem 0.5rem 0.6rem;
   }
 }
 
-/* Dark theme styles */
 :host-context(.dark-theme) {
-
-  .main-content {
-    background-color: #202124; // Google's dark theme background
-  }
-
   .app-container {
-    background-color: #202124; // Google's dark theme background
-  }
-}
-
-.active-theme {
-  background-color: rgba(0, 0, 0, 0.04);
-  font-weight: 500;
-  
-  mat-icon {
-    color: #4285F4; // Google blue for active theme indicator
-  }
-}
-
-
-:host-context(.dark-theme) {
-  .active-theme {
-    background-color: rgba(255, 255, 255, 0.1);
-    
-    mat-icon {
-      color: #4285F4; // Google blue for active theme indicator
-    }
-  }
-}
-:host-context(.solarized-theme) {
-  .active-theme {
-    background-color: rgba(38, 139, 210, 0.1); // Light Solarized blue
-    
-    mat-icon {
-      color: #268bd2; // Solarized blue
-    }
-  }
-}
-
-:host-context(.monokai-theme) {
-  .active-theme {
-    background-color: rgba(102, 217, 239, 0.1); // Light Monokai blue
-    
-    mat-icon {
-      color: #66d9ef; // Monokai blue
-    }
+    background-color: var(--jb-bg-app);
   }
 }

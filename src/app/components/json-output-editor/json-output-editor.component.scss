@@ -19,25 +19,33 @@
   position: relative;
 
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    border-color: var(--jb-border-strong);
+    box-shadow: var(--jb-shadow-md);
   }
 
   h3.output-toolbar {
     margin: 0;
-    padding: 4px 8px;
+    padding: 6px 10px;
     min-height: var(--output-toolbar-h);
-    background: linear-gradient(to right, #f8f9fa, #ffffff);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-wrap: nowrap;
+    background: var(--jb-bg-toolbar);
+    border-bottom: 1px solid var(--jb-border);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'brand toggles actions';
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
+    column-gap: 10px;
+    row-gap: 8px;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #174ea6;
+    color: var(--jb-text);
+    font-family: var(--jb-font-sans);
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        'brand actions'
+        'toggles toggles';
+    }
   }
 
   // Fullscreen mode
@@ -69,53 +77,28 @@
 
 }
 
-/* Compact output toolbar layout */
-.output-toolbar-primary {
+.output-toolbar-brand {
+  grid-area: brand;
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  -webkit-overflow-scrolling: touch;
-
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(26, 115, 232, 0.35);
-    border-radius: 2px;
-  }
-
-  @media (max-width: 560px) {
-    flex-wrap: wrap;
-    align-items: center;
-    row-gap: 6px;
-  }
+  flex-shrink: 0;
 }
 
-/* JSON/YAML + Text/Tree/Table: aligned row, responsive widths */
 .output-toolbar-toggles {
+  grid-area: toggles;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  flex: 1 1 auto;
+  justify-content: flex-start;
   min-width: 0;
-
-  @media (max-width: 560px) {
-    flex: 1 1 100%;
-    min-width: 100%;
-    gap: 6px;
-  }
 }
 
 .output-toolbar-brand-icon {
   flex-shrink: 0;
   margin: 0 !important;
-  color: #1a73e8 !important;
+  color: var(--jb-accent) !important;
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
@@ -125,19 +108,9 @@
   flex-shrink: 0;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: #174ea6;
-}
-
-.output-toolbar-sub {
-  flex-shrink: 0;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #5f6368;
-  margin-left: 4px;
-
-  @media (max-width: 520px) {
-    display: none;
-  }
+  color: var(--jb-text);
+  font-family: var(--jb-font-mono);
+  font-size: 0.8125rem;
 }
 
 .view-toggle-icon {
@@ -153,11 +126,19 @@
   font-weight: 600;
 }
 
+@media (max-width: 900px) {
+  .view-toggle-label {
+    display: none;
+  }
+}
+
 .output-toolbar-actions {
+  grid-area: actions;
   display: flex;
   align-items: center;
   flex-shrink: 0;
   gap: 0;
+  justify-self: end;
 
   .maximize-btn {
     color: #5f6368;
@@ -520,40 +501,33 @@
 }
 
 .view-mode-selector {
-  flex: 1 1 10rem;
-  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
 }
 
 :host ::ng-deep {
-  .output-toolbar-primary .mat-mdc-button-toggle-group {
-    border-radius: 4px;
+  .output-toolbar-toggles .mat-mdc-button-toggle-group {
+    border-radius: var(--jb-radius-sm, 4px);
     box-shadow: none;
-    border: 1px solid #dadce0;
-    display: flex;
+    border: 1px solid var(--jb-border-strong, #dadce0);
+    display: inline-flex;
     align-items: stretch;
     height: 30px;
+    flex-shrink: 0;
   }
 
-  .output-toolbar-primary .mat-mdc-button-toggle {
+  .output-toolbar-toggles .mat-mdc-button-toggle {
     flex: 0 0 auto;
-    min-width: 2.25rem;
     height: 30px;
     --mat-standard-button-toggle-height: 30px;
   }
 
-  .output-toolbar-primary .view-mode-selector .mat-mdc-button-toggle-group {
-    width: 100%;
-    min-width: 0;
+  .output-toolbar-toggles .view-mode-selector .mat-mdc-button-toggle {
+    min-width: 2.5rem;
   }
 
-  .output-toolbar-primary .view-mode-selector .mat-mdc-button-toggle {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-
-  .output-toolbar-primary .mat-mdc-button-toggle .mdc-button {
+  .output-toolbar-toggles .mat-mdc-button-toggle .mdc-button {
     min-height: 30px;
     height: 100%;
     padding: 0 8px;
@@ -563,21 +537,13 @@
     justify-content: center;
   }
 
-  .output-toolbar-primary .view-mode-selector .mat-mdc-button-toggle .mdc-button {
-    width: 100%;
-    padding: 0 4px;
+  .output-toolbar-toggles .view-mode-selector .mat-mdc-button-toggle .mdc-button {
+    padding: 0 6px;
   }
 
-  @media (max-width: 400px) {
-    .output-toolbar-primary .mat-mdc-button-toggle .mdc-button {
-      padding: 0 4px;
-      font-size: 11px;
-    }
-  }
-
-  .output-toolbar-primary .mat-mdc-button-toggle.mat-mdc-button-toggle-checked .mdc-button {
-    background-color: #f1f3f4;
-    color: #202124;
+  .output-toolbar-toggles .mat-mdc-button-toggle.mat-mdc-button-toggle-checked .mdc-button {
+    background-color: var(--jb-accent-subtle, #f1f3f4);
+    color: var(--jb-accent, #202124);
   }
 
   .output-toolbar-actions .mat-mdc-icon-button.mat-mdc-button-base {
@@ -639,11 +605,11 @@
     color: #e0e0e0;
   }
 
-  .output-toolbar-primary .mat-mdc-button-toggle-group {
+  .output-toolbar-toggles .mat-mdc-button-toggle-group {
     border-color: #5f6368;
   }
 
-  .output-toolbar-primary .mat-mdc-button-toggle.mat-mdc-button-toggle-checked .mdc-button {
+  .output-toolbar-toggles .mat-mdc-button-toggle.mat-mdc-button-toggle-checked .mdc-button {
     background-color: #3d3d3d;
     color: #e8eaed;
   }

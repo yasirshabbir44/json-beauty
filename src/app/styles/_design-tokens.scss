@@ -1,0 +1,77 @@
+// JSON Beauty — design tokens (light + dark)
+:root {
+  --jb-font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --jb-font-mono: 'JetBrains Mono', 'Roboto Mono', ui-monospace, monospace;
+
+  --jb-bg-app: #eef1f6;
+  --jb-bg-surface: #ffffff;
+  --jb-bg-muted: #f8fafc;
+  --jb-bg-toolbar: #f1f5f9;
+  --jb-bg-code: #fafbfc;
+
+  --jb-border: #e2e8f0;
+  --jb-border-strong: #cbd5e1;
+
+  --jb-text: #0f172a;
+  --jb-text-secondary: #475569;
+  --jb-text-muted: #94a3b8;
+
+  --jb-accent: #2563eb;
+  --jb-accent-hover: #1d4ed8;
+  --jb-accent-subtle: rgba(37, 99, 235, 0.1);
+  --jb-accent-border: rgba(37, 99, 235, 0.28);
+
+  --jb-success: #059669;
+  --jb-success-bg: rgba(5, 150, 105, 0.1);
+  --jb-error: #dc2626;
+  --jb-error-bg: rgba(220, 38, 38, 0.1);
+
+  --jb-header-from: #0f172a;
+  --jb-header-mid: #1e3a8a;
+  --jb-header-to: #2563eb;
+
+  --jb-radius-sm: 6px;
+  --jb-radius-md: 10px;
+  --jb-radius-lg: 12px;
+  --jb-radius-pill: 999px;
+
+  --jb-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --jb-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.08);
+  --jb-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+  --jb-header-h: 52px;
+  --jb-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-theme {
+  --jb-bg-app: #0b0f14;
+  --jb-bg-surface: #141a22;
+  --jb-bg-muted: #1a222d;
+  --jb-bg-toolbar: #1e2733;
+  --jb-bg-code: #121820;
+
+  --jb-border: #2a3544;
+  --jb-border-strong: #3d4d61;
+
+  --jb-text: #e8edf4;
+  --jb-text-secondary: #94a3b8;
+  --jb-text-muted: #64748b;
+
+  --jb-accent: #3b82f6;
+  --jb-accent-hover: #60a5fa;
+  --jb-accent-subtle: rgba(59, 130, 246, 0.15);
+  --jb-accent-border: rgba(96, 165, 250, 0.35);
+
+  --jb-success: #34d399;
+  --jb-success-bg: rgba(52, 211, 153, 0.12);
+  --jb-error: #f87171;
+  --jb-error-bg: rgba(248, 113, 113, 0.12);
+
+  --jb-header-from: #020617;
+  --jb-header-mid: #172554;
+  --jb-header-to: #1e40af;
+
+  --jb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --jb-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --jb-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+}

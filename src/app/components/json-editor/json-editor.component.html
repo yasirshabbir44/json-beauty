@@ -40,34 +40,30 @@
         <section class="editor-control-panel" aria-label="Editor controls">
           <div class="editor-control-head">
             <div class="editor-control-title">
-              <h2>JSON Workspace</h2>
-              <p>Professional JSON formatting, validation, comparison, and data conversion in one place.</p>
+              <h2>Workspace</h2>
+              <p>Format, validate, diff, and convert JSON — processed locally in your browser.</p>
             </div>
             <div class="editor-status-pills" aria-live="polite">
               <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
-                <mat-icon aria-hidden="true">{{ isValidJson ? 'verified' : 'error_outline' }}</mat-icon>
-                {{ isValidJson ? 'Valid JSON' : 'Invalid JSON' }}
+                <mat-icon aria-hidden="true">{{ isValidJson ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ isValidJson ? 'Valid' : 'Invalid' }}
               </span>
-              <span class="status-pill">
-                <mat-icon aria-hidden="true">view_sidebar</mat-icon>
-                {{ selectedViewMode | titlecase }} view
+              <span class="status-pill status-pill-muted">
+                <mat-icon aria-hidden="true">account_tree</mat-icon>
+                {{ selectedViewMode | titlecase }}
               </span>
-              <span class="status-pill">
-                <mat-icon aria-hidden="true">splitscreen</mat-icon>
-                {{ workspaceLayout | titlecase }} pane
+              <span class="status-pill status-pill-muted">
+                <mat-icon aria-hidden="true">view_column</mat-icon>
+                {{ workspaceLayout === 'dual' ? 'Split' : 'Single' }}
               </span>
-              <span class="status-pill">
-                <mat-icon aria-hidden="true">output</mat-icon>
-                {{ selectedOutputFormat.toUpperCase() }}
+              <span class="status-pill status-pill-muted">
+                <mat-icon aria-hidden="true">data_object</mat-icon>
+                {{ selectedOutputFormat | uppercase }}
               </span>
             </div>
           </div>
-          <div class="trust-banner" role="note" aria-label="Privacy and trust notice">
-            <mat-icon aria-hidden="true">lock</mat-icon>
-            <span>Your data stays in your browser. Nothing is stored.</span>
-          </div>
 
-          <nav class="editor-feature-nav" aria-label="Editor menus">
+          <nav class="editor-feature-nav editor-menubar" aria-label="Editor menus">
             <button type="button" mat-stroked-button class="feature-nav-btn" [matMenuTriggerFor]="fileMenu">
               <mat-icon>folder_open</mat-icon>
               File
@@ -148,80 +144,96 @@
             </mat-menu>
           </nav>
           <div class="editor-action-toolbar">
-            <button type="button" mat-flat-button color="primary" class="toolbar-primary"
-              (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
-              <mat-icon>auto_fix_high</mat-icon>
-              Beautify
-            </button>
-            <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
-              matTooltip="Minify (Ctrl+M)">
-              <mat-icon>compress</mat-icon>
-              Minify
-            </button>
-            <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
-              matTooltip="Lint &amp; fix (Ctrl+L)">
-              <mat-icon>rule</mat-icon>
-              Validate
-            </button>
-            <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
-              [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'tree'"
-              matTooltip="Tree view">
-              <mat-icon>account_tree</mat-icon>
-              Tree
-            </button>
-            <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
-              [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'table'"
-              matTooltip="Table view">
-              <mat-icon>table_view</mat-icon>
-              Table
-            </button>
-            <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
-              matTooltip="Copy output (Ctrl+C)">
-              <mat-icon>content_copy</mat-icon>
-              Copy
-            </button>
-            <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
-              matTooltip="Create a shareable URL">
-              <mat-icon>share</mat-icon>
-              Share
-            </button>
+            <div class="toolbar-group toolbar-group-primary">
+              <span class="toolbar-group-label">Actions</span>
+              <button type="button" mat-flat-button color="primary" class="toolbar-primary"
+                (click)="beautifyJson()" [disabled]="!isValidJson" matTooltip="Beautify (Ctrl+B)">
+                <mat-icon>auto_fix_high</mat-icon>
+                Beautify
+              </button>
+              <button type="button" mat-stroked-button (click)="minifyJson()" [disabled]="!isValidJson"
+                matTooltip="Minify (Ctrl+M)">
+                <mat-icon>compress</mat-icon>
+                Minify
+              </button>
+              <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
+                matTooltip="Validate (Ctrl+L)">
+                <mat-icon>rule</mat-icon>
+                Validate
+              </button>
+            </div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <div class="toolbar-group">
+              <span class="toolbar-group-label">View</span>
+              <button type="button" mat-stroked-button (click)="handleViewModeChange('tree')"
+                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'tree'"
+                matTooltip="Tree view">
+                <mat-icon>account_tree</mat-icon>
+                Tree
+              </button>
+              <button type="button" mat-stroked-button (click)="handleViewModeChange('table')"
+                [disabled]="!isValidJson" [class.active-action]="selectedViewMode === 'table'"
+                matTooltip="Table view">
+                <mat-icon>table_view</mat-icon>
+                Table
+              </button>
+            </div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <div class="toolbar-group">
+              <span class="toolbar-group-label">Export</span>
+              <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
+                matTooltip="Copy (Ctrl+C)">
+                <mat-icon>content_copy</mat-icon>
+                Copy
+              </button>
+              <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
+                matTooltip="Share URL">
+                <mat-icon>share</mat-icon>
+                Share
+              </button>
+            </div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <div class="toolbar-group toolbar-group-layout">
+              <span class="toolbar-group-label">Layout</span>
+              <button type="button" mat-stroked-button (click)="setWorkspaceLayout('single')"
+                [class.active-action]="workspaceLayout === 'single'" matTooltip="Single pane">
+                <mat-icon>crop_portrait</mat-icon>
+                Single
+              </button>
+              <button type="button" mat-stroked-button (click)="setWorkspaceLayout('dual')"
+                [class.active-action]="workspaceLayout === 'dual'" matTooltip="Split panes">
+                <mat-icon>view_week</mat-icon>
+                Split
+              </button>
+              @if (workspaceLayout === 'single') {
+                <button type="button" mat-stroked-button
+                  (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
+                  matTooltip="Show input">
+                  <mat-icon>edit_note</mat-icon>
+                  In
+                </button>
+              }
+              @if (workspaceLayout === 'single') {
+                <button type="button" mat-stroked-button
+                  (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
+                  matTooltip="Show output">
+                  <mat-icon>preview</mat-icon>
+                  Out
+                </button>
+              }
+              <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
+                [disabled]="workspaceLayout !== 'dual'"
+                matTooltip="Swap panes">
+                <mat-icon>swap_horiz</mat-icon>
+                Swap
+              </button>
+            </div>
+            <div class="toolbar-spacer"></div>
             <button type="button" mat-stroked-button class="toolbar-clear" (click)="clearEditor()"
               matTooltip="Clear (Ctrl+D)">
-              <mat-icon>delete_sweep</mat-icon>
+              <mat-icon>delete_outline</mat-icon>
               Clear
             </button>
-            <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
-              [disabled]="workspaceLayout !== 'dual'"
-              matTooltip="Swap input and output panel positions">
-              <mat-icon>swap_horiz</mat-icon>
-              Swap Panes
-            </button>
-            <button type="button" mat-stroked-button (click)="setWorkspaceLayout('single')"
-              [class.active-action]="workspaceLayout === 'single'" matTooltip="Single pane workspace">
-              <mat-icon>crop_portrait</mat-icon>
-              Single Pane
-            </button>
-            <button type="button" mat-stroked-button (click)="setWorkspaceLayout('dual')"
-              [class.active-action]="workspaceLayout === 'dual'" matTooltip="Dual pane workspace">
-              <mat-icon>view_week</mat-icon>
-              Dual Pane
-            </button>
-            @if (workspaceLayout === 'single') {
-              <button type="button" mat-stroked-button
-                (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
-                matTooltip="Focus raw input panel">
-                <mat-icon>edit_note</mat-icon>
-                Input
-              </button>
-            }
-            @if (workspaceLayout === 'single') {
-              <button type="button" mat-stroked-button
-                (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
-                matTooltip="Focus formatted output panel">
-                <mat-icon>preview</mat-icon>
-                Output
-              </button>
-            }
           </div>
         </section>
 

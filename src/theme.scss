@@ -104,14 +104,10 @@ $json-beauty-theme: mat.m2-define-light-theme((
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.mat-card {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  border-radius: 8px !important;
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
-  }
+.mat-mdc-card {
+  border-radius: var(--jb-radius-lg, 12px) !important;
+  border: 1px solid var(--jb-border, #e2e8f0);
+  box-shadow: var(--jb-shadow-md, 0 4px 16px rgba(15, 23, 42, 0.08)) !important;
 }
 
 .mat-card-header {
