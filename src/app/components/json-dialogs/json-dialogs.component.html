@@ -146,15 +146,21 @@
 
 <!-- JSON Comparison Dialog -->
 @if (showJsonCompare) {
-  <div class="overlay-dialog">
-    <app-json-comparison
-      [jsonData]="jsonData"
-      [compareJsonInput]="compareJsonInput"
-      [jsonDiffResult]="jsonDiffResult"
-      (close)="closeJsonCompare()"
-      (compareComplete)="onCompareComplete($event)"
-      (useLatestVersionRequested)="onUseLatestVersionForCompare()">
-    </app-json-comparison>
+  <div class="overlay-dialog" (click)="closeJsonCompare()" role="presentation">
+    <div class="comparison-dialog-shell" (click)="$event.stopPropagation()">
+      <app-json-comparison
+        [currentJson]="currentJson"
+        [compareJsonInput]="compareJsonInput"
+        [compareError]="compareError"
+        [isCompareInputValid]="isCompareInputValid"
+        [jsonDiffResult]="jsonDiffResult"
+        (close)="closeJsonCompare()"
+        (compareRequested)="onCompareJson()"
+        (formatCompareInputRequested)="onFormatCompareInput()"
+        (swapSidesRequested)="onSwapCompareSides()"
+        (useLatestVersionRequested)="onUseLatestVersionForCompare()">
+      </app-json-comparison>
+    </div>
   </div>
 }
 

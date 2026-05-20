@@ -36,11 +36,16 @@ export class JsonDialogsComponent {
 
     // JSON comparison dialog
     @Input() showJsonCompare: boolean = false;
+    @Input() currentJson: string = '';
     @Input() compareJsonInput: FormControl = new FormControl('');
     @Input() jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
+    @Input() compareError: string | null = null;
+    @Input() isCompareInputValid = true;
     @Output() toggleJsonCompare = new EventEmitter<void>();
     @Output() compareJson = new EventEmitter<void>();
     @Output() useLatestVersionForCompare = new EventEmitter<void>();
+    @Output() swapCompareSides = new EventEmitter<void>();
+    @Output() formatCompareInput = new EventEmitter<void>();
 
     // JSON visualization dialog
     @Input() showJsonVisualize: boolean = false;
@@ -123,14 +128,12 @@ export class JsonDialogsComponent {
         this.useLatestVersionForCompare.emit();
     }
 
-    /**
-     * Handles the comparison complete event from the JsonComparisonComponent
-     * @param result The comparison result
-     */
-    onCompareComplete(result: { delta: any, htmlDiff: string, hasChanges: boolean } | null): void {
-        if (result) {
-            this.jsonDiffResult = result;
-        }
+    onSwapCompareSides(): void {
+        this.swapCompareSides.emit();
+    }
+
+    onFormatCompareInput(): void {
+        this.formatCompareInput.emit();
     }
 
     /**

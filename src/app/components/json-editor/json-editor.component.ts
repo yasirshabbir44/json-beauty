@@ -128,6 +128,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     compareJsonInput = new FormControl('');
     showJsonCompare = false;
     jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
+    compareError: string | null = null;
 
     // JSON path query properties
     jsonPathQuery = new FormControl('');
@@ -151,6 +152,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     /** True when the input editor has no content (shows onboarding overlay). */
     get isWorkspaceEmpty(): boolean {
         return !(this.jsonInput.value || '').trim();
+    }
+
+    get isCompareInputValid(): boolean {
+        const value = (this.compareJsonInput.value || '').trim();
+        if (!value) {
+            return true;
+        }
+        try {
+            JSON.parse(value);
+            return true;
+        } catch {
+            return false;
+        }
     }
     private readonly outputConversionStrategies: Record<OutputConversionType, OutputConversionStrategy>;
 
@@ -266,8 +280,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.compareJsonInput.setValue(latestDifferentVersion.content);
+        this.compareError = null;
         if (!options.silent) {
             this.showSuccess('Loaded latest saved version for comparison');
+        }
+        if (this.showJsonCompare && this.isValidJson) {
+            this.compareJson();
         }
         return true;
     }
@@ -1260,8 +1278,17 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     toggleJsonCompare(): void {
         this.showJsonCompare = !this.showJsonCompare;
 
-        if (this.showJsonCompare && !this.compareJsonInput.value) {
+        if (!this.showJsonCompare) {
+            this.compareError = null;
+            return;
+        }
+
+        if (!this.compareJsonInput.value) {
             this.useLatestVersionForCompare({silent: true});
+        }
+
+        if ((this.compareJsonInput.value || '').trim() && this.isValidJson) {
+            this.compareJson();
         }
     }
 
@@ -1269,30 +1296,76 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Compares the current JSON with another JSON document
      */
     compareJson(): void {
-        if (!this.ensureValidJsonInput('Please enter valid JSON to compare')) {
+        this.compareError = null;
+        this.jsonDiffResult = null;
+
+        if (!this.ensureValidJsonInput('Please enter valid JSON in the editor before comparing')) {
+            this.compareError = 'Editor JSON is invalid. Fix it before comparing.';
             return;
         }
 
-        if (!this.compareJsonInput.value) {
-            this.showError('Please enter JSON to compare against');
+        const compareValue = (this.compareJsonInput.value || '').trim();
+        if (!compareValue) {
+            this.compareError = 'Paste JSON to compare against, or load a saved version.';
+            return;
+        }
+
+        if (!this.isCompareInputValid) {
+            this.compareError = 'Compare JSON is invalid. Fix syntax before comparing.';
             return;
         }
 
         try {
-            // Compare the JSON documents
             this.jsonDiffResult = this.jsonService.compareJson(
                 this.jsonInput.value || '',
-                this.compareJsonInput.value
+                compareValue
             );
-
-            if (this.jsonDiffResult.hasChanges) {
-                this.showSuccess('JSON comparison completed. Differences found.');
-            } else {
-                this.showSuccess('JSON comparison completed. No differences found.');
-            }
         } catch (error) {
-            this.showError(`Error comparing JSON: ${this.toErrorMessage(error)}`);
+            this.compareError = `Error comparing JSON: ${this.toErrorMessage(error)}`;
             this.jsonDiffResult = null;
+        }
+    }
+
+    /**
+     * Swaps editor JSON with compare JSON and re-runs comparison when possible.
+     */
+    swapCompareSides(): void {
+        const compareValue = (this.compareJsonInput.value || '').trim();
+        if (!compareValue) {
+            this.compareError = 'Nothing to swap — add JSON in the compare pane first.';
+            return;
+        }
+
+        const current = this.jsonInput.value || '';
+        this.jsonInput.setValue(compareValue);
+        if (this.jsonInputEditor) {
+            this.jsonInputEditor.setValue(compareValue);
+        }
+        this.compareJsonInput.setValue(current);
+        this.validateJson();
+        this.updateOutput();
+        this.compareError = null;
+
+        if (this.showJsonCompare && this.isValidJson && current.trim()) {
+            this.compareJson();
+        }
+    }
+
+    /**
+     * Beautifies JSON in the compare input field.
+     */
+    formatCompareInput(): void {
+        const value = (this.compareJsonInput.value || '').trim();
+        if (!value) {
+            this.compareError = 'Nothing to format in the compare pane.';
+            return;
+        }
+
+        try {
+            this.compareJsonInput.setValue(this.jsonService.beautifyJson(value));
+            this.compareError = null;
+        } catch (error) {
+            this.compareError = `Cannot format compare JSON: ${this.toErrorMessage(error)}`;
         }
     }
 

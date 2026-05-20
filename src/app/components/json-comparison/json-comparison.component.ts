@@ -1,103 +1,97 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { JsonService } from '../../services/json.service';
+import { SafeHtml } from '@angular/platform-browser';
+import { InputSanitizationService } from '../../services/security/input-sanitization.service';
+
+export interface JsonDiffViewResult {
+  delta: any;
+  htmlDiff: string;
+  hasChanges: boolean;
+}
 
 @Component({
-    selector: 'app-json-comparison',
-    templateUrl: './json-comparison.component.html',
-    styleUrls: ['./json-comparison.component.scss'],
-    standalone: false
+  selector: 'app-json-comparison',
+  templateUrl: './json-comparison.component.html',
+  styleUrls: ['./json-comparison.component.scss'],
+  standalone: false
 })
-export class JsonComparisonComponent implements OnInit {
-  @Input() jsonData: any;
+export class JsonComparisonComponent {
+  @Input() currentJson = '';
   @Input() compareJsonInput: FormControl = new FormControl('');
-  @Input() jsonDiffResult: { delta: any, htmlDiff: string, hasChanges: boolean } | null = null;
-  
+  @Input() jsonDiffResult: JsonDiffViewResult | null = null;
+  @Input() compareError: string | null = null;
+  @Input() isCompareInputValid = true;
+
   @Output() close = new EventEmitter<void>();
-  @Output() compareComplete = new EventEmitter<{ delta: any, htmlDiff: string, hasChanges: boolean }>();
+  @Output() compareRequested = new EventEmitter<void>();
   @Output() useLatestVersionRequested = new EventEmitter<void>();
-  
-  constructor(private jsonService: JsonService) { }
+  @Output() swapSidesRequested = new EventEmitter<void>();
+  @Output() formatCompareInputRequested = new EventEmitter<void>();
 
-  ngOnInit(): void {
-    // Initialize with empty form control if not provided
-    if (!this.compareJsonInput) {
-      this.compareJsonInput = new FormControl('');
+  constructor(private sanitizationService: InputSanitizationService) {}
+
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closeDialog();
+      return;
+    }
+
+    const mod = event.ctrlKey || event.metaKey;
+    if (mod && event.key === 'Enter') {
+      event.preventDefault();
+      this.requestCompare();
     }
   }
 
-  /**
-   * Compares the JSON documents
-   */
-  compareJson(): void {
-    try {
-      if (!this.jsonData) {
-        throw new Error('No JSON data to compare');
-      }
-
-      // Get the JSON data to compare against
-      const compareData = this.compareJsonInput.value;
-      if (!compareData) {
-        throw new Error('Please enter JSON to compare');
-      }
-
-      // Compare the JSON documents
-      const result = this.jsonService.compareJson(
-        typeof this.jsonData === 'string' ? this.jsonData : JSON.stringify(this.jsonData),
-        compareData
-      );
-
-      // Emit the result
-      this.compareComplete.emit(result);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error(`Error comparing JSON: ${errorMessage}`);
-      
-      // Emit undefined on error instead of null to match the expected type
-      this.compareComplete.emit(undefined);
+  get sanitizedDiffHtml(): SafeHtml | null {
+    if (!this.jsonDiffResult?.htmlDiff) {
+      return null;
     }
+    return this.sanitizationService.sanitizeHtml(this.jsonDiffResult.htmlDiff);
   }
 
-  /**
-   * Closes the comparison dialog
-   */
+  get hasCompareInput(): boolean {
+    return !!(this.compareJsonInput.value || '').trim();
+  }
+
+  requestCompare(): void {
+    this.compareRequested.emit();
+  }
+
   closeDialog(): void {
     this.close.emit();
   }
 
-  /**
-   * Requests parent to prefill compare input from latest saved version.
-   */
   requestLatestVersion(): void {
     this.useLatestVersionRequested.emit();
   }
 
-  /**
-   * Clears the compare input area.
-   */
+  requestSwapSides(): void {
+    this.swapSidesRequested.emit();
+  }
+
+  requestFormatCompareInput(): void {
+    this.formatCompareInputRequested.emit();
+  }
+
   clearCompareInput(): void {
     this.compareJsonInput.setValue('');
   }
 
-  /**
-   * Returns a compact preview string for the current JSON.
-   */
   getCurrentJsonPreview(): string {
-    if (!this.jsonData) {
+    const raw = (this.currentJson || '').trim();
+    if (!raw) {
       return '{}';
     }
 
-    const raw =
-      typeof this.jsonData === 'string'
-        ? this.jsonData
-        : JSON.stringify(this.jsonData, null, 2);
-
-    const maxPreviewChars = 1200;
+    const maxPreviewChars = 2400;
     if (raw.length <= maxPreviewChars) {
       return raw;
     }
 
-    return `${raw.slice(0, maxPreviewChars)}\n...`;
+    return `${raw.slice(0, maxPreviewChars)}\n… (${raw.length - maxPreviewChars} more characters in editor)`;
   }
 
   getDiffSummary(): { added: number; removed: number; changed: number; total: number } {
@@ -111,7 +105,7 @@ export class JsonComparisonComponent implements OnInit {
     return counts;
   }
 
-  getReadableChanges(limit: number = 8): Array<{ path: string; kind: 'added' | 'removed' | 'changed' }> {
+  getReadableChanges(limit: number = 12): Array<{ path: string; kind: 'added' | 'removed' | 'changed' }> {
     if (!this.jsonDiffResult?.delta) {
       return [];
     }
@@ -119,6 +113,10 @@ export class JsonComparisonComponent implements OnInit {
     const changes: Array<{ path: string; kind: 'added' | 'removed' | 'changed' }> = [];
     this.collectReadableChanges(this.jsonDiffResult.delta, '$', changes, limit);
     return changes;
+  }
+
+  trackChangeItem(_index: number, item: { path: string; kind: string }): string {
+    return `${item.kind}:${item.path}`;
   }
 
   private collectDiffStats(
