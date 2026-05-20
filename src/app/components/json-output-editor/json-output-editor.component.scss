@@ -10,12 +10,12 @@
 .editor-section {
   width: 100%;
   flex: 1;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
+  border: 1px solid var(--jb-border);
+  border-radius: var(--jb-radius-md);
   overflow: hidden;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  background-color: #ffffff;
+  box-shadow: var(--jb-shadow-sm);
+  transition: border-color var(--jb-transition), box-shadow var(--jb-transition);
+  background-color: var(--jb-bg-surface);
   position: relative;
 
   &:hover {

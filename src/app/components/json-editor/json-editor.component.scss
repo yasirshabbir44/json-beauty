@@ -115,27 +115,59 @@
   border: 1px solid var(--jb-border);
   background: var(--jb-bg-surface);
   border-radius: var(--jb-radius-md);
-  padding: 14px 16px;
   margin-top: 4px;
+  overflow: hidden;
 
-  h1 {
-    margin: 0 0 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--jb-text);
+  &[open] .launch-description-chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.launch-description-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--jb-text);
+  user-select: none;
+  transition: background var(--jb-transition);
+
+  &::-webkit-details-marker {
+    display: none;
   }
 
-  p {
-    margin: 0;
-    color: var(--jb-text-secondary);
-    font-size: 0.8125rem;
-    line-height: 1.5;
+  &:hover {
+    background: var(--jb-bg-muted);
   }
 
-  p + p {
-    margin-top: 6px;
+  span {
+    letter-spacing: -0.01em;
   }
+}
 
+.launch-description-chevron {
+  color: var(--jb-text-muted);
+  transition: transform var(--jb-transition);
+}
+
+.launch-description-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--jb-border);
+}
+
+.launch-description-lead {
+  margin: 12px 0 0;
+  color: var(--jb-text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.launch-description {
   .launch-description-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -173,13 +205,16 @@
 
 .editor-menubar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
   border-radius: var(--jb-radius-md);
   background: var(--jb-bg-surface);
   border: 1px solid var(--jb-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 
   .feature-nav-btn {
     border-radius: var(--jb-radius-sm);
@@ -205,13 +240,16 @@
 
 .editor-action-toolbar {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: flex-end;
   gap: 8px 12px;
   padding: 10px 12px;
   border: 1px solid var(--jb-border);
   border-radius: var(--jb-radius-md);
   background: var(--jb-bg-surface);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 
   .toolbar-group {
     display: flex;
@@ -297,7 +335,7 @@
   gap: 8px;
   padding: 2px 4px 6px;
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--jb-text-muted);
 
   .split-hint {
     opacity: 0.9;
@@ -312,11 +350,112 @@
   border-radius: var(--jb-radius-lg);
   border: 1px solid var(--jb-border);
   background: var(--jb-bg-muted);
+  position: relative;
+  transition: border-color var(--jb-transition), box-shadow var(--jb-transition);
+
+  &.workspace-drag-active {
+    border-color: var(--jb-accent);
+    box-shadow: 0 0 0 3px var(--jb-accent-subtle);
+  }
 
   app-json-status {
     display: block;
     padding-top: 8px;
     border-top: 1px solid var(--jb-border);
+  }
+}
+
+.workspace-drag-overlay,
+.workspace-empty-hint {
+  position: absolute;
+  inset: 10px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--jb-radius-md);
+  pointer-events: none;
+  text-align: center;
+}
+
+.workspace-drag-overlay {
+  background: rgba(37, 99, 235, 0.08);
+  border: 2px dashed var(--jb-accent);
+  color: var(--jb-accent);
+  font-weight: 600;
+  font-size: 0.9375rem;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    opacity: 0.9;
+  }
+}
+
+.workspace-empty-hint {
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  border: 1px dashed var(--jb-border-strong);
+  padding: 24px 20px;
+  max-width: 420px;
+  margin: auto;
+  inset: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px);
+
+  mat-icon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: var(--jb-accent);
+    opacity: 0.85;
+  }
+
+  code {
+    font-family: var(--jb-font-mono);
+    font-size: 0.85em;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--jb-bg-muted);
+    border: 1px solid var(--jb-border);
+  }
+}
+
+.workspace-empty-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--jb-text);
+  letter-spacing: -0.02em;
+}
+
+.workspace-empty-sub {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--jb-text-secondary);
+  max-width: 28rem;
+}
+
+.workspace-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
+  pointer-events: auto;
+
+  button mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -339,14 +478,14 @@
   gap: 8px;
   max-width: min(640px, 100%);
   padding: 10px 12px;
-  border-radius: 12px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 23, 42, 0.12);
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+  border-radius: var(--jb-radius-lg);
+  background: var(--jb-bg-surface);
+  border: 1px solid var(--jb-border);
+  box-shadow: var(--jb-shadow-lg);
 }
 
 .floating-search-lead-icon {
-  color: #3b82f6;
+  color: var(--jb-accent);
 }
 
 .floating-search-targets {
@@ -360,7 +499,7 @@
 
 .floating-search-count {
   font-size: 0.8125rem;
-  color: #64748b;
+  color: var(--jb-text-muted);
   white-space: nowrap;
 }
 
@@ -591,15 +730,34 @@
   }
 
   .launch-description {
-    background: linear-gradient(180deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.92));
-    border-color: rgba(96, 165, 250, 0.35);
+    background: var(--jb-bg-surface);
+    border-color: var(--jb-border);
 
-    h1 {
-      color: #dbeafe;
+    .launch-description-summary {
+      color: #e2e8f0;
+
+      &:hover {
+        background: var(--jb-bg-muted);
+      }
     }
 
-    p {
-      color: #cbd5e1;
+    .launch-description-body {
+      border-top-color: var(--jb-border);
+    }
+
+    .launch-description-lead {
+      color: #94a3b8;
+    }
+
+    .workspace-empty-hint {
+      background: rgba(20, 26, 34, 0.88);
+      border-color: var(--jb-border-strong);
+    }
+
+    .workspace-drag-overlay {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: var(--jb-accent);
+      color: #93c5fd;
     }
 
     .launch-description-item {
