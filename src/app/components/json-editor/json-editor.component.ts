@@ -1528,13 +1528,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             const sanitizedInput = this.sanitizationService.sanitizeJsonInput(this.jsonInput.value || '{}');
             const jsonString = this.jsonService.minifyJson(sanitizedInput);
             const result = await this.shareService.buildShareUrl(jsonString);
-            const sanitizedUrl = this.sanitizationService.sanitizeString(result.url);
 
-            window.history.replaceState({}, '', sanitizedUrl);
+            window.history.replaceState({}, '', result.url);
             this.saveVersion('Shared version');
 
             const dialogData: ShareDialogData = {
-                shareableUrl: sanitizedUrl,
+                shareableUrl: result.url,
                 jsonContent: jsonString,
                 compressed: result.compressed,
                 compressionSupported: result.compressionSupported

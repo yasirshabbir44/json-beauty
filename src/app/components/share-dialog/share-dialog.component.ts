@@ -58,10 +58,6 @@ export class ShareDialogComponent {
         return this.compressed ? 'Using compressed link (shorter URL)' : 'Using full JSON in URL';
     }
 
-    encodeURIComponent(str: string): string {
-        return window.encodeURIComponent(str);
-    }
-
     get qrCodeSrc(): string {
         return this.shareService.getQrCodeUrl(this.shareableUrl);
     }
@@ -74,7 +70,11 @@ export class ShareDialogComponent {
         this.isRebuildingUrl = true;
         try {
             const mode: ShareCompressionMode = enabled ? 'on' : 'off';
-            const result = await this.shareService.buildShareUrl(this.data.jsonContent, window.location.href, mode);
+            const result = await this.shareService.buildShareUrl(
+                this.data.jsonContent,
+                this.shareService.getShareBaseHref(),
+                mode
+            );
             this.shareableUrl = result.url;
             this.compressed = result.compressed;
             window.history.replaceState({}, '', this.shareableUrl);
