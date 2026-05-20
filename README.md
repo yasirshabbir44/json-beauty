@@ -1,94 +1,128 @@
 # JSON Beauty
 
-A powerful Angular application for JSON manipulation, validation, and conversion.
+A privacy-first Angular app for formatting, validating, comparing, and converting JSON — entirely in the browser.
 
 ## Overview
 
-JSON Beauty is a comprehensive tool for working with JSON data. It provides a user-friendly interface for:
+JSON Beauty is a client-side JSON toolkit for developers and analysts. Paste messy API responses, beautify them in a split workspace, explore structure with a tree view, run JSONPath queries, diff versions, and export to other formats — without sending data to a server.
 
-- Formatting and beautifying JSON
-- Converting between JSON and other formats (YAML, XML, CSV)
-- Validating JSON against schemas
-- Searching and navigating through JSON structures
-- Comparing JSON documents
+**Live workflow:** landing page at `/` → main editor at `/editor`.
 
 ## Features
 
-- **JSON Editing**: Advanced editor with syntax highlighting, code folding, and search capabilities
-- **Format Conversion**: Convert between JSON and YAML, XML, CSV, and JSON5
-- **JSON Path**: Query JSON using JSONPath expressions
-- **Search & Replace**: Find and replace values in JSON documents
-- **Dark/Light Themes**: Support for different visual preferences
+| Area | Capabilities |
+|------|----------------|
+| **Editing** | Dual-panel workspace (input + output), Ace editor with syntax highlighting, code folding, and configurable indentation |
+| **Formatting** | Beautify, minify, and lint/fix JSON; relaxed JSON5 input (trailing commas, comments, single quotes) normalized to strict JSON |
+| **Validation** | Inline syntax errors; JSON Schema validation; schema generation from sample JSON |
+| **Exploration** | Tree/outline navigation, table view, JSONPath query and extraction, pagination for large documents |
+| **Comparison** | Structured diff between JSON documents; version history for undo/redo across edits |
+| **Conversion** | JSON ↔ YAML, JSON → CSV, JSON → XML, XML → JSON, JSON5 → JSON |
+| **Search** | Find bar and regex-aware search & replace across panels |
+| **Sharing** | Compress payloads into shareable URLs that open directly in the editor |
+| **Visualization** | Chart-style views for numeric and structural data |
+| **Themes** | Light, Dark, Solarized, and Monokai editor themes |
+| **Performance** | Web Workers for heavy parse, stringify, beautify, minify, compare, and conversion tasks |
+| **Privacy** | 100% client-side processing; no account required |
 
-## Code Organization
+## Tech stack
 
-The project follows a modular architecture with clear separation of concerns:
+- **Angular 21** with Angular Material and CDK
+- **Ace** for the code editor
+- **Tailwind CSS** for layout and utility styling
+- **ajv** for JSON Schema validation
+- **jsonpath**, **jsondiffpatch**, **js-yaml**, **xml2js**, and related libraries for querying, diffing, and conversion
 
-- **Components**: UI elements for user interaction
-- **Services**: Business logic for JSON operations
-- **Interfaces**: Contracts defining service capabilities
-- **Utils**: Shared utility functions
-- **Types**: TypeScript type definitions
-
-## Best Practices
-
-### TypeScript
-
-- Use proper type definitions instead of `any`
-- Create interfaces for data structures
-- Use type guards for runtime type checking
-- Add return types to all functions
-
-### Error Handling
-
-- Use consistent error handling patterns
-- Provide meaningful error messages
-- Use try-catch blocks for error-prone operations
-- Return standardized error responses
-
-### Code Organization
-
-- Follow the Single Responsibility Principle
-- Extract common functionality into shared utilities
-- Avoid code duplication
-- Use meaningful variable and function names
-
-### Documentation
-
-- Add JSDoc comments to all public methods
-- Document complex logic with inline comments
-- Keep documentation up-to-date with code changes
-
-## Development
+## Getting started
 
 ### Prerequisites
 
-- Node.js (v14+)
-- npm or yarn
+- [Node.js 22](https://nodejs.org/) (see `.nvmrc`)
+- npm
 
-### Setup
+### Install and run
 
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Start the development server: `npm start`
+```bash
+git clone <repository-url>
+cd json-beauty
+npm install
+npm start
+```
 
-### Building
+Open [http://localhost:4200](http://localhost:4200). The editor is at [http://localhost:4200/editor](http://localhost:4200/editor).
 
-Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Build
 
-### Testing
+```bash
+# Production build → dist/json-beauty/
+npm run build
 
-Run `npm test` to execute the unit tests via Karma.
+# Development build
+npm run build:dev
+```
+
+### Test
+
+```bash
+npm test
+```
+
+### Bundle analysis
+
+```bash
+npm run analyze
+```
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/Cmd + F` | Show or hide floating find bar |
+| `Ctrl/Cmd + Shift + F` | Show or hide Search & Replace panel |
+| `Ctrl + B` | Beautify JSON |
+| `Ctrl + M` | Minify JSON |
+| `Ctrl + L` | Lint and fix JSON |
+| `Ctrl + C` | Copy to clipboard |
+| `Ctrl + S` | Download JSON |
+| `Ctrl + D` | Clear editor |
+| `Ctrl + K` | Show or hide keyboard shortcuts |
+| `Ctrl + 1` | Maximize or minimize input panel |
+| `Ctrl + 2` | Maximize or minimize output panel |
+| `Ctrl + Alt + 0` | Fold all code |
+| `Ctrl + Alt + Shift + 0` | Unfold all code |
+
+## Project structure
+
+```
+src/app/
+├── components/       # UI (editor, toolbar, comparison, paths, version history, …)
+├── modules/          # Feature modules (landing, editor, conversion, validation)
+├── services/         # JSON operations, conversion, validation, workers, theme, share
+├── interfaces/       # Service contracts
+├── constants/        # App-wide constants
+├── utils/            # Shared helpers
+└── types/            # TypeScript definitions
+```
+
+### Routes
+
+| Path | Description |
+|------|-------------|
+| `/` | Landing page |
+| `/editor` | Main JSON workspace |
+| `/conversion` | Conversion module (lazy-loaded; reserved for future routes) |
+| `/validation` | Validation module (lazy-loaded; reserved for future routes) |
+
+## Architecture notes
+
+- **Modular services** — Formatting, validation, conversion, comparison, JSONPath, and history are split into focused services behind small interfaces.
+- **Converter factory** — Format conversions use a strategy/factory pattern (`JSON_TO_YAML`, `YAML_TO_JSON`, `JSON_TO_CSV`, `JSON_TO_XML`, `XML_TO_JSON`, `JSON5_TO_JSON`).
+- **Web Workers** — Large-document parse, stringify, beautify, minify, compare, and conversion run off the main thread where appropriate.
+- **Security** — CSP configuration and input sanitization for safer handling of untrusted pasted content.
 
 ## Contributing
 
-When contributing to this project, please follow these guidelines:
-
-1. Follow the established code style and best practices
-2. Write unit tests for new functionality
-3. Update documentation for any changes
-4. Use meaningful commit messages
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+1. Match existing TypeScript, SCSS, and Angular patterns in the codebase.
+2. Add or update unit tests when behavior changes.
+3. Keep this README accurate when adding user-facing features.
+4. Use clear, descriptive commit messages.
