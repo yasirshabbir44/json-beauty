@@ -1,57 +1,54 @@
-<div class="search-replace-container">
-  <form [formGroup]="searchForm" class="search-replace-form">
-    <div class="search-row">
-      <mat-form-field appearance="outline" class="search-field">
+<div class="sr-backdrop" role="presentation">
+  <section class="sr-panel" [formGroup]="searchForm" role="search" aria-label="Search and replace">
+    <div class="sr-toolbar">
+      <mat-icon class="sr-lead-icon" aria-hidden="true">find_replace</mat-icon>
+
+      <mat-form-field appearance="outline" class="sr-field sr-field--search" subscriptSizing="dynamic">
         <mat-label>Search</mat-label>
-        <input formControlName="searchPattern" matInput placeholder="Enter search text">
-        <button (click)="search()" mat-icon-button matSuffix matTooltip="Search">
+        <input formControlName="searchPattern" matInput placeholder="Find in document…" />
+        <button type="button" mat-icon-button matSuffix matTooltip="Search" (click)="search()">
           <mat-icon>search</mat-icon>
         </button>
       </mat-form-field>
 
-      <div class="search-controls">
-        <button (click)="findPrevious()" [disabled]="searchResults.length === 0" mat-icon-button
-          matTooltip="Previous match">
-          <mat-icon>arrow_upward</mat-icon>
+      <div class="sr-nav">
+        <button type="button" mat-icon-button matTooltip="Previous" [disabled]="searchResults.length === 0" (click)="findPrevious()">
+          <mat-icon>keyboard_arrow_up</mat-icon>
         </button>
-        <button (click)="findNext()" [disabled]="searchResults.length === 0" mat-icon-button
-          matTooltip="Next match">
-          <mat-icon>arrow_downward</mat-icon>
+        <button type="button" mat-icon-button matTooltip="Next" [disabled]="searchResults.length === 0" (click)="findNext()">
+          <mat-icon>keyboard_arrow_down</mat-icon>
         </button>
-        @if (searchResults.length > 0) {
-          <span class="match-count">
-            {{ currentResultIndex + 1 }} of {{ searchResults.length }}
-          </span>
-        }
       </div>
+
+      @if (searchResults.length > 0) {
+        <span class="sr-match-badge">{{ currentResultIndex + 1 }} / {{ searchResults.length }}</span>
+      }
     </div>
 
-    <div class="replace-row">
-      <mat-form-field appearance="outline" class="replace-field">
+    <div class="sr-replace-row">
+      <mat-form-field appearance="outline" class="sr-field sr-field--replace" subscriptSizing="dynamic">
         <mat-label>Replace</mat-label>
-        <input formControlName="replacePattern" matInput placeholder="Enter replacement text">
+        <input formControlName="replacePattern" matInput placeholder="Replacement text" />
       </mat-form-field>
 
-      <div class="replace-controls">
-        <button (click)="replace()" [disabled]="searchResults.length === 0" color="primary" mat-raised-button>
+      <div class="sr-actions">
+        <button type="button" mat-stroked-button color="primary" [disabled]="searchResults.length === 0" (click)="replace()">
           Replace
         </button>
-        <button (click)="replaceAll()" [disabled]="searchResults.length === 0" color="accent" mat-raised-button>
-          Replace All
+        <button type="button" mat-stroked-button [disabled]="searchResults.length === 0" (click)="replaceAll()">
+          Replace all
         </button>
       </div>
     </div>
 
-    <div class="options-row">
+    <div class="sr-footer">
       <mat-checkbox color="primary" formControlName="isRegex">Regex</mat-checkbox>
-      <mat-checkbox color="primary" formControlName="isCaseSensitive">Case sensitive</mat-checkbox>
+      <mat-checkbox color="primary" formControlName="isCaseSensitive">Match case</mat-checkbox>
       <mat-checkbox color="primary" formControlName="isWholeWord">Whole word</mat-checkbox>
 
       @if (totalReplacements > 0) {
-        <span class="replacement-count">
-          {{ totalReplacements }} replacement(s) made
-        </span>
+        <span class="sr-replacement-stat">{{ totalReplacements }} replaced</span>
       }
     </div>
-  </form>
+  </section>
 </div>

@@ -507,11 +507,11 @@
 
 .floating-search-panel {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
-  max-width: min(640px, 100%);
-  padding: 10px 12px;
+  width: min(680px, calc(100vw - 32px));
+  padding: 8px;
   border-radius: var(--jb-radius-lg);
   background: var(--jb-bg-surface);
   border: 1px solid var(--jb-border);
@@ -526,15 +526,37 @@
   flex-shrink: 0;
 }
 
-.floating-search-field {
-  flex: 1 1 200px;
-  min-width: 160px;
+.floating-search-query {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--jb-border-strong);
+  border-radius: var(--jb-radius-sm);
+  background: var(--jb-bg-muted);
+  color: var(--jb-text);
+  font-size: 0.875rem;
+  outline: 0;
+
+  &:focus {
+    border-color: var(--jb-accent);
+    box-shadow: var(--jb-focus-ring);
+    background: var(--jb-bg-surface);
+  }
 }
 
 .floating-search-count {
-  font-size: 0.8125rem;
+  flex-shrink: 0;
+  font: 600 0.75rem/1 var(--jb-font-sans);
+  font-variant-numeric: tabular-nums;
   color: var(--jb-text-muted);
   white-space: nowrap;
+}
+
+.floating-search-actions {
+  display: flex;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 // Editor columns layout

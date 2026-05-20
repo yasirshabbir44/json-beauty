@@ -19,6 +19,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Components
 import { HeaderComponent } from '../../components/header/header.component';
@@ -73,7 +75,9 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatPaginatorModule,
-    MatMenuModule
+    MatMenuModule,
+    MatButtonToggleModule,
+    MatCheckboxModule
   ],
   providers: [
     ErrorHandlingService,
@@ -104,7 +108,9 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     MatProgressSpinnerModule,
     MatPaginatorModule,
     MatMenuModule,
-    
+    MatButtonToggleModule,
+    MatCheckboxModule,
+
     // Components
     HeaderComponent,
     FooterComponent,

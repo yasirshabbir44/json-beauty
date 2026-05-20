@@ -61,6 +61,15 @@ export class SettingsService {
   }
 
   /**
+   * Close the search and replace panel
+   */
+  closeSearchReplace(): void {
+    if (this.showSearchReplaceSubject.value) {
+      this.showSearchReplaceSubject.next(false);
+    }
+  }
+
+  /**
    * Get current search and replace visibility state
    * @returns Current search and replace visibility
    */

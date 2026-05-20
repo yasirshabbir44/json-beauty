@@ -30,6 +30,7 @@ export class JsonSearchReplaceComponent implements AfterViewInit, OnChanges {
     @Input() text: string = '';
     @Output() textChanged = new EventEmitter<string>();
     @Output() activeMatchChange = new EventEmitter<SearchReplaceActiveMatch | null>();
+    @Output() closePanel = new EventEmitter<void>();
 
     @ViewChild('searchPatternInput') searchPatternInput?: ElementRef<HTMLInputElement>;
 
@@ -38,6 +39,7 @@ export class JsonSearchReplaceComponent implements AfterViewInit, OnChanges {
     currentResultIndex: number = -1;
     totalReplacements: number = 0;
     regexError: string | null = null;
+    replaceExpanded = true;
 
     private readonly textRefresh$ = new Subject<void>();
 
@@ -98,6 +100,15 @@ export class JsonSearchReplaceComponent implements AfterViewInit, OnChanges {
             event.preventDefault();
             this.replace();
         }
+    }
+
+    toggleReplaceRow(): void {
+        this.replaceExpanded = !this.replaceExpanded;
+    }
+
+    close(): void {
+        this.emitActiveMatch(null);
+        this.closePanel.emit();
     }
 
     /**

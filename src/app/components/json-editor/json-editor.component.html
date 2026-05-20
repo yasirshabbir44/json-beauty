@@ -252,35 +252,42 @@
                 [value]="floatingSearchTarget"
                 (change)="onFloatingSearchTargetChange($event)">
                 <mat-button-toggle value="input">Input</mat-button-toggle>
-                <mat-button-toggle value="output" [disabled]="!canSearchOutputAce()">Output
-                </mat-button-toggle>
-                <mat-button-toggle value="tree" [disabled]="selectedViewMode !== 'tree'">Tree
-                </mat-button-toggle>
+                <mat-button-toggle value="output" [disabled]="!canSearchOutputAce()">Output</mat-button-toggle>
+                <mat-button-toggle value="tree" [disabled]="selectedViewMode !== 'tree'">Tree</mat-button-toggle>
               </mat-button-toggle-group>
-              <mat-form-field appearance="outline" class="floating-search-field" subscriptSizing="dynamic">
-                <mat-label>Find</mat-label>
-                <input matInput class="floating-search-query" [(ngModel)]="floatingSearchQuery"
-                  (ngModelChange)="onFloatingSearchQueryChange($event)"
-                  (keyup.enter)="runFloatingSearch()" placeholder="Search…" />
-              </mat-form-field>
-              @if (floatingSearchMatchCount > 0 && floatingSearchTarget !== 'tree') {
-                <span
-                class="floating-search-count">{{ floatingSearchMatchCount }} matches</span>
+              <input
+                type="search"
+                class="floating-search-query"
+                [(ngModel)]="floatingSearchQuery"
+                (ngModelChange)="onFloatingSearchQueryChange($event)"
+                (keydown.enter)="floatingSearchNext()"
+                placeholder="Find…"
+                aria-label="Find in document" />
+              @if (floatingSearchQuery.trim()) {
+                <span class="floating-search-count">
+                  @if (floatingSearchTarget === 'tree') {
+                    Tree search
+                  } @else if (floatingSearchMatchCount > 0) {
+                    {{ floatingSearchMatchCount }} matches
+                  } @else {
+                    No matches
+                  }
+                </span>
               }
-              <button type="button" mat-icon-button matTooltip="Previous" (click)="floatingSearchPrevious()"
-                [disabled]="floatingSearchTarget === 'tree'">
-                <mat-icon>keyboard_arrow_up</mat-icon>
-              </button>
-              <button type="button" mat-icon-button matTooltip="Next" (click)="floatingSearchNext()"
-                [disabled]="floatingSearchTarget === 'tree'">
-                <mat-icon>keyboard_arrow_down</mat-icon>
-              </button>
-              <button type="button" mat-icon-button matTooltip="Find" (click)="runFloatingSearch()">
-                <mat-icon>play_arrow</mat-icon>
-              </button>
-              <button type="button" mat-icon-button matTooltip="Close" (click)="closeFloatingSearch()">
-                <mat-icon>close</mat-icon>
-              </button>
+              <div class="floating-search-actions">
+                <button type="button" mat-icon-button matTooltip="Previous (Shift+Enter)"
+                  (click)="floatingSearchPrevious()" [disabled]="floatingSearchTarget === 'tree' || !floatingSearchQuery.trim()">
+                  <mat-icon>keyboard_arrow_up</mat-icon>
+                </button>
+                <button type="button" mat-icon-button matTooltip="Next (Enter)"
+                  (click)="floatingSearchNext()" [disabled]="floatingSearchTarget === 'tree' || !floatingSearchQuery.trim()">
+                  <mat-icon>keyboard_arrow_down</mat-icon>
+                </button>
+                <button type="button" mat-icon-button matTooltip="Close (Esc)" aria-label="Close find"
+                  (click)="closeFloatingSearch()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
             </div>
           </div>
         }
@@ -409,6 +416,7 @@
         @if (showSearchReplace) {
           <app-json-search-replace
             (activeMatchChange)="onSearchReplaceActiveMatch($event)"
+            (closePanel)="onSearchReplaceClose()"
             (textChanged)="onSearchReplaceTextChanged($event)"
             [text]="jsonInput.value || ''">
           </app-json-search-replace>

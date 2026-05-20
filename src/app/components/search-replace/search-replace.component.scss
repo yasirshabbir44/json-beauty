@@ -1,52 +1,35 @@
-.search-replace-container {
-  padding: 16px;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
+.sr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--jb-radius-md);
+  background: var(--jb-bg-surface);
+  border: 1px solid var(--jb-border);
   margin-bottom: 16px;
 }
 
-.search-replace-form {
+.sr-toolbar,
+.sr-replace-row,
+.sr-footer {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.search-row, .replace-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.search-field, .replace-field {
-  flex: 1;
-}
-
-.search-controls, .replace-controls {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
-.options-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+.sr-field {
+  flex: 1 1 200px;
+  min-width: 140px;
 }
 
-.match-count, .replacement-count {
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
-  margin-left: 8px;
+.sr-match-badge {
+  font-size: 0.8125rem;
+  color: var(--jb-text-muted);
 }
 
-/* Dark theme support */
-:host-context(.dark-theme) {
-  .search-replace-container {
-    background-color: rgba(255, 255, 255, 0.05);
-  }
-
-  .match-count, .replacement-count {
-    color: rgba(255, 255, 255, 0.7);
-  }
+.sr-replacement-stat {
+  font-size: 0.75rem;
+  color: var(--jb-success);
+  margin-left: auto;
 }

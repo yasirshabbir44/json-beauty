@@ -318,8 +318,15 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @HostListener('document:keydown', ['$event'])
     onDocumentEscape(event: KeyboardEvent): void {
-        if (event.key === 'Escape' && this.floatingSearchOpen) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+        if (this.floatingSearchOpen) {
             this.floatingSearchOpen = false;
+            return;
+        }
+        if (this.showSearchReplace) {
+            this.onSearchReplaceClose();
         }
     }
 
@@ -417,7 +424,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.floatingSearchTarget = 'input';
             }
             this.updateFloatingSearchMatchCount();
-            setTimeout(() => this.focusQuerySelector('.floating-search-query', 0), 80);
+            setTimeout(() => {
+                const el = document.querySelector('.floating-search-query') as HTMLInputElement | null;
+                el?.focus();
+                el?.select();
+            }, 80);
         }
     }
 
@@ -429,12 +440,24 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         const v = event.value as 'input' | 'output' | 'tree' | undefined;
         if (v) {
             this.floatingSearchTarget = v;
-            this.updateFloatingSearchMatchCount();
+            this.scheduleFloatingSearch();
         }
     }
 
     onFloatingSearchQueryChange(_value: string): void {
-        this.updateFloatingSearchMatchCount();
+        this.scheduleFloatingSearch();
+    }
+
+    private floatingSearchTimer: ReturnType<typeof setTimeout> | null = null;
+
+    private scheduleFloatingSearch(): void {
+        if (this.floatingSearchTimer) {
+            clearTimeout(this.floatingSearchTimer);
+        }
+        this.floatingSearchTimer = setTimeout(() => {
+            this.floatingSearchTimer = null;
+            this.runFloatingSearch();
+        }, 120);
     }
 
     runFloatingSearch(): void {
@@ -560,6 +583,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        if (this.floatingSearchTimer) {
+            clearTimeout(this.floatingSearchTimer);
+        }
         this.teardownScrollSync();
     }
 
@@ -1406,6 +1432,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         if (match) {
             this.jsonInputEditor?.revealDocumentOffsets(match.start, match.length);
         }
+    }
+
+    onSearchReplaceClose(): void {
+        this.settingsService.closeSearchReplace();
+        this.jsonInputEditor?.clearSearch();
     }
 
     /**

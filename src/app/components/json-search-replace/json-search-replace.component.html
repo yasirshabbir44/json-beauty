@@ -1,86 +1,113 @@
-<div class="search-replace-container">
-  <form [formGroup]="searchForm" class="search-replace-form">
-    <div class="search-row">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search</mat-label>
-        <input #searchPatternInput
-          (keydown)="onSearchFieldKeydown($event)"
-          formControlName="searchPattern"
-          matInput
-          placeholder="Type to search (live). Enter: next · Shift+Enter: previous">
-        <button (click)="search()" mat-icon-button matSuffix matTooltip="Refresh search" type="button">
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </mat-form-field>
+<div class="sr-backdrop" (click)="close()" role="presentation">
+  <section
+    class="sr-panel"
+    [formGroup]="searchForm"
+    (click)="$event.stopPropagation()"
+    role="search"
+    aria-label="Search and replace in JSON">
+    <div class="sr-main-row">
+      <mat-icon class="sr-lead-icon" aria-hidden="true">find_replace</mat-icon>
 
-      <div class="search-controls">
-        <button (click)="findPrevious()"
-          [disabled]="!searchForm.get('searchPattern')?.value || searchResults.length === 0"
+      <input
+        #searchPatternInput
+        type="search"
+        class="sr-input"
+        formControlName="searchPattern"
+        placeholder="Search…"
+        aria-label="Search"
+        (keydown)="onSearchFieldKeydown($event)" />
+
+      @if (searchForm.get('searchPattern')?.value) {
+        <span class="sr-match-badge" [class.sr-match-badge--empty]="searchResults.length === 0">
+          @if (searchResults.length > 0) {
+            {{ currentResultIndex + 1 }} / {{ searchResults.length }}
+          } @else {
+            No matches
+          }
+        </span>
+      }
+
+      <div class="sr-actions" aria-label="Match navigation">
+        <button
+          type="button"
           mat-icon-button
-          matTooltip="Previous match (Shift+Enter)"
-          type="button">
-          <mat-icon>arrow_upward</mat-icon>
-        </button>
-        <button (click)="findNext()"
+          matTooltip="Previous (Shift+Enter)"
           [disabled]="!searchForm.get('searchPattern')?.value || searchResults.length === 0"
-          mat-icon-button
-          matTooltip="Next match (Enter)"
-          type="button">
-          <mat-icon>arrow_downward</mat-icon>
+          (click)="findPrevious()">
+          <mat-icon>keyboard_arrow_up</mat-icon>
         </button>
-        @if (searchForm.get('searchPattern')?.value) {
-          <span class="match-count">
-            @if (searchResults.length > 0) {
-              {{ currentResultIndex + 1 }} of {{ searchResults.length }}
-            } @else {
-              No matches
-            }
-          </span>
-        }
+        <button
+          type="button"
+          mat-icon-button
+          matTooltip="Next (Enter)"
+          [disabled]="!searchForm.get('searchPattern')?.value || searchResults.length === 0"
+          (click)="findNext()">
+          <mat-icon>keyboard_arrow_down</mat-icon>
+        </button>
+        <button
+          type="button"
+          mat-icon-button
+          class="sr-expand-btn"
+          [matTooltip]="replaceExpanded ? 'Hide replace' : 'Show replace'"
+          [attr.aria-expanded]="replaceExpanded"
+          (click)="toggleReplaceRow()">
+          <mat-icon [class.sr-expand-icon--open]="replaceExpanded">expand_more</mat-icon>
+        </button>
+        <button type="button" mat-icon-button matTooltip="Close (Esc)" aria-label="Close" (click)="close()">
+          <mat-icon>close</mat-icon>
+        </button>
       </div>
     </div>
 
     @if (regexError) {
-      <div class="regex-error" role="alert">{{ regexError }}</div>
+      <div class="sr-alert" role="alert">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ regexError }}</span>
+      </div>
     }
 
-    <div class="replace-row">
-      <mat-form-field appearance="outline" class="replace-field">
-        <mat-label>Replace</mat-label>
-        <input (keydown)="onReplaceFieldKeydown($event)"
+    @if (replaceExpanded) {
+      <div class="sr-replace-row">
+        <input
+          type="text"
+          class="sr-input sr-input--replace"
           formControlName="replacePattern"
-          matInput
-          placeholder="Replacement (Ctrl or Cmd + Enter: replace match)">
-      </mat-form-field>
+          placeholder="Replace with…"
+          aria-label="Replace"
+          (keydown)="onReplaceFieldKeydown($event)" />
 
-      <div class="replace-controls">
-        <button (click)="replace()"
-          [disabled]="searchResults.length === 0"
+        <button
+          type="button"
+          mat-stroked-button
           color="primary"
-          mat-raised-button
-          type="button">
+          [disabled]="searchResults.length === 0"
+          (click)="replace()">
           Replace
         </button>
-        <button (click)="replaceAll()"
+        <button
+          type="button"
+          mat-stroked-button
           [disabled]="searchResults.length === 0"
-          color="accent"
-          mat-raised-button
-          type="button">
-          Replace All
+          (click)="replaceAll()">
+          All
         </button>
       </div>
-    </div>
+    }
 
-    <div class="options-row">
-      <mat-checkbox color="primary" formControlName="isRegex">Regex</mat-checkbox>
-      <mat-checkbox color="primary" formControlName="isCaseSensitive">Case sensitive</mat-checkbox>
-      <mat-checkbox color="primary" formControlName="isWholeWord">Whole word</mat-checkbox>
+    <div class="sr-options-row">
+      <mat-button-toggle-group
+        multiple
+        class="sr-options"
+        [hideSingleSelectionIndicator]="true"
+        aria-label="Search options">
+        <mat-button-toggle formControlName="isRegex" matTooltip="Regular expression">Regex</mat-button-toggle>
+        <mat-button-toggle formControlName="isCaseSensitive" matTooltip="Case sensitive">Aa</mat-button-toggle>
+        <mat-button-toggle formControlName="isWholeWord" matTooltip="Whole word">Word</mat-button-toggle>
+      </mat-button-toggle-group>
 
       @if (totalReplacements > 0) {
-        <span class="replacement-count">
-          {{ totalReplacements }} replacement(s) made
-        </span>
+        <span class="sr-replacement-stat">{{ totalReplacements }} replaced</span>
       }
     </div>
-  </form>
+  </section>
 </div>
