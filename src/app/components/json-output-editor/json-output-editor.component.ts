@@ -126,6 +126,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     }
 
     ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isValidJson'] && !this.isValidJson && this.outputEditor) {
+            this.clearOutput();
+        }
+
         // Update editor theme when isDarkTheme changes
         if (changes['isDarkTheme'] && this.outputEditor) {
             this.updateOutputEditorTheme();
@@ -442,6 +446,14 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     clearSearch(): void {
         if (this.outputEditor) {
             this.outputEditor.execCommand('clearSelection');
+        }
+    }
+
+    /** Clears the read-only output Ace editor (e.g. when input JSON is invalid). */
+    clearOutput(): void {
+        if (this.outputEditor) {
+            this.outputEditor.setValue('', -1);
+            this.outputEditor.renderer.updateFull(true);
         }
     }
 

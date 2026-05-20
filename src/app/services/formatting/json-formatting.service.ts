@@ -34,24 +34,33 @@ export class JsonFormattingService implements IJsonFormattingService {
      */
     enforceStrictDoubleQuotes(jsonString: string): string {
         try {
-            // First try to parse the JSON to see if it's valid standard JSON
-            const jsonObj = JSON.parse(jsonString || '{}');
-
-            // Use JSON.stringify to ensure all keys and string values use double quotes
+            const jsonObj = JSON.parse((jsonString || '').trim() || '{}');
             return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
         } catch (e) {
-            // If standard JSON parsing fails, try using JSON5 parser
-            // This handles single quotes, trailing commas, comments, etc.
-            try {
-                // Parse with JSON5 which is more lenient
-                const jsonObj = JSON5.parse(jsonString || '{}');
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            throw new Error(`Error enforcing strict double quotes: ${errorMessage}`);
+        }
+    }
 
-                // Convert back to standard JSON with double quotes
+    /**
+     * Repairs relaxed JSON (JSON5) into strict RFC JSON — trailing commas, comments, single quotes, etc.
+     * Only use when the user explicitly requests a repair; not for validation or live preview.
+     */
+    repairLenientJson(jsonString: string): string {
+        const source = (jsonString || '').trim();
+        if (!source) {
+            throw new Error('Nothing to repair');
+        }
+        try {
+            const jsonObj = JSON.parse(source);
+            return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+        } catch {
+            try {
+                const jsonObj = JSON5.parse(source);
                 return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
             } catch (e) {
-                // If JSON5 parsing also fails, it's likely not valid JSON at all
                 const errorMessage = e instanceof Error ? e.message : String(e);
-                throw new Error(`Error enforcing strict double quotes: ${errorMessage}`);
+                throw new Error(`Could not repair JSON: ${errorMessage}`);
             }
         }
     }

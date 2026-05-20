@@ -112,6 +112,13 @@ export class JsonService {
     }
 
     /**
+     * Repairs relaxed JSON (JSON5) into strict RFC JSON (explicit user action only).
+     */
+    repairLenientJson(jsonString: string): string {
+        return this.formattingService.repairLenientJson(jsonString);
+    }
+
+    /**
      * Minifies a JSON string
      * @param jsonString The JSON string to minify
      * @returns The minified JSON string

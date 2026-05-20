@@ -183,6 +183,38 @@
   }
 }
 
+.output-invalid-hint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  text-align: center;
+  background: var(--jb-bg-muted);
+  color: var(--jb-text-secondary);
+  pointer-events: none;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--jb-text-muted);
+    opacity: 0.85;
+  }
+
+  p {
+    margin: 0;
+    max-width: 20rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    font-family: var(--jb-font-sans);
+  }
+}
+
 // Ace editor styles (match input: same font stack, no separate output background)
 .ace-editor {
   width: 100%;

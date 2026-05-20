@@ -62,7 +62,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
     jsonInput = new FormControl('');
     jsonOutput = new FormControl('');
-    isValidJson = true;
+    isValidJson = false;
     errorMessage = '';
     jsonErrorLine: number | null = null;
     showKeyboardShortcuts = false;
@@ -349,11 +349,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 break;
             case 'b':
                 event.preventDefault();
-                this.beautifyJson();
+                if (this.isValidJson) {
+                    this.beautifyJson();
+                } else {
+                    this.showError('Fix JSON syntax errors before beautifying (or use Lint & fix)');
+                }
                 break;
             case 'm':
                 event.preventDefault();
-                this.minifyJson();
+                if (this.isValidJson) {
+                    this.minifyJson();
+                } else {
+                    this.showError('Fix JSON syntax errors before minifying');
+                }
                 break;
             case 'l':
                 event.preventDefault();
@@ -723,7 +731,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         // Check for JSON data in URL (for shared links)
         void this.loadJsonFromUrl().then(() => {
             if (!this.hasLoadedSharedJson) {
-                this.jsonInput.setValue(JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2));
+                const sample = JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2);
+                this.jsonInput.setValue(sample);
+                this.validateJson();
             }
         });
     }
@@ -742,7 +752,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     validateJson(): void {
-        const jsonString = this.jsonInput.value || '';
+        const jsonString = (this.jsonInput.value || '').trim();
         const result = this.jsonService.validateJson(jsonString);
         const {line, message} = this.buildInlineJsonError(result.errorMessage, jsonString);
 
@@ -910,6 +920,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     lintJson(): void {
+        if (!this.isValidJson) {
+            this.runJsonTransform(
+                () => this.jsonService.repairLenientJson(this.jsonInput.value || ''),
+                'Syntax repaired — converted to strict JSON',
+                'Could not repair JSON syntax'
+            );
+            return;
+        }
         this.runJsonTransform(
             () => this.jsonService.lintJson(this.jsonInput.value || '{}'),
             'JSON linted successfully',
@@ -944,13 +962,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      */
     updateOutput(): void {
         if (this.isValidJson) {
-            const jsonString = this.jsonInput.value || '';
+            const jsonString = (this.jsonInput.value || '').trim();
             try {
-                // Beautify the JSON before setting it to the output
-                const beautifiedJson = this.jsonService.beautifyJson(jsonString);
-                this.jsonOutput.setValue(beautifiedJson);
+                const parsed = JSON.parse(jsonString);
+                const formatted = JSON.stringify(parsed, null, this.indentChar.repeat(this.indentSize));
+                this.jsonOutput.setValue(formatted);
 
-                // Update tree view data if tree view is active
                 if (this.showTreeView) {
                     if (!this.tryUpdateTreeDataFromJsonString(jsonString)) {
                         this.showTreeView = false;
@@ -961,9 +978,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.updateJsonPaths();
                 this.updateYamlOutput();
             } catch (error) {
-                console.error('Error beautifying JSON:', error);
-                // Fallback to unformatted JSON if beautification fails
-                this.jsonOutput.setValue(jsonString);
+                console.error('Error formatting JSON output:', error);
+                this.isValidJson = false;
+                this.resetDerivedOutputState();
             }
         } else {
             this.resetDerivedOutputState();
@@ -1861,6 +1878,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.yamlOutput.setValue('');
         this.jsonPaths = [];
         this.jsonTreeData = null;
+        this.jsonOutputEditor?.clearOutput();
     }
 
     private tryUpdateTreeDataFromOutput(): boolean {

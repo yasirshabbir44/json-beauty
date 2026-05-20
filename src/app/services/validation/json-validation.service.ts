@@ -22,7 +22,8 @@ export class JsonValidationService implements IJsonValidationService {
      * @returns An object with validation result and error message if any
      */
     validateJson(jsonString: string): { isValid: boolean; error?: string; errorPosition?: number } {
-        if (!jsonString) {
+        const trimmed = (jsonString ?? '').trim();
+        if (!trimmed) {
             return {
                 isValid: false,
                 error: 'JSON is empty. Please enter some JSON data.'
@@ -30,7 +31,7 @@ export class JsonValidationService implements IJsonValidationService {
         }
 
         try {
-            JSON.parse(jsonString);
+            JSON.parse(trimmed);
             return {
                 isValid: true
             };
@@ -55,7 +56,7 @@ export class JsonValidationService implements IJsonValidationService {
 
             // Add context information if position is available
             if (errorPosition !== undefined) {
-                const errorContext = this.getErrorContext(jsonString, errorPosition);
+                const errorContext = this.getErrorContext(trimmed, errorPosition);
                 enhancedMessage = `${e.message}\n\nError near: ${errorContext.context}`;
             }
 

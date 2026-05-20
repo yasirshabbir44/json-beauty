@@ -162,10 +162,10 @@
                 <mat-icon>compress</mat-icon>
                 Minify
               </button>
-              <button type="button" mat-stroked-button (click)="lintJson()" [disabled]="!isValidJson"
-                matTooltip="Validate (Ctrl+L)">
-                <mat-icon>rule</mat-icon>
-                Validate
+              <button type="button" mat-stroked-button (click)="lintJson()"
+                [matTooltip]="isValidJson ? 'Lint formatting (Ctrl+L)' : 'Repair syntax — trailing commas, comments (Ctrl+L)'">
+                <mat-icon>{{ isValidJson ? 'rule' : 'build' }}</mat-icon>
+                {{ isValidJson ? 'Lint' : 'Repair' }}
               </button>
             </div>
             <div class="toolbar-divider" aria-hidden="true"></div>

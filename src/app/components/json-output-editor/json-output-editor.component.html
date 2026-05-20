@@ -129,6 +129,12 @@
   </h3>
 
   <div class="editor-wrapper">
+    @if (!isValidJson) {
+      <div class="output-invalid-hint" role="status">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        <p>Fix input JSON syntax to see formatted output here.</p>
+      </div>
+    }
     <!-- Text View (Ace Editor) - shown when in text view mode and JSON format -->
     <div #outputEditor
       [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'json'"

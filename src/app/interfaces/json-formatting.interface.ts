@@ -40,6 +40,13 @@ export interface IJsonFormattingService {
     fixInconsistentIndentation(jsonString: string): string;
 
     /**
+     * Repairs relaxed JSON (JSON5) into strict RFC JSON
+     * @param jsonString The JSON/JSON5 string to repair
+     * @returns Strict JSON string
+     */
+    repairLenientJson(jsonString: string): string;
+
+    /**
      * Sorts the keys of a JSON object alphabetically
      * @param obj The JSON object to sort
      * @returns A new JSON object with sorted keys
