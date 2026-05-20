@@ -241,6 +241,38 @@ a:focus:not(:focus-visible) {
   font-size: 0.8125rem;
 }
 
+/* Segmented controls — compact, professional */
+.mat-button-toggle-group {
+  border: 1px solid var(--jb-border) !important;
+  border-radius: var(--jb-radius-sm) !important;
+  overflow: hidden;
+  box-shadow: var(--jb-shadow-sm);
+}
+
+.mat-button-toggle {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: var(--jb-text-secondary) !important;
+  background: var(--jb-bg-muted) !important;
+  border: none !important;
+
+  &.mat-button-toggle-checked {
+    background: var(--jb-accent-subtle) !important;
+    color: var(--jb-accent) !important;
+  }
+}
+
+.mat-button-toggle .mat-button-toggle-label-content {
+  line-height: 30px;
+  padding: 0 10px;
+}
+
+.mat-mdc-slide-toggle .mdc-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--jb-text-secondary);
+}
+
 /* Animations */
 .fade-in {
   animation: fadeIn 0.3s ease-in;

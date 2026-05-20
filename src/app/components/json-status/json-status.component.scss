@@ -2,14 +2,14 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.65rem;
-  background: var(--jb-bg-surface);
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  background: transparent;
   border-radius: var(--jb-radius-md);
-  border: 1px solid var(--jb-border);
+  border: none;
   margin-top: 0;
   font-family: var(--jb-font-mono);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
 
   @media (max-width: 767px) {
     padding: 1rem 1.25rem;
@@ -26,11 +26,11 @@
 .status-item {
   display: flex;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   color: var(--jb-text-secondary);
-  padding: 0.25rem 0.55rem;
+  padding: 0.2rem 0.5rem;
   border-radius: var(--jb-radius-pill);
-  background-color: var(--jb-bg-muted);
+  background-color: var(--jb-bg-surface);
   border: 1px solid var(--jb-border);
   transition: background var(--jb-transition), border-color var(--jb-transition);
 
