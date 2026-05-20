@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { ScrollingModule } from '@angular/cdk/scrolling';
@@ -57,6 +58,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
   ],
   imports: [
     CommonModule,
+    RouterModule,
     FormsModule,
     ReactiveFormsModule,
     ClipboardModule,
@@ -88,6 +90,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
   exports: [
     // Common modules
     CommonModule,
+    RouterModule,
     FormsModule,
     ReactiveFormsModule,
     ClipboardModule,

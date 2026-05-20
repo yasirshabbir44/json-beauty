@@ -1,0 +1,87 @@
+<div class="support" aria-label="Support JSON Beauty">
+  <section class="support-hero" aria-labelledby="support-hero-title">
+    <p class="support-hero__eyebrow">
+      <mat-icon aria-hidden="true">volunteer_activism</mat-icon>
+      Free forever · privacy-first
+    </p>
+    <h1 id="support-hero-title" class="support-hero__title">Support JSON Beauty</h1>
+    <p class="support-hero__lead">
+      JSON Beauty stays free and runs entirely in your browser. If it saves you time, you can
+      help keep it maintained — or explore what a future Pro tier might offer. No paywalls today.
+    </p>
+    <div class="support-hero__actions">
+      <a mat-flat-button color="primary" routerLink="/editor">
+        <mat-icon aria-hidden="true">play_arrow</mat-icon>
+        Open editor
+      </a>
+      <a mat-stroked-button href="https://github.com/yasirshabbir44/json-beauty/issues" rel="noopener noreferrer" target="_blank">
+        <mat-icon aria-hidden="true">bug_report</mat-icon>
+        Report an issue
+      </a>
+    </div>
+  </section>
+
+  <section class="support-section" aria-labelledby="support-ways-title">
+    <header class="support-section__head">
+      <h2 id="support-ways-title">Ways to support</h2>
+      <p>Pick what fits you — every bit helps without changing how the app works.</p>
+    </header>
+    <div class="support-cards">
+      @for (link of supportLinks; track link.id) {
+        <article class="support-card jb-hover-lift">
+          <div class="support-card__icon" aria-hidden="true">
+            <mat-icon>{{ link.icon }}</mat-icon>
+          </div>
+          <h3>{{ link.label }}</h3>
+          <p>{{ link.description }}</p>
+          <a
+            class="support-card__cta"
+            [href]="link.href"
+            [attr.rel]="link.external ? 'noopener noreferrer' : null"
+            [attr.target]="link.external ? '_blank' : null">
+            {{ link.label }}
+            @if (link.external) {
+              <mat-icon aria-hidden="true">open_in_new</mat-icon>
+            }
+          </a>
+        </article>
+      }
+    </div>
+    <p class="support-note" role="note">
+      <mat-icon aria-hidden="true">lock</mat-icon>
+      Tips and stars never unlock features or send your JSON to a server. The editor remains 100% client-side.
+    </p>
+  </section>
+
+  @if (showProRoadmap) {
+    <section class="support-section support-section--muted" aria-labelledby="support-pro-title">
+      <header class="support-section__head">
+        <h2 id="support-pro-title">Pro tier <span class="support-badge">Coming soon</span></h2>
+        <p>
+          A paid Pro plan is on the roadmap for power users and teams. The free tier will keep core
+          formatting, validation, and conversion — no artificial limits on everyday use.
+        </p>
+      </header>
+
+      <div class="support-tier-table" role="table" aria-label="Free vs Pro feature comparison">
+        <div class="support-tier-table__row support-tier-table__row--head" role="row">
+          <span role="columnheader">Feature</span>
+          <span role="columnheader">Free</span>
+          <span role="columnheader">Pro</span>
+        </div>
+        @for (row of tierFeatures; track row.label) {
+          <div class="support-tier-table__row" role="row">
+            <span class="support-tier-table__feature" role="cell">{{ row.label }}</span>
+            <span role="cell">{{ row.free }}</span>
+            <span role="cell" class="support-tier-table__pro">{{ row.pro }}</span>
+          </div>
+        }
+      </div>
+
+      <p class="support-pro-footnote">
+        Interested in early access or team pricing?
+        <a href="mailto:yasirshabbir44@gmail.com?subject=JSON%20Beauty%20Pro">Get in touch</a>.
+      </p>
+    </section>
+  }
+</div>
