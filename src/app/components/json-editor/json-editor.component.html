@@ -41,7 +41,7 @@
           <div class="editor-control-head">
             <div class="editor-control-title">
               <h2>Workspace</h2>
-              <p>Format, validate, diff, and convert JSON — processed locally in your browser.</p>
+              <p>Paste or drop JSON below — beautify, validate, and explore. Everything runs in your browser.</p>
             </div>
             <div class="editor-status-pills" aria-live="polite">
               <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
@@ -289,11 +289,35 @@
         }
 
         <section class="editor-workspace-panel"
+          [class.workspace-drag-active]="isFileDragActive"
           aria-label="Editor workspace"
           (dragenter)="onWorkspaceDragEnter($event)"
           (dragover)="onWorkspaceDragOver($event)"
           (dragleave)="onWorkspaceDragLeave($event)"
           (drop)="onWorkspaceDrop($event)">
+          @if (isFileDragActive) {
+            <div class="workspace-drag-overlay" aria-hidden="true">
+              <mat-icon>upload_file</mat-icon>
+              <span>Drop a JSON file to import</span>
+            </div>
+          }
+          @if (isWorkspaceEmpty && !isFileDragActive) {
+            <div class="workspace-empty-hint" role="status">
+              <mat-icon aria-hidden="true">data_object</mat-icon>
+              <p class="workspace-empty-title">Start with your JSON</p>
+              <p class="workspace-empty-sub">Paste into the editor, drag a <code>.json</code> file here, or try a sample.</p>
+              <div class="workspace-empty-actions">
+                <button type="button" mat-flat-button color="primary" (click)="loadSampleJson()">
+                  <mat-icon>auto_awesome</mat-icon>
+                  Load sample
+                </button>
+                <button type="button" mat-stroked-button (click)="openImportPicker()">
+                  <mat-icon>upload_file</mat-icon>
+                  Import file
+                </button>
+              </div>
+            </div>
+          }
           <div [class.input-maximized]="isInputMaximized"
             [class.output-maximized]="isOutputMaximized"
             [class.single-pane-mode]="workspaceLayout === 'single'"
@@ -391,19 +415,14 @@
           </app-version-history>
         }
 
-        <section class="launch-description" aria-label="About this tool">
-          <h1>JSON Beauty - Professional JSON Formatter and Validator</h1>
-          <p>
-            JSON Beauty is a fast, privacy-first JSON toolkit built for developers, QA engineers, analysts,
-            and students. No account required - open the app and start working immediately.
-          </p>
-          <p>
-            All processing happens in your browser. Your JSON stays on your device, and saved versions remain
-            in local browser storage only.
-          </p>
-          <p>
-            Use JSON Beauty to beautify, minify, validate, compare versions, run JSONPath queries, and convert
-            JSON to YAML, CSV, or XML with confidence.
+        <details class="launch-description">
+          <summary class="launch-description-summary">
+            <span>About JSON Beauty</span>
+            <mat-icon class="launch-description-chevron" aria-hidden="true">expand_more</mat-icon>
+          </summary>
+          <div class="launch-description-body" aria-label="About this tool">
+          <p class="launch-description-lead">
+            A fast, privacy-first JSON toolkit for developers and analysts. No account required — your data never leaves the browser.
           </p>
           <div class="launch-description-grid">
             <article class="launch-description-item">
@@ -454,7 +473,8 @@
               </p>
             </article>
           </div>
-        </section>
+          </div>
+        </details>
 
       </div>
     </mat-card-content>

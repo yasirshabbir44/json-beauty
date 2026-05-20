@@ -147,6 +147,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     private hasLoadedSharedJson = false;
     isFileDragActive = false;
     private dragEventDepth = 0;
+
+    /** True when the input editor has no content (shows onboarding overlay). */
+    get isWorkspaceEmpty(): boolean {
+        return !(this.jsonInput.value || '').trim();
+    }
     private readonly outputConversionStrategies: Record<OutputConversionType, OutputConversionStrategy>;
 
     constructor(
