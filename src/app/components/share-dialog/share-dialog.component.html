@@ -1,52 +1,154 @@
-<h2 mat-dialog-title>Share JSON</h2>
+<h2 mat-dialog-title>
+  <mat-icon class="title-icon">share</mat-icon>
+  Share JSON
+</h2>
 
 <mat-dialog-content>
-    <div class="share-content">
-        <p class="share-description">
-            Share your JSON with others using the link below. They can view and edit the content.
-        </p>
+  <div class="share-content">
+    <p class="share-description">
+      Share a link that opens this JSON in JSON Beauty. Everything stays in the URL—nothing is uploaded to a server.
+    </p>
 
-        <div class="url-container">
-            <mat-form-field appearance="outline" class="url-field">
-                <mat-label>Shareable URL</mat-label>
-                <input #urlInput [value]="data.shareableUrl" matInput readonly>
-                <button (click)="copyUrl()" mat-icon-button matSuffix matTooltip="Copy URL">
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </mat-form-field>
-        </div>
+    @if (urlStats.warning) {
+      <div class="url-warning" role="status">
+        <mat-icon>warning</mat-icon>
+        <span>{{ urlStats.warning }}</span>
+      </div>
+    }
 
-        <div class="share-options">
-            <h3>Share Options</h3>
-
-            <div class="option-buttons">
-                <button (click)="copyUrl()" color="primary" mat-raised-button>
-                    <mat-icon>link</mat-icon>
-                    Copy Link
-                </button>
-
-                <button (click)="copyJson()" color="accent" mat-raised-button>
-                    <mat-icon>code</mat-icon>
-                    Copy JSON
-                </button>
-
-                <button (click)="openInNewTab()" color="warn" mat-raised-button>
-                    <mat-icon>open_in_new</mat-icon>
-                    Open in New Tab
-                </button>
-            </div>
-        </div>
-
-        <div class="qr-code-container">
-            <h3>QR Code</h3>
-            <p>Scan this QR code to open the JSON on a mobile device:</p>
-            <img [src]="'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(data.shareableUrl)"
-                 alt="QR Code for shared JSON"
-                 class="qr-code">
-        </div>
+    <div class="url-container">
+      <mat-form-field appearance="outline" class="url-field">
+        <mat-label>Shareable link</mat-label>
+        <input
+          #urlInput
+          matInput
+          readonly
+          [value]="shareableUrl"
+          (focus)="selectUrl()"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          matTooltip="Copy link"
+          (click)="copyUrl()"
+        >
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </mat-form-field>
+      <p class="url-meta">
+        <span>{{ urlStats.length | number }} characters</span>
+        <span class="meta-sep">·</span>
+        <span>{{ urlStats.humanSize }}</span>
+        @if (compressed) {
+          <span class="meta-sep">·</span>
+          <span class="compressed-badge">Compressed</span>
+        }
+      </p>
     </div>
+
+    @if (compressionSupported) {
+      <div class="compression-row">
+        <mat-slide-toggle
+          [checked]="compressed"
+          [disabled]="isRebuildingUrl"
+          (change)="onCompressionToggle($event.checked)"
+        >
+          {{ compressToggleLabel }}
+        </mat-slide-toggle>
+        @if (isRebuildingUrl) {
+          <mat-spinner diameter="20"></mat-spinner>
+        }
+      </div>
+    }
+
+    <section class="share-section">
+      <h3>Quick actions</h3>
+      <div class="action-grid">
+        <button type="button" mat-stroked-button (click)="copyUrl()">
+          <mat-icon>link</mat-icon>
+          {{ copyLinkLabel }}
+        </button>
+        <button type="button" mat-stroked-button (click)="copyJson()">
+          <mat-icon>code</mat-icon>
+          Copy JSON
+        </button>
+        <button type="button" mat-stroked-button (click)="downloadJson()">
+          <mat-icon>download</mat-icon>
+          Download
+        </button>
+        <button type="button" mat-stroked-button (click)="openInNewTab()">
+          <mat-icon>open_in_new</mat-icon>
+          Preview
+        </button>
+        @if (canNativeShare) {
+          <button type="button" mat-stroked-button color="primary" (click)="nativeShare()">
+            <mat-icon>ios_share</mat-icon>
+            Share…
+          </button>
+        }
+      </div>
+    </section>
+
+    <section class="share-section">
+      <h3>Share on</h3>
+      <div class="social-grid">
+        @for (link of socialLinks; track link.id) {
+          <a
+            mat-stroked-button
+            class="social-btn"
+            [href]="link.href"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="'Share via ' + link.label"
+          >
+            <mat-icon>{{ link.icon }}</mat-icon>
+            {{ link.label }}
+          </a>
+        }
+      </div>
+    </section>
+
+    <section class="share-section">
+      <h3>Embed &amp; markdown</h3>
+      <div class="snippet-row">
+        <mat-form-field appearance="outline" class="snippet-field">
+          <mat-label>Markdown</mat-label>
+          <input matInput readonly [value]="markdownLink" />
+        </mat-form-field>
+        <button type="button" mat-icon-button matTooltip="Copy markdown" (click)="copyMarkdown()">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+      <div class="snippet-row">
+        <mat-form-field appearance="outline" class="snippet-field">
+          <mat-label>HTML</mat-label>
+          <input matInput readonly [value]="embedHtml" />
+        </mat-form-field>
+        <button type="button" mat-icon-button matTooltip="Copy HTML" (click)="copyEmbed()">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+    </section>
+
+    <section class="share-section qr-section">
+      <h3>QR code</h3>
+      <p class="qr-hint">Scan to open on a phone or tablet.</p>
+      <img
+        class="qr-code"
+        [src]="qrCodeSrc"
+        width="160"
+        height="160"
+        alt="QR code for shared JSON link"
+      />
+    </section>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <button (click)="close()" mat-button>Close</button>
+  <button type="button" mat-button (click)="close()">Close</button>
+  <button type="button" mat-flat-button color="primary" (click)="copyUrl()">
+    <mat-icon>content_copy</mat-icon>
+    Copy link
+  </button>
 </mat-dialog-actions>

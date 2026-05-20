@@ -1,90 +1,162 @@
+:host {
+  display: block;
+}
+
+h2[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+
+  .title-icon {
+    color: var(--jb-accent, #2563eb);
+  }
+}
+
 .share-content {
-  padding: 0 16px;
-  max-width: 500px;
+  min-width: min(520px, 100%);
+  max-width: 560px;
 }
 
 .share-description {
-  margin-bottom: 20px;
-  color: #555;
-  font-size: 16px;
+  margin: 0 0 16px;
+  color: var(--jb-text-muted, #64748b);
+  font-size: 0.9375rem;
   line-height: 1.5;
 }
 
+.url-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-radius: var(--jb-radius-md, 8px);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: var(--jb-text, #334155);
+  font-size: 0.875rem;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #d97706;
+  }
+}
+
 .url-container {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
 
   .url-field {
     width: 100%;
   }
 }
 
-.share-options {
-  margin-bottom: 24px;
+.url-meta {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: var(--jb-text-muted, #64748b);
 
-  h3 {
-    margin-bottom: 12px;
-    font-size: 18px;
-    font-weight: 500;
-    color: #333;
+  .meta-sep {
+    margin: 0 6px;
   }
 
-  .option-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-
-    button {
-      display: flex;
-      align-items: center;
-
-      mat-icon {
-        margin-right: 8px;
-      }
-    }
+  .compressed-badge {
+    color: var(--jb-accent, #2563eb);
+    font-weight: 500;
   }
 }
 
-.qr-code-container {
-  margin-bottom: 16px;
+.compression-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--jb-border, #e2e8f0);
+}
+
+.share-section {
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0 0 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--jb-text-muted, #64748b);
+  }
+}
+
+.action-grid,
+.social-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button,
+  a.social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.snippet-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+
+  .snippet-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.qr-section {
   text-align: center;
+  padding-top: 4px;
+}
 
-  h3 {
-    margin-bottom: 8px;
-    font-size: 18px;
-    font-weight: 500;
-    color: #333;
-  }
+.qr-hint {
+  margin: 0 0 12px;
+  font-size: 0.875rem;
+  color: var(--jb-text-muted, #64748b);
+}
 
-  p {
-    margin-bottom: 16px;
-    color: #555;
-  }
+.qr-code {
+  border: 1px solid var(--jb-border, #e2e8f0);
+  border-radius: var(--jb-radius-md, 8px);
+  padding: 8px;
+  background: #fff;
+}
 
-  .qr-code {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 8px;
-    background-color: white;
+mat-dialog-actions {
+  padding-top: 8px;
+
+  button mat-icon {
+    margin-right: 4px;
   }
 }
 
-// Dark theme support
 :host-context(.dark-theme) {
-  .share-description {
-    color: #bbb;
-  }
-
-  .share-options h3,
-  .qr-code-container h3 {
-    color: #e0e0e0;
-  }
-
-  .qr-code-container p {
-    color: #bbb;
+  .url-warning {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--jb-text, #e2e8f0);
   }
 
   .qr-code {
-    border-color: #555;
-    background-color: white; // Keep QR code background white for readability
+    background: #fff;
   }
 }

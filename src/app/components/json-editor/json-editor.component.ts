@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, DestroyRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {JsonService} from '../../services/json.service';
@@ -19,6 +20,8 @@ import {
     XmlOutputConversionStrategy
 } from './output-conversion.strategy';
 import {JsonEditorUiHelper, PanelFocus} from './json-editor-ui.helper';
+import {ShareDialogComponent, ShareDialogData} from '../share-dialog/share-dialog.component';
+import {ShareService} from '../../services/share/share.service';
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
@@ -170,12 +173,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     constructor(
         private snackBar: MatSnackBar,
+        private dialog: MatDialog,
         private jsonService: JsonService,
         private versionHistoryService: VersionHistoryService,
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
         private settingsService: SettingsService,
         private themeService: ThemeService,
+        private shareService: ShareService,
         private destroyRef: DestroyRef
     ) {
         this.outputConversionStrategies = {
@@ -690,12 +695,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             });
 
         // Check for JSON data in URL (for shared links)
-        this.loadJsonFromUrl();
-
-        if (!this.hasLoadedSharedJson) {
-            this.jsonInput.setValue(JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2));
-            // The output will be updated after validation in the validateJson method
-        }
+        void this.loadJsonFromUrl().then(() => {
+            if (!this.hasLoadedSharedJson) {
+                this.jsonInput.setValue(JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2));
+            }
+        });
     }
 
     ngAfterViewInit(): void {
@@ -1507,7 +1511,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Generates a shareable URL containing the current JSON.
+     * Generates a shareable URL containing the current JSON and opens the share dialog.
      * Everything remains client-side; no server storage is used.
      */
     shareJson(): void {
@@ -1516,31 +1520,33 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
         }
 
+        void this.openShareDialog();
+    }
+
+    private async openShareDialog(): Promise<void> {
         try {
-            // Sanitize the JSON input before minifying
             const sanitizedInput = this.sanitizationService.sanitizeJsonInput(this.jsonInput.value || '{}');
-            
-            // Compress the JSON to make the URL shorter
             const jsonString = this.jsonService.minifyJson(sanitizedInput);
-
-            // Encode the JSON for the URL
-            const encodedJson = encodeURIComponent(jsonString);
-
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('json', encodedJson);
-            const shareableUrl = currentUrl.toString();
-            
-            // Keep URL handling in string space for history/clipboard APIs.
-            const sanitizedUrl = this.sanitizationService.sanitizeString(shareableUrl);
+            const result = await this.shareService.buildShareUrl(jsonString);
+            const sanitizedUrl = this.sanitizationService.sanitizeString(result.url);
 
             window.history.replaceState({}, '', sanitizedUrl);
-            void navigator.clipboard.writeText(sanitizedUrl)
-                .then(() => this.showSuccess('Share link copied to clipboard'))
-                .catch(() => this.showSuccess('Share link ready in your address bar'));
-
-            // Save this version to history
             this.saveVersion('Shared version');
 
+            const dialogData: ShareDialogData = {
+                shareableUrl: sanitizedUrl,
+                jsonContent: jsonString,
+                compressed: result.compressed,
+                compressionSupported: result.compressionSupported
+            };
+
+            this.dialog.open(ShareDialogComponent, {
+                width: '600px',
+                maxWidth: '95vw',
+                maxHeight: '90vh',
+                autoFocus: true,
+                data: dialogData
+            });
         } catch (error) {
             const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
             this.showError(`Error generating shareable URL: ${sanitizedError}`);
@@ -1548,43 +1554,36 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Loads JSON data from the URL query parameter
+     * Loads JSON data from the URL query parameter (`json` or compressed `jc`).
      */
-    loadJsonFromUrl(): void {
+    async loadJsonFromUrl(): Promise<void> {
         try {
-            // Get the URL parameters
             const urlParams = new URLSearchParams(window.location.search);
-            const jsonParam = urlParams.get('json');
-
-            if (jsonParam) {
-                // Decode the JSON data
-                const decodedJson = decodeURIComponent(jsonParam);
-                
-                // Sanitize the decoded JSON before processing
-                const sanitizedJson = this.sanitizationService.sanitizeJsonInput(decodedJson);
-
-                // Try to parse the JSON to validate it
-                JSON.parse(sanitizedJson);
-
-                // Set the input value
-                this.jsonInput.setValue(sanitizedJson);
-                this.hasLoadedSharedJson = true;
-
-                // Set the input editor value after it's initialized
-                setTimeout(() => {
-                    if (this.jsonInputEditor) {
-                        this.jsonInputEditor.setValue(sanitizedJson);
-                    }
-
-                    // Beautify the JSON for better readability
-                    this.beautifyJson();
-
-                    this.showSuccess('JSON loaded from shared URL');
-                }, 100);
+            if (!urlParams.has('json') && !urlParams.has('jc')) {
+                return;
             }
+
+            const decodedJson = await this.shareService.extractJsonFromSearchParams(urlParams);
+            if (!decodedJson) {
+                return;
+            }
+
+            const sanitizedJson = this.sanitizationService.sanitizeJsonInput(decodedJson);
+            JSON.parse(sanitizedJson);
+
+            this.jsonInput.setValue(sanitizedJson);
+            this.hasLoadedSharedJson = true;
+
+            setTimeout(() => {
+                if (this.jsonInputEditor) {
+                    this.jsonInputEditor.setValue(sanitizedJson);
+                }
+                this.beautifyJson();
+                this.showSuccess('JSON loaded from shared link');
+            }, 100);
         } catch (error) {
             const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
-            this.showError(`Error loading JSON from URL: ${sanitizedError}`);
+            this.showError(`Error loading JSON from link: ${sanitizedError}`);
         }
     }
 
