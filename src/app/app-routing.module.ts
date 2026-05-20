@@ -2,10 +2,9 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 
 const routes: Routes = [
-    // Root loads the editor so shared `?json=` / `?jc=` links are not stripped by redirects
     {
         path: '',
-        loadChildren: () => import('./modules/editor/editor.module').then(m => m.EditorModule)
+        loadChildren: () => import('./modules/landing/landing.module').then(m => m.LandingModule)
     },
     {
         path: 'editor',
@@ -20,7 +19,7 @@ const routes: Routes = [
         loadChildren: () => import('./modules/validation/validation.module').then(m => m.ValidationModule)
     },
     // Fallback route for any undefined routes
-    {path: '**', redirectTo: '/editor'}
+    {path: '**', redirectTo: ''}
 ];
 
 @NgModule({
