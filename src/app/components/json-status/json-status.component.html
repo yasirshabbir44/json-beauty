@@ -7,18 +7,13 @@
     <mat-icon>straighten</mat-icon>
     <span>Size: {{ displaySize }}</span>
   </div>
-  @if (isValidJson) {
-    <div class="status-item success">
-      <mat-icon>check_circle</mat-icon>
-      <span>Valid JSON</span>
-    </div>
-  }
-  @if (!isValidJson) {
-    <div class="status-item error">
-      <mat-icon>error</mat-icon>
-      <span>Invalid JSON</span>
-    </div>
-  }
+  <div class="status-item validation-status"
+    [class.success]="isValidJson"
+    [class.error]="!isValidJson"
+    [@validationPulse]="isValidJson ? 'valid' : 'invalid'">
+    <mat-icon>{{ isValidJson ? 'check_circle' : 'error' }}</mat-icon>
+    <span>{{ isValidJson ? 'Valid JSON' : 'Invalid JSON' }}</span>
+  </div>
   @if (!isValidJson && errorMessage) {
     <div class="status-item error-detail">
       <span>{{ errorMessage }}</span>

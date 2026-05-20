@@ -14,6 +14,7 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {debounceTime, merge, startWith, Subject} from 'rxjs';
 import {SearchReplaceService} from '../../services/search/search-replace.service';
+import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 
 export interface SearchReplaceActiveMatch {
     start: number;
@@ -24,6 +25,7 @@ export interface SearchReplaceActiveMatch {
     selector: 'app-json-search-replace',
     templateUrl: './json-search-replace.component.html',
     styleUrls: ['./json-search-replace.component.scss'],
+    animations: MICRO_INTERACTION_ANIMATIONS,
     standalone: false
 })
 export class JsonSearchReplaceComponent implements AfterViewInit, OnChanges {

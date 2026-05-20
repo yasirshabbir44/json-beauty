@@ -50,6 +50,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Input() expandedNodes: Set<string> = new Set();
     @Input() treeSearchResults: string[] = [];
     @Input() treeSearchHighlighted: boolean = false;
+    @Input() copyFeedbackActive = false;
 
     @Output() toggleMaximize = new EventEmitter<void>();
     @Output() toggleOutputFormat = new EventEmitter<void>();

@@ -32,7 +32,17 @@
   border-radius: var(--jb-radius-pill);
   background-color: var(--jb-bg-surface);
   border: 1px solid var(--jb-border);
-  transition: background var(--jb-transition), border-color var(--jb-transition);
+  transition:
+    background var(--jb-duration-normal) var(--jb-ease-standard),
+    border-color var(--jb-duration-normal) var(--jb-ease-standard),
+    transform var(--jb-duration-normal) var(--jb-ease-standard);
+  transform-origin: center left;
+
+  &.validation-status {
+    &.success mat-icon {
+      transition: color var(--jb-duration-normal) var(--jb-ease-spring);
+    }
+  }
 
   mat-icon {
     font-size: 16px;

@@ -1,4 +1,5 @@
 @use 'app/styles/design-tokens';
+@use 'app/styles/motion';
 
 /* Tailwind CSS */
 @tailwind base;
@@ -275,7 +276,7 @@ a:focus:not(:focus-visible) {
 
 /* Animations */
 .fade-in {
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn var(--jb-duration-slow) var(--jb-ease-standard);
 }
 
 @keyframes fadeIn {
@@ -284,10 +285,37 @@ a:focus:not(:focus-visible) {
 }
 
 .slide-up {
-  animation: slideUp 0.3s ease-out;
+  animation: slideUp var(--jb-duration-slow) var(--jb-ease-spring-gentle);
 }
 
 @keyframes slideUp {
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+/* Snackbar micro-interactions (copy / validation success) */
+.mat-mdc-snack-bar-container.success-snackbar,
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
+  animation: jbSnackbarIn 380ms var(--jb-ease-spring) both;
+}
+
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
+  background: var(--jb-success) !important;
+  color: #fff !important;
+  border-radius: var(--jb-radius-md) !important;
+  box-shadow: var(--jb-shadow-lg) !important;
+}
+
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface {
+  animation: jbSnackbarIn 320ms var(--jb-ease-standard) both;
+}
+
+/* Global button press feedback */
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-icon-button,
+.mat-mdc-fab,
+.mat-mdc-mini-fab {
+  @extend .jb-btn-press;
 }

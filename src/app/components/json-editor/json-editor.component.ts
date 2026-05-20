@@ -27,6 +27,7 @@ import 'ace-builds/src-noconflict/theme-github';
 import 'ace-builds/src-noconflict/theme-dracula';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
+import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 
 /**
  * Coordinates JSON input/output editors, dialogs, and panels.
@@ -36,6 +37,7 @@ import 'ace-builds/src-noconflict/ext-searchbox';
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
     styleUrls: ['./json-editor.component.scss'],
+    animations: MICRO_INTERACTION_ANIMATIONS,
     standalone: false
 })
 export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -58,6 +60,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     private isResizingPanels = false;
+    /** Exposed for template: disables panel width transition while dragging. */
+    panelResizing = false;
+    copyFeedbackState: 'idle' | 'copied' = 'idle';
+    private copyFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
     @ViewChild(JsonInputEditorComponent, {static: false}) jsonInputEditor!: JsonInputEditorComponent;
     @ViewChild(JsonOutputEditorComponent, {static: false}) jsonOutputEditor!: JsonOutputEditorComponent;
     jsonInput = new FormControl('');
@@ -415,6 +421,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         this.isResizingPanels = false;
+        this.panelResizing = false;
         document.body.classList.remove('resizing-panels');
     }
 
@@ -594,6 +601,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.floatingSearchTimer) {
             clearTimeout(this.floatingSearchTimer);
         }
+        if (this.copyFeedbackTimer) {
+            clearTimeout(this.copyFeedbackTimer);
+        }
         this.teardownScrollSync();
     }
 
@@ -609,6 +619,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         event.preventDefault();
         this.isResizingPanels = true;
+        this.panelResizing = true;
         document.body.classList.add('resizing-panels');
     }
 
@@ -1055,8 +1066,30 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         navigator.clipboard.writeText(textToCopy)
-            .then(() => this.showSuccess('Copied!'))
+            .then(() => {
+                this.triggerCopyFeedback();
+                this.showSuccess('Copied!');
+            })
             .catch(err => this.showError('Failed to copy: ' + err));
+    }
+
+    onCopyAnimationDone(): void {
+        if (this.copyFeedbackState === 'copied') {
+            this.copyFeedbackState = 'idle';
+        }
+    }
+
+    private triggerCopyFeedback(): void {
+        if (this.copyFeedbackTimer) {
+            clearTimeout(this.copyFeedbackTimer);
+        }
+        this.copyFeedbackState = 'copied';
+        this.copyFeedbackTimer = setTimeout(() => {
+            this.copyFeedbackTimer = null;
+            if (this.copyFeedbackState === 'copied') {
+                this.copyFeedbackState = 'idle';
+            }
+        }, 600);
     }
 
     downloadJson(): void {

@@ -17,11 +17,18 @@
   height: 44px;
   cursor: pointer;
   box-shadow: var(--jb-shadow-lg);
-  transition: transform var(--jb-transition), box-shadow var(--jb-transition);
+  transition:
+    transform var(--jb-duration-normal) var(--jb-ease-spring-snappy),
+    box-shadow var(--jb-duration-normal) var(--jb-ease-standard);
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.04);
     box-shadow: var(--jb-shadow-xl);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.96);
+    transition-duration: var(--jb-duration-fast);
   }
 
   mat-icon {
@@ -44,13 +51,8 @@
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  transform: translateX(110%);
-  transition: transform 0.3s ease-in-out;
   overflow: hidden;
-
-  &.open {
-    transform: translateX(0);
-  }
+  transform-origin: bottom right;
 }
 
 @media (max-width: 767px) {
@@ -112,10 +114,17 @@
     margin-bottom: 8px;
     background-color: #f9f9f9;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition:
+      background-color var(--jb-duration-normal) var(--jb-ease-standard),
+      transform var(--jb-duration-fast) var(--jb-ease-spring-snappy);
 
     &:hover {
       background-color: #f0f0f0;
+      transform: translateX(-2px);
+    }
+
+    &:active {
+      transform: translateX(0) scale(0.99);
     }
   }
 

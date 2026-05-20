@@ -49,6 +49,15 @@
   --jb-header-h: 56px;
   --jb-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --jb-focus-ring: 0 0 0 3px var(--jb-accent-subtle);
+
+  /* Motion — spring-like micro-interactions */
+  --jb-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --jb-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --jb-ease-spring-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+  --jb-ease-spring-snappy: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --jb-duration-fast: 120ms;
+  --jb-duration-normal: 200ms;
+  --jb-duration-slow: 320ms;
 }
 
 .dark-theme {

@@ -104,6 +104,11 @@
   font-family: var(--jb-font-sans);
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  transform-origin: center;
+  transition:
+    background-color var(--jb-duration-normal) var(--jb-ease-standard),
+    border-color var(--jb-duration-normal) var(--jb-ease-standard),
+    color var(--jb-duration-normal) var(--jb-ease-standard);
 
   mat-icon {
     width: 13px;
@@ -173,7 +178,7 @@
 
 .launch-description-chevron {
   color: var(--jb-text-muted);
-  transition: transform var(--jb-transition);
+  transition: transform var(--jb-duration-slow) var(--jb-ease-spring);
 }
 
 .launch-description-body {
@@ -258,6 +263,12 @@
       background: var(--jb-bg-surface) !important;
       color: var(--jb-text);
       box-shadow: var(--jb-shadow-sm);
+      transform: translateY(-1px);
+    }
+
+    &:active:not([disabled]) {
+      transform: translateY(0) scale(0.97);
+      transition-duration: var(--jb-duration-fast);
     }
 
     &.quick-diff-btn {
@@ -328,12 +339,22 @@
     min-height: 34px;
     font-weight: 600;
     font-size: 0.8125rem;
+    transition:
+      transform var(--jb-duration-fast) var(--jb-ease-spring-snappy),
+      background-color var(--jb-duration-normal) var(--jb-ease-standard),
+      border-color var(--jb-duration-normal) var(--jb-ease-standard),
+      color var(--jb-duration-normal) var(--jb-ease-standard),
+      box-shadow var(--jb-duration-normal) var(--jb-ease-standard);
 
     mat-icon {
       width: 16px;
       height: 16px;
       font-size: 16px;
       margin-right: 4px;
+    }
+
+    &:active:not([disabled]) {
+      transform: scale(0.97);
     }
   }
 
@@ -346,6 +367,7 @@
     border-color: var(--jb-accent-border);
     background: var(--jb-accent-subtle);
     color: var(--jb-accent);
+    transform: translateY(-1px);
   }
 
   .active-action {
@@ -572,7 +594,6 @@
   flex-direction: row;
   gap: 8px;
   margin: 0;
-  transition: all 0.2s ease-out;
   position: relative;
   flex: 1;
   min-height: 72vh;
@@ -645,7 +666,11 @@
   app-json-input-editor,
   app-json-output-editor {
     flex: 1;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition:
+      flex-basis var(--jb-duration-slow) var(--jb-ease-spring-gentle),
+      opacity var(--jb-duration-slow) var(--jb-ease-spring-gentle),
+      transform var(--jb-duration-slow) var(--jb-ease-spring-gentle),
+      width var(--jb-duration-slow) var(--jb-ease-spring-gentle);
     position: relative;
     width: auto;
     opacity: 1;
@@ -687,7 +712,7 @@
     cursor: col-resize;
     border-radius: var(--jb-radius-pill);
     background: transparent;
-    transition: background var(--jb-transition);
+    transition: background var(--jb-duration-normal) var(--jb-ease-standard);
     position: relative;
     align-self: stretch;
 
@@ -697,12 +722,26 @@
       inset: 12% 3px;
       border-radius: var(--jb-radius-pill);
       background: var(--jb-border-strong);
-      transition: background var(--jb-transition), transform var(--jb-transition);
+      transition:
+        background var(--jb-duration-normal) var(--jb-ease-standard),
+        transform var(--jb-duration-normal) var(--jb-ease-spring-snappy);
     }
 
     &:hover::before {
       background: var(--jb-accent);
-      transform: scaleX(1.15);
+      transform: scaleX(1.2);
+    }
+
+    &:active::before {
+      transform: scaleX(1.35);
+      background: var(--jb-accent-hover);
+    }
+  }
+
+  &.jb-panel-resizing {
+    app-json-input-editor,
+    app-json-output-editor {
+      transition: none;
     }
   }
 
