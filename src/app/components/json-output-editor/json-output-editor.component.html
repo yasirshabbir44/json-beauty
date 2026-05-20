@@ -1,275 +1,301 @@
 <div #editorSection [class.maximized]="isMaximized" [class.fullscreen-mode]="isFullScreen" class="editor-section output-section">
-    <h3 class="output-toolbar">
-        <div class="output-toolbar-primary">
-            <mat-icon class="output-toolbar-brand-icon">output</mat-icon>
-            <span class="output-toolbar-title">Output JSON</span>
-            <span class="output-toolbar-sub">Formatted / view</span>
-            <div *ngIf="isValidJson" class="output-toolbar-toggles">
-                <div class="output-format-selector">
-                    <mat-button-toggle-group (change)="onToggleOutputFormat()"
-                                             [hideSingleSelectionIndicator]="true"
-                                             [value]="selectedOutputFormat">
-                        <mat-button-toggle value="json">JSON</mat-button-toggle>
-                        <mat-button-toggle value="yaml">YAML</mat-button-toggle>
-                    </mat-button-toggle-group>
-                </div>
-                <div *ngIf="selectedOutputFormat === 'json'" class="view-mode-selector"
-                     matTooltip="Switch how the output is shown">
-                    <mat-button-toggle-group (change)="onViewModeSelect($event)"
-                                             [hideSingleSelectionIndicator]="true"
-                                             [value]="selectedViewMode">
-                        <mat-button-toggle value="text" matTooltip="JSON text"><mat-icon class="view-toggle-icon">article</mat-icon><span class="view-toggle-label">JSON</span></mat-button-toggle>
-                        <mat-button-toggle value="tree" matTooltip="Tree view"><mat-icon class="view-toggle-icon">account_tree</mat-icon><span class="view-toggle-label">Tree</span></mat-button-toggle>
-                        <mat-button-toggle value="table" matTooltip="Table view"><mat-icon class="view-toggle-icon">table_chart</mat-icon><span class="view-toggle-label">Table</span></mat-button-toggle>
-                    </mat-button-toggle-group>
-                </div>
+  <h3 class="output-toolbar">
+    <div class="output-toolbar-primary">
+      <mat-icon class="output-toolbar-brand-icon">output</mat-icon>
+      <span class="output-toolbar-title">Output JSON</span>
+      <span class="output-toolbar-sub">Formatted / view</span>
+      @if (isValidJson) {
+        <div class="output-toolbar-toggles">
+          <div class="output-format-selector">
+            <mat-button-toggle-group (change)="onToggleOutputFormat()"
+              [hideSingleSelectionIndicator]="true"
+              [value]="selectedOutputFormat">
+              <mat-button-toggle value="json">JSON</mat-button-toggle>
+              <mat-button-toggle value="yaml">YAML</mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          @if (selectedOutputFormat === 'json') {
+            <div class="view-mode-selector"
+              matTooltip="Switch how the output is shown">
+              <mat-button-toggle-group (change)="onViewModeSelect($event)"
+                [hideSingleSelectionIndicator]="true"
+                [value]="selectedViewMode">
+                <mat-button-toggle value="text" matTooltip="JSON text"><mat-icon class="view-toggle-icon">article</mat-icon><span class="view-toggle-label">JSON</span></mat-button-toggle>
+                <mat-button-toggle value="tree" matTooltip="Tree view"><mat-icon class="view-toggle-icon">account_tree</mat-icon><span class="view-toggle-label">Tree</span></mat-button-toggle>
+                <mat-button-toggle value="table" matTooltip="Table view"><mat-icon class="view-toggle-icon">table_chart</mat-icon><span class="view-toggle-label">Table</span></mat-button-toggle>
+              </mat-button-toggle-group>
             </div>
+          }
         </div>
-        <div class="output-toolbar-actions">
-        <button (click)="copy.emit()" *ngIf="isValidJson" matTooltip="Copy to Clipboard"
-                class="copy-btn" mat-icon-button>
-            <mat-icon>content_copy</mat-icon>
+      }
+    </div>
+    <div class="output-toolbar-actions">
+      @if (isValidJson) {
+        <button (click)="copy.emit()" matTooltip="Copy to Clipboard"
+          class="copy-btn" mat-icon-button>
+          <mat-icon>content_copy</mat-icon>
         </button>
-        
-        <!-- Features Dropdown -->
-        <button [matMenuTriggerFor]="featuresMenu" *ngIf="isValidJson"
-                class="features-btn" mat-icon-button matTooltip="JSON Features">
-            <mat-icon>account_tree</mat-icon>
+      }
+
+      <!-- Features Dropdown -->
+      @if (isValidJson) {
+        <button [matMenuTriggerFor]="featuresMenu"
+          class="features-btn" mat-icon-button matTooltip="JSON Features">
+          <mat-icon>account_tree</mat-icon>
         </button>
-        <mat-menu #featuresMenu="matMenu">
-            <button (click)="onToggleTreeView()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>account_tree</mat-icon>
-                <span>Tree View</span>
-            </button>
-            <button (click)="onToggleOutputFormat()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>swap_horiz</mat-icon>
-                <span>JSON/YAML</span>
-            </button>
-            <button (click)="onToggleJsonPaths()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>route</mat-icon>
-                <span>Paths</span>
-            </button>
-            <button (click)="onToggleSchemaEditor()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>check_circle</mat-icon>
-                <span>Validate</span>
-            </button>
-            <mat-divider></mat-divider>
-            <button (click)="onGenerateSchema()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>schema</mat-icon>
-                <span>Generate Schema</span>
-            </button>
-            <button (click)="onToggleJsonPathQuery()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>search</mat-icon>
-                <span>JSONPath Query</span>
-            </button>
-            <button (click)="onToggleJsonCompare()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>compare</mat-icon>
-                <span>Compare JSON</span>
-            </button>
-            <button (click)="onToggleJsonVisualize()" [disabled]="!isValidJson" mat-menu-item>
-                <mat-icon>bar_chart</mat-icon>
-                <span>Visualize</span>
-            </button>
-        </mat-menu>
-        
-        <!-- Export Dropdown -->
-        <button [matMenuTriggerFor]="exportMenu" *ngIf="isValidJson" 
-                class="export-btn" mat-icon-button matTooltip="Export Options">
-            <mat-icon>download</mat-icon>
+      }
+      <mat-menu #featuresMenu="matMenu">
+        <button (click)="onToggleTreeView()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>account_tree</mat-icon>
+          <span>Tree View</span>
         </button>
-        <mat-menu #exportMenu="matMenu">
-            <button (click)="download.emit()" mat-menu-item>
-                <mat-icon>download</mat-icon>
-                <span>JSON</span>
-            </button>
-            <button (click)="downloadText.emit()" mat-menu-item>
-                <mat-icon>description</mat-icon>
-                <span>TXT</span>
-            </button>
-            <button (click)="convertToCsv.emit()" mat-menu-item>
-                <mat-icon>table_chart</mat-icon>
-                <span>CSV</span>
-            </button>
-            <button (click)="convertToXml.emit()" mat-menu-item>
-                <mat-icon>code</mat-icon>
-                <span>XML</span>
-            </button>
-            <button (click)="share.emit()" mat-menu-item>
-                <mat-icon>share</mat-icon>
-                <span>Share</span>
-            </button>
-        </mat-menu>
-        
-        <button (click)="toggleOutputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'"
-                class="maximize-btn" mat-icon-button>
-            <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+        <button (click)="onToggleOutputFormat()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>swap_horiz</mat-icon>
+          <span>JSON/YAML</span>
         </button>
-        </div>
-    </h3>
+        <button (click)="onToggleJsonPaths()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>route</mat-icon>
+          <span>Paths</span>
+        </button>
+        <button (click)="onToggleSchemaEditor()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>check_circle</mat-icon>
+          <span>Validate</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button (click)="onGenerateSchema()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>schema</mat-icon>
+          <span>Generate Schema</span>
+        </button>
+        <button (click)="onToggleJsonPathQuery()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>search</mat-icon>
+          <span>JSONPath Query</span>
+        </button>
+        <button (click)="onToggleJsonCompare()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>compare</mat-icon>
+          <span>Compare JSON</span>
+        </button>
+        <button (click)="onToggleJsonVisualize()" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>bar_chart</mat-icon>
+          <span>Visualize</span>
+        </button>
+      </mat-menu>
 
-    <div class="editor-wrapper">
-        <!-- Text View (Ace Editor) - shown when in text view mode and JSON format -->
-        <div #outputEditor
-             [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'json'"
-             [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'json'" class="ace-editor output-editor view-container"></div>
+      <!-- Export Dropdown -->
+      @if (isValidJson) {
+        <button [matMenuTriggerFor]="exportMenu"
+          class="export-btn" mat-icon-button matTooltip="Export Options">
+          <mat-icon>download</mat-icon>
+        </button>
+      }
+      <mat-menu #exportMenu="matMenu">
+        <button (click)="download.emit()" mat-menu-item>
+          <mat-icon>download</mat-icon>
+          <span>JSON</span>
+        </button>
+        <button (click)="downloadText.emit()" mat-menu-item>
+          <mat-icon>description</mat-icon>
+          <span>TXT</span>
+        </button>
+        <button (click)="convertToCsv.emit()" mat-menu-item>
+          <mat-icon>table_chart</mat-icon>
+          <span>CSV</span>
+        </button>
+        <button (click)="convertToXml.emit()" mat-menu-item>
+          <mat-icon>code</mat-icon>
+          <span>XML</span>
+        </button>
+        <button (click)="share.emit()" mat-menu-item>
+          <mat-icon>share</mat-icon>
+          <span>Share</span>
+        </button>
+      </mat-menu>
 
-        <!-- YAML View - shown when in text view mode and YAML format -->
-        <div [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'yaml'"
-             [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'yaml'"
-             class="yaml-output view-container">
-            <pre>{{ yamlOutput.value }}</pre>
-        </div>
+      <button (click)="toggleOutputMaximize()" [matTooltip]="isFullScreen ? 'Exit Fullscreen (ESC)' : 'Fullscreen'"
+        class="maximize-btn" mat-icon-button>
+        <mat-icon>{{ isFullScreen ? 'fullscreen_exit' : 'fullscreen' }}</mat-icon>
+      </button>
+    </div>
+  </h3>
 
-        <!-- Tree View - shown when in tree view mode -->
-        <div [class.view-active]="selectedViewMode === 'tree' && jsonTreeData"
-             [class.view-inactive]="selectedViewMode !== 'tree' || !jsonTreeData"
-             class="tree-view view-container">
-            <div class="tree-container">
-                <ng-container
-                        *ngTemplateOutlet="treeNode; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
-            </div>
-        </div>
+  <div class="editor-wrapper">
+    <!-- Text View (Ace Editor) - shown when in text view mode and JSON format -->
+    <div #outputEditor
+      [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'json'"
+    [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'json'" class="ace-editor output-editor view-container"></div>
 
-        <!-- Table View - shown when in table view mode -->
-        <div [class.view-active]="selectedViewMode === 'table' && jsonTreeData"
-             [class.view-inactive]="selectedViewMode !== 'table' || !jsonTreeData"
-             class="table-view view-container">
-            <div class="table-container">
-                <table class="json-table">
-                    <thead>
-                    <tr>
-                        <th>Key</th>
-                        <th>Type</th>
-                        <th>Value</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <ng-container
-                            *ngTemplateOutlet="tableRow; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+    <!-- YAML View - shown when in text view mode and YAML format -->
+    <div [class.view-active]="selectedViewMode === 'text' && selectedOutputFormat === 'yaml'"
+      [class.view-inactive]="selectedViewMode !== 'text' || selectedOutputFormat !== 'yaml'"
+      class="yaml-output view-container">
+      <pre>{{ yamlOutput.value }}</pre>
     </div>
 
-    <!-- Fullscreen overlay for better UX -->
-    <div *ngIf="isFullScreen" class="fullscreen-overlay">
-        <div class="fullscreen-controls">
-            <span>Press ESC to exit fullscreen</span>
-            <button (click)="toggleOutputMaximize()" mat-icon-button matTooltip="Exit Fullscreen">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
+    <!-- Tree View - shown when in tree view mode -->
+    <div [class.view-active]="selectedViewMode === 'tree' && jsonTreeData"
+      [class.view-inactive]="selectedViewMode !== 'tree' || !jsonTreeData"
+      class="tree-view view-container">
+      <div class="tree-container">
+        <ng-container
+        *ngTemplateOutlet="treeNode; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
+      </div>
     </div>
+
+    <!-- Table View - shown when in table view mode -->
+    <div [class.view-active]="selectedViewMode === 'table' && jsonTreeData"
+      [class.view-inactive]="selectedViewMode !== 'table' || !jsonTreeData"
+      class="table-view view-container">
+      <div class="table-container">
+        <table class="json-table">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Type</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container
+            *ngTemplateOutlet="tableRow; context: { $implicit: jsonTreeData, path: '$', level: 0 }"></ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fullscreen overlay for better UX -->
+  @if (isFullScreen) {
+    <div class="fullscreen-overlay">
+      <div class="fullscreen-controls">
+        <span>Press ESC to exit fullscreen</span>
+        <button (click)="toggleOutputMaximize()" mat-icon-button matTooltip="Exit Fullscreen">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
 </div>
 
 <!-- Tree Node Template -->
 <ng-template #treeNode let-level="level" let-node let-path="path">
-    <div [style.padding-left.px]="level * 20" class="tree-level">
-        <!-- Object Node -->
-        <div *ngIf="isObject(node) && !isArray(node)">
-            <div (click)="onToggleNode(path)" class="tree-node">
-                <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
-                <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
-                <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
-            </div>
-            <div [class.collapsed]="!isNodeExpanded(path)" class="tree-children">
-                <ng-container *ngFor="let key of getObjectKeys(node)">
-                    <ng-container
-                            *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
-                </ng-container>
-            </div>
+  <div [style.padding-left.px]="level * 20" class="tree-level">
+    <!-- Object Node -->
+    @if (isObject(node) && !isArray(node)) {
+      <div>
+        <div (click)="onToggleNode(path)" class="tree-node">
+          <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
+          <span class="node-label">{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
+          <span class="node-info">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</span>
         </div>
-
-        <!-- Array Node -->
-        <div *ngIf="isArray(node)">
-            <div (click)="onToggleNode(path)" class="tree-node">
-                <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
-                <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
-                <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
-            </div>
-            <div [class.collapsed]="!isNodeExpanded(path)" class="tree-children">
-                <ng-container *ngFor="let item of node; let i = index">
-                    <ng-container
-                            *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
-                </ng-container>
-            </div>
+        <div [class.collapsed]="!isNodeExpanded(path)" class="tree-children">
+          @for (key of getObjectKeys(node); track key) {
+            <ng-container
+            *ngTemplateOutlet="treeNode; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
+          }
         </div>
+      </div>
+    }
 
-        <!-- Primitive Values -->
-        <div *ngIf="!isObject(node) && !isArray(node)" class="tree-leaf">
-            <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
+    <!-- Array Node -->
+    @if (isArray(node)) {
+      <div>
+        <div (click)="onToggleNode(path)" class="tree-node">
+          <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
+          <span class="node-label">{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
+          <span class="node-info">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</span>
+        </div>
+        <div [class.collapsed]="!isNodeExpanded(path)" class="tree-children">
+          @for (item of node; track item; let i = $index) {
+            <ng-container
+            *ngTemplateOutlet="treeNode; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Primitive Values -->
+    @if (!isObject(node) && !isArray(node)) {
+      <div class="tree-leaf">
+        <span class="node-label">{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
             <span [ngClass]="{
               'string-value': isString(node),
               'number-value': isNumber(node),
               'boolean-value': isBoolean(node),
               'null-value': node === null
             }" class="node-value">{{ formatValue(node) }}</span>
-        </div>
-    </div>
+      </div>
+    }
+  </div>
 </ng-template>
 
 <!-- Table Row Template -->
 <ng-template #tableRow let-level="level" let-node let-path="path">
-    <!-- Object Row -->
-    <ng-container *ngIf="isObject(node) && !isArray(node)">
-        <tr (click)="onToggleNode(path)" [class.expandable]="true">
-            <td class="key-cell">
-                <span [style.padding-left.px]="level * 20" class="indent"></span>
-                <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
-                <span>{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
-            </td>
-            <td class="type-cell">Object</td>
-            <td class="value-cell">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</td>
-        </tr>
-        <ng-container *ngIf="isNodeExpanded(path)">
-            <ng-container *ngFor="let key of getObjectKeys(node)">
-                <ng-container
-                        *ngTemplateOutlet="tableRow; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
-            </ng-container>
-        </ng-container>
-    </ng-container>
+  <!-- Object Row -->
+  @if (isObject(node) && !isArray(node)) {
+    <tr (click)="onToggleNode(path)" [class.expandable]="true">
+      <td class="key-cell">
+        <span [style.padding-left.px]="level * 20" class="indent"></span>
+        <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
+        <span>{{ path === '$' ? 'Root Object' : path.split('.').pop() }}</span>
+      </td>
+      <td class="type-cell">Object</td>
+      <td class="value-cell">{{ '{' }} {{ getObjectKeys(node).length }} {{ getObjectKeys(node).length === 1 ? 'property' : 'properties' }} {{ '}' }}</td>
+    </tr>
+    @if (isNodeExpanded(path)) {
+      @for (key of getObjectKeys(node); track key) {
+        <ng-container
+        *ngTemplateOutlet="tableRow; context: { $implicit: node[key], path: path + '.' + key, level: level + 1 }"></ng-container>
+      }
+    }
+  }
 
-    <!-- Array Row -->
-    <ng-container *ngIf="isArray(node)">
-        <tr (click)="onToggleNode(path)" [class.expandable]="true">
-            <td class="key-cell">
-                <span [style.padding-left.px]="level * 20" class="indent"></span>
-                <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
-                <span>{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
-            </td>
-            <td class="type-cell">Array</td>
-            <td class="value-cell">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</td>
-        </tr>
-        <ng-container *ngIf="isNodeExpanded(path)">
-            <ng-container *ngFor="let item of node; let i = index">
-                <ng-container
-                        *ngTemplateOutlet="tableRow; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
-            </ng-container>
-        </ng-container>
-    </ng-container>
+  <!-- Array Row -->
+  @if (isArray(node)) {
+    <tr (click)="onToggleNode(path)" [class.expandable]="true">
+      <td class="key-cell">
+        <span [style.padding-left.px]="level * 20" class="indent"></span>
+        <mat-icon [class.expanded]="isNodeExpanded(path)" class="tree-icon">chevron_right</mat-icon>
+        <span>{{ path === '$' ? 'Root Array' : path.split('.').pop() }}</span>
+      </td>
+      <td class="type-cell">Array</td>
+      <td class="value-cell">{{ '[' }} {{ node.length }} {{ node.length === 1 ? 'item' : 'items' }} {{ ']' }}</td>
+    </tr>
+    @if (isNodeExpanded(path)) {
+      @for (item of node; track item; let i = $index) {
+        <ng-container
+        *ngTemplateOutlet="tableRow; context: { $implicit: item, path: path + '[' + i + ']', level: level + 1 }"></ng-container>
+      }
+    }
+  }
 
-    <!-- Primitive Value Row -->
-    <ng-container *ngIf="!isObject(node) && !isArray(node)">
-        <tr>
-            <td class="key-cell">
-                <span [style.padding-left.px]="level * 20" class="indent"></span>
-                <span>{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
-            </td>
-            <td class="type-cell">
-                <span *ngIf="isString(node)">String</span>
-                <span *ngIf="isNumber(node)">Number</span>
-                <span *ngIf="isBoolean(node)">Boolean</span>
-                <span *ngIf="node === null">Null</span>
-            </td>
+  <!-- Primitive Value Row -->
+  @if (!isObject(node) && !isArray(node)) {
+    <tr>
+      <td class="key-cell">
+        <span [style.padding-left.px]="level * 20" class="indent"></span>
+        <span>{{ path === '$' ? 'Value' : path.split('.').pop() }}</span>
+      </td>
+      <td class="type-cell">
+        @if (isString(node)) {
+          <span>String</span>
+        }
+        @if (isNumber(node)) {
+          <span>Number</span>
+        }
+        @if (isBoolean(node)) {
+          <span>Boolean</span>
+        }
+        @if (node === null) {
+          <span>Null</span>
+        }
+      </td>
             <td [ngClass]="{
                 'string-value': isString(node),
                 'number-value': isNumber(node),
                 'boolean-value': isBoolean(node),
                 'null-value': node === null
             }" class="value-cell">{{ formatValue(node) }}
-            </td>
-        </tr>
-    </ng-container>
+      </td>
+    </tr>
+  }
 </ng-template>

@@ -1,9 +1,10 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
-  selector: 'app-json-visualization',
-  templateUrl: './json-visualization.component.html',
-  styleUrls: ['./json-visualization.component.scss']
+    selector: 'app-json-visualization',
+    templateUrl: './json-visualization.component.html',
+    styleUrls: ['./json-visualization.component.scss'],
+    standalone: false
 })
 export class JsonVisualizationComponent implements OnInit, OnChanges {
   @Input() jsonData: any;

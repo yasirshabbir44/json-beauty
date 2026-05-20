@@ -1,93 +1,100 @@
 <div class="version-history-container">
-    <button
-            (click)="togglePanel()"
-            aria-label="Toggle version history panel"
-            class="toggle-button"
-            matTooltip="Version History">
-        <mat-icon>history</mat-icon>
-    </button>
+  <button
+    (click)="togglePanel()"
+    aria-label="Toggle version history panel"
+    class="toggle-button"
+    matTooltip="Version History">
+    <mat-icon>history</mat-icon>
+  </button>
 
-    <div [class.open]="isOpen" class="version-panel">
-        <div class="panel-header">
-            <h2>Version History</h2>
-            <button
-                    (click)="togglePanel()"
-                    aria-label="Close panel"
-                    mat-icon-button>
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-
-        <div class="panel-content">
-            <div *ngIf="versions.length === 0" class="no-versions">
-                <p>No saved versions yet.</p>
-                <p class="hint">Versions are automatically saved when you make changes to your JSON.</p>
-            </div>
-
-            <div *ngIf="versions.length > 0" class="versions-list">
-                <div
-                        (click)="loadVersion(version)"
-                        *ngFor="let version of versions"
-                        class="version-item">
-
-                    <div class="version-info">
-                        <div *ngIf="editingVersionId !== version.id" class="version-name">
-                            {{ version.name || 'Unnamed version' }}
-                            <button
-                                    (click)="startEditName(version, $event)"
-                                    aria-label="Edit version name"
-                                    class="edit-button"
-                                    mat-icon-button>
-                                <mat-icon>edit</mat-icon>
-                            </button>
-                        </div>
-
-                        <div *ngIf="editingVersionId === version.id" class="version-name-edit">
-                            <input
-                                    (click)="$event.stopPropagation()"
-                                    [formControl]="versionNameControl"
-                                    placeholder="Version name">
-                            <button
-                                    (click)="saveVersionName(version, $event)"
-                                    aria-label="Save version name"
-                                    mat-icon-button>
-                                <mat-icon>check</mat-icon>
-                            </button>
-                        </div>
-
-                        <div class="version-timestamp">
-                            {{ formatDate(version.timestamp) }}
-                        </div>
-                    </div>
-
-                    <div class="version-actions">
-                        <button
-                                (click)="compareWithVersion(version, $event)"
-                                aria-label="Compare with current JSON"
-                                mat-icon-button
-                                matTooltip="Compare with current JSON">
-                            <mat-icon>compare_arrows</mat-icon>
-                        </button>
-                        <button
-                                (click)="deleteVersion(version.id, $event)"
-                                aria-label="Delete version"
-                                mat-icon-button
-                                matTooltip="Delete version">
-                            <mat-icon>delete</mat-icon>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div *ngIf="versions.length > 0" class="panel-footer">
-            <button
-                    (click)="clearHistory()"
-                    aria-label="Clear all history"
-                    color="warn"
-                    mat-button>
-                Clear All History
-            </button>
-        </div>
+  <div [class.open]="isOpen" class="version-panel">
+    <div class="panel-header">
+      <h2>Version History</h2>
+      <button
+        (click)="togglePanel()"
+        aria-label="Close panel"
+        mat-icon-button>
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
+
+    <div class="panel-content">
+      @if (versions.length === 0) {
+        <div class="no-versions">
+          <p>No saved versions yet.</p>
+          <p class="hint">Versions are automatically saved when you make changes to your JSON.</p>
+        </div>
+      }
+
+      @if (versions.length > 0) {
+        <div class="versions-list">
+          @for (version of versions; track version) {
+            <div
+              (click)="loadVersion(version)"
+              class="version-item">
+              <div class="version-info">
+                @if (editingVersionId !== version.id) {
+                  <div class="version-name">
+                    {{ version.name || 'Unnamed version' }}
+                    <button
+                      (click)="startEditName(version, $event)"
+                      aria-label="Edit version name"
+                      class="edit-button"
+                      mat-icon-button>
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  </div>
+                }
+                @if (editingVersionId === version.id) {
+                  <div class="version-name-edit">
+                    <input
+                      (click)="$event.stopPropagation()"
+                      [formControl]="versionNameControl"
+                      placeholder="Version name">
+                    <button
+                      (click)="saveVersionName(version, $event)"
+                      aria-label="Save version name"
+                      mat-icon-button>
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  </div>
+                }
+                <div class="version-timestamp">
+                  {{ formatDate(version.timestamp) }}
+                </div>
+              </div>
+              <div class="version-actions">
+                <button
+                  (click)="compareWithVersion(version, $event)"
+                  aria-label="Compare with current JSON"
+                  mat-icon-button
+                  matTooltip="Compare with current JSON">
+                  <mat-icon>compare_arrows</mat-icon>
+                </button>
+                <button
+                  (click)="deleteVersion(version.id, $event)"
+                  aria-label="Delete version"
+                  mat-icon-button
+                  matTooltip="Delete version">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (versions.length > 0) {
+      <div class="panel-footer">
+        <button
+          (click)="clearHistory()"
+          aria-label="Clear all history"
+          color="warn"
+          mat-button>
+          Clear All History
+        </button>
+      </div>
+    }
+  </div>
 </div>

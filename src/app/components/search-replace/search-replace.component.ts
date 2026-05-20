@@ -5,7 +5,8 @@ import {SearchReplaceService} from '../../services/search/search-replace.service
 @Component({
     selector: 'app-search-replace',
     templateUrl: './search-replace.component.html',
-    styleUrls: ['./search-replace.component.scss']
+    styleUrls: ['./search-replace.component.scss'],
+    standalone: false
 })
 export class SearchReplaceComponent {
     @Input() text: string = '';

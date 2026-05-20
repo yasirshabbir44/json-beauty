@@ -7,9 +7,10 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
  * in a large dataset, improving performance for large JSON arrays and objects
  */
 @Component({
-  selector: 'app-virtual-scroll',
-  templateUrl: './virtual-scroll.component.html',
-  styleUrls: ['./virtual-scroll.component.scss']
+    selector: 'app-virtual-scroll',
+    templateUrl: './virtual-scroll.component.html',
+    styleUrls: ['./virtual-scroll.component.scss'],
+    standalone: false
 })
 export class VirtualScrollComponent implements OnChanges, AfterViewInit {
   // Make Array and Object available to the template

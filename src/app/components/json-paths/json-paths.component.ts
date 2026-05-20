@@ -3,7 +3,8 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 @Component({
     selector: 'app-json-paths',
     templateUrl: './json-paths.component.html',
-    styleUrls: ['./json-paths.component.scss']
+    styleUrls: ['./json-paths.component.scss'],
+    standalone: false
 })
 export class JsonPathsComponent {
     @Input() showJsonPaths: boolean = false;

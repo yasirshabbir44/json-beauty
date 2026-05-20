@@ -1,25 +1,33 @@
 <div class="status-section" role="status" aria-live="polite">
-    <div class="status-item cursor">
-        <mat-icon>my_location</mat-icon>
-        <span>Line {{ cursorLine }} · Col {{ cursorColumn }}</span>
+  <div class="status-item cursor">
+    <mat-icon>my_location</mat-icon>
+    <span>Line {{ cursorLine }} · Col {{ cursorColumn }}</span>
+  </div>
+  <div class="status-item">
+    <mat-icon>straighten</mat-icon>
+    <span>Size: {{ displaySize }}</span>
+  </div>
+  @if (isValidJson) {
+    <div class="status-item success">
+      <mat-icon>check_circle</mat-icon>
+      <span>Valid JSON</span>
     </div>
-    <div class="status-item">
-        <mat-icon>straighten</mat-icon>
-        <span>Size: {{ displaySize }}</span>
+  }
+  @if (!isValidJson) {
+    <div class="status-item error">
+      <mat-icon>error</mat-icon>
+      <span>Invalid JSON</span>
     </div>
-    <div *ngIf="isValidJson" class="status-item success">
-        <mat-icon>check_circle</mat-icon>
-        <span>Valid JSON</span>
+  }
+  @if (!isValidJson && errorMessage) {
+    <div class="status-item error-detail">
+      <span>{{ errorMessage }}</span>
     </div>
-    <div *ngIf="!isValidJson" class="status-item error">
-        <mat-icon>error</mat-icon>
-        <span>Invalid JSON</span>
+  }
+  @if (isValidJson) {
+    <div class="status-item meta">
+      <mat-icon>{{ viewModeIcon }}</mat-icon>
+      <span>{{ viewModeLabel }}</span>
     </div>
-    <div *ngIf="!isValidJson && errorMessage" class="status-item error-detail">
-        <span>{{ errorMessage }}</span>
-    </div>
-    <div *ngIf="isValidJson" class="status-item meta">
-        <mat-icon>{{ viewModeIcon }}</mat-icon>
-        <span>{{ viewModeLabel }}</span>
-    </div>
+  }
 </div>

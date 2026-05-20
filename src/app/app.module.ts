@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {ClipboardModule} from '@angular/cdk/clipboard';
 
 // Angular Material Modules
@@ -37,16 +37,13 @@ import {SecurityModule} from './services/security/security.module';
 import {SharedModule} from './modules/shared/shared.module';
 import {WorkerModule} from './services/worker/worker.module';
 
-@NgModule({
-    declarations: [
+@NgModule({ declarations: [
         AppComponent
     ],
-    imports: [
-        BrowserModule,
+    bootstrap: [AppComponent], imports: [BrowserModule,
         BrowserAnimationsModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         ClipboardModule,
         AppRoutingModule,
         ConvertersModule,
@@ -69,10 +66,6 @@ import {WorkerModule} from './services/worker/worker.module';
         MatDialogModule,
         MatChipsModule,
         MatButtonToggleModule,
-        MatCheckboxModule
-    ],
-    providers: [],
-    bootstrap: [AppComponent]
-})
+        MatCheckboxModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }

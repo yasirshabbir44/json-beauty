@@ -23,7 +23,8 @@ export interface SearchReplaceActiveMatch {
 @Component({
     selector: 'app-json-search-replace',
     templateUrl: './json-search-replace.component.html',
-    styleUrls: ['./json-search-replace.component.scss']
+    styleUrls: ['./json-search-replace.component.scss'],
+    standalone: false
 })
 export class JsonSearchReplaceComponent implements AfterViewInit, OnChanges {
     @Input() text: string = '';

@@ -32,7 +32,8 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 @Component({
     selector: 'app-json-editor',
     templateUrl: './json-editor.component.html',
-    styleUrls: ['./json-editor.component.scss']
+    styleUrls: ['./json-editor.component.scss'],
+    standalone: false
 })
 export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     private static readonly DESKTOP_RESIZE_BREAKPOINT = 991;

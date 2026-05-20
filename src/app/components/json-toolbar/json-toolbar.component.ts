@@ -3,7 +3,8 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 @Component({
     selector: 'app-json-toolbar',
     templateUrl: './json-toolbar.component.html',
-    styleUrls: ['./json-toolbar.component.scss']
+    styleUrls: ['./json-toolbar.component.scss'],
+    standalone: false
 })
 export class JsonToolbarComponent {
     @Input() isValidJson: boolean = false;
