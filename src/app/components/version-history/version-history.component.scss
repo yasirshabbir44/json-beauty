@@ -9,23 +9,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #3f51b5;
+  background-color: var(--jb-accent);
   color: white;
   border: none;
   border-radius: 50%;
   width: 40px;
   height: 40px;
   cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s, transform 0.2s;
+  box-shadow: var(--jb-shadow-md);
+  transition: background-color var(--jb-transition), box-shadow var(--jb-transition);
 
   &:hover {
-    background-color: #303f9f;
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
+    background-color: var(--jb-accent-hover);
+    box-shadow: var(--jb-shadow-lg);
   }
 }
 
@@ -35,9 +31,10 @@
   bottom: 52px;
   width: 350px;
   max-height: min(500px, calc(100vh - 110px));
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--jb-bg-surface);
+  border-radius: var(--jb-radius-md);
+  border: 1px solid var(--jb-border);
+  box-shadow: var(--jb-shadow-lg);
   display: flex;
   flex-direction: column;
   z-index: 1000;

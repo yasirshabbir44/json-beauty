@@ -325,12 +325,19 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     }
 
     /**
-     * User picked Text, Tree, or Table from the output toolbar.
+     * Switch output view mode (text, tree, or table).
+     */
+    setViewMode(mode: 'text' | 'tree' | 'table'): void {
+        this.toggleViewMode.emit(mode);
+    }
+
+    /**
+     * User picked Text, Tree, or Table from the output toolbar toggles.
      */
     onViewModeSelect(event: MatButtonToggleChange): void {
         const mode = event.value as 'text' | 'tree' | 'table' | undefined;
         if (mode) {
-            this.toggleViewMode.emit(mode);
+            this.setViewMode(mode);
         }
     }
     

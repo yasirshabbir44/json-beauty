@@ -18,9 +18,8 @@
   position: relative;
 
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.12);
-    transform: translateY(-2px);
+    border-color: var(--jb-border-strong);
+    box-shadow: var(--jb-shadow-md);
   }
 
   // Fullscreen mode
@@ -52,10 +51,10 @@
 
   h3.input-toolbar {
     margin: 0;
-    padding: 4px 8px;
+    padding: 6px 10px;
     min-height: var(--input-toolbar-h);
-    background: linear-gradient(to right, #f8f9fa, #ffffff);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    background: var(--jb-bg-toolbar);
+    border-bottom: 1px solid var(--jb-border);
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
@@ -63,7 +62,8 @@
     gap: 6px;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: #174ea6;
+    color: var(--jb-text);
+    font-family: var(--jb-font-sans);
   }
 }
 
@@ -78,26 +78,33 @@
 .input-toolbar-brand-icon {
   flex-shrink: 0;
   margin: 0 !important;
-  color: #1a73e8 !important;
+  color: var(--jb-accent) !important;
   font-size: 18px !important;
   width: 18px !important;
   height: 18px !important;
-  filter: none;
 }
 
 .input-toolbar-title {
   flex-shrink: 0;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: #174ea6;
+  color: var(--jb-text);
+  font-family: var(--jb-font-mono);
+  font-size: 0.8125rem;
 }
 
 .input-toolbar-sub {
   flex-shrink: 0;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #5f6368;
-  margin-left: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--jb-text-muted);
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: var(--jb-radius-pill);
+  background: var(--jb-accent-subtle);
+  border: 1px solid var(--jb-accent-border);
 
   @media (max-width: 520px) {
     display: none;

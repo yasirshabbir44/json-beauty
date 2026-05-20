@@ -1,34 +1,41 @@
 <div #editorSection [class.maximized]="isMaximized" [class.fullscreen-mode]="isFullScreen" class="editor-section output-section">
   <h3 class="output-toolbar">
-    <div class="output-toolbar-primary">
+    <div class="output-toolbar-brand">
       <mat-icon class="output-toolbar-brand-icon">output</mat-icon>
-      <span class="output-toolbar-title">Output JSON</span>
-      <span class="output-toolbar-sub">Formatted / view</span>
-      @if (isValidJson) {
-        <div class="output-toolbar-toggles">
-          <div class="output-format-selector">
-            <mat-button-toggle-group (change)="onToggleOutputFormat()"
+      <span class="output-toolbar-title">Output</span>
+    </div>
+    @if (isValidJson) {
+      <div class="output-toolbar-toggles">
+        <div class="output-format-selector">
+          <mat-button-toggle-group (change)="onToggleOutputFormat()"
+            [hideSingleSelectionIndicator]="true"
+            [value]="selectedOutputFormat">
+            <mat-button-toggle value="json">JSON</mat-button-toggle>
+            <mat-button-toggle value="yaml">YAML</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        @if (selectedOutputFormat === 'json') {
+          <div class="view-mode-selector" matTooltip="Text, tree, or table view">
+            <mat-button-toggle-group (change)="onViewModeSelect($event)"
               [hideSingleSelectionIndicator]="true"
-              [value]="selectedOutputFormat">
-              <mat-button-toggle value="json">JSON</mat-button-toggle>
-              <mat-button-toggle value="yaml">YAML</mat-button-toggle>
+              [value]="selectedViewMode">
+              <mat-button-toggle value="text" matTooltip="JSON text">
+                <mat-icon class="view-toggle-icon">article</mat-icon>
+                <span class="view-toggle-label">Text</span>
+              </mat-button-toggle>
+              <mat-button-toggle value="tree" matTooltip="Tree view">
+                <mat-icon class="view-toggle-icon">account_tree</mat-icon>
+                <span class="view-toggle-label">Tree</span>
+              </mat-button-toggle>
+              <mat-button-toggle value="table" matTooltip="Table view">
+                <mat-icon class="view-toggle-icon">table_chart</mat-icon>
+                <span class="view-toggle-label">Table</span>
+              </mat-button-toggle>
             </mat-button-toggle-group>
           </div>
-          @if (selectedOutputFormat === 'json') {
-            <div class="view-mode-selector"
-              matTooltip="Switch how the output is shown">
-              <mat-button-toggle-group (change)="onViewModeSelect($event)"
-                [hideSingleSelectionIndicator]="true"
-                [value]="selectedViewMode">
-                <mat-button-toggle value="text" matTooltip="JSON text"><mat-icon class="view-toggle-icon">article</mat-icon><span class="view-toggle-label">JSON</span></mat-button-toggle>
-                <mat-button-toggle value="tree" matTooltip="Tree view"><mat-icon class="view-toggle-icon">account_tree</mat-icon><span class="view-toggle-label">Tree</span></mat-button-toggle>
-                <mat-button-toggle value="table" matTooltip="Table view"><mat-icon class="view-toggle-icon">table_chart</mat-icon><span class="view-toggle-label">Table</span></mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-          }
-        </div>
-      }
-    </div>
+        }
+      </div>
+    }
     <div class="output-toolbar-actions">
       @if (isValidJson) {
         <button (click)="copy.emit()" matTooltip="Copy to Clipboard"
@@ -48,6 +55,10 @@
         <button (click)="onToggleTreeView()" [disabled]="!isValidJson" mat-menu-item>
           <mat-icon>account_tree</mat-icon>
           <span>Tree View</span>
+        </button>
+        <button (click)="setViewMode('table')" [disabled]="!isValidJson" mat-menu-item>
+          <mat-icon>table_chart</mat-icon>
+          <span>Table View</span>
         </button>
         <button (click)="onToggleOutputFormat()" [disabled]="!isValidJson" mat-menu-item>
           <mat-icon>swap_horiz</mat-icon>
