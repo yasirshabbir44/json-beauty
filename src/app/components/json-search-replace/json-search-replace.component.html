@@ -1,6 +1,7 @@
-<div class="sr-backdrop" (click)="close()" role="presentation">
+<div class="sr-backdrop" (click)="close()" role="presentation" @fadeBackdrop>
   <section
     class="sr-panel"
+    @fadeSlideUp
     [formGroup]="searchForm"
     (click)="$event.stopPropagation()"
     role="search"

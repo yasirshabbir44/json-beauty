@@ -320,6 +320,7 @@
   .tree-icon {
     color: #5f6368;
     margin-right: 8px;
+    transition: transform var(--jb-duration-slow) var(--jb-ease-spring);
 
     &.expanded {
       transform: rotate(90deg);
@@ -331,10 +332,14 @@
   margin-left: 12px;
   border-left: 1px dashed #e0e0e0;
   padding-left: 6px;
-  // Unbounded when expanded so large arrays/objects are not clipped (was max-height: 2000px).
   overflow: visible;
   max-height: none;
   opacity: 1;
+  transition:
+    opacity var(--jb-duration-normal) var(--jb-ease-spring-gentle),
+    max-height var(--jb-duration-slow) var(--jb-ease-spring-gentle),
+    padding var(--jb-duration-normal) var(--jb-ease-standard),
+    margin var(--jb-duration-normal) var(--jb-ease-standard);
 
   &.collapsed {
     max-height: 0;

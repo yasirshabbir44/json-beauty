@@ -3,11 +3,13 @@ import {FormControl} from '@angular/forms';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {Subscription} from 'rxjs';
 import {JsonVersion, VersionHistoryService} from '../../services/history/version-history.service';
+import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 
 @Component({
     selector: 'app-version-history',
     templateUrl: './version-history.component.html',
     styleUrls: ['./version-history.component.scss'],
+    animations: MICRO_INTERACTION_ANIMATIONS,
     standalone: false
 })
 export class VersionHistoryComponent implements OnInit, OnDestroy {

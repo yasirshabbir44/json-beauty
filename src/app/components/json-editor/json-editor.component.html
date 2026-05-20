@@ -50,7 +50,8 @@
               <p>Paste or drop JSON — beautify, validate, and explore. All processing stays in your browser.</p>
             </div>
             <div class="editor-status-pills" aria-live="polite">
-              <span class="status-pill" [class.status-pill-invalid]="!isValidJson">
+              <span class="status-pill" [class.status-pill-invalid]="!isValidJson"
+                [@validationPulse]="isValidJson ? 'valid' : 'invalid'">
                 <mat-icon aria-hidden="true">{{ isValidJson ? 'check_circle' : 'cancel' }}</mat-icon>
                 {{ isValidJson ? 'Valid' : 'Invalid' }}
               </span>
@@ -188,9 +189,12 @@
             <div class="toolbar-group">
               <span class="toolbar-group-label">Export</span>
               <button type="button" mat-stroked-button (click)="copyToClipboard()" [disabled]="!isValidJson"
-                matTooltip="Copy (Ctrl+C)">
-                <mat-icon>content_copy</mat-icon>
-                Copy
+                matTooltip="Copy (Ctrl+C)"
+                [@copySuccess]="copyFeedbackState"
+                (@copySuccess.done)="onCopyAnimationDone()"
+                [class.jb-copy-success]="copyFeedbackState === 'copied'">
+                <mat-icon>{{ copyFeedbackState === 'copied' ? 'check' : 'content_copy' }}</mat-icon>
+                {{ copyFeedbackState === 'copied' ? 'Copied' : 'Copy' }}
               </button>
               <button type="button" mat-stroked-button (click)="shareJson()" [disabled]="!isValidJson"
                 matTooltip="Share URL">
@@ -244,8 +248,9 @@
         </section>
 
         @if (floatingSearchOpen) {
-          <div class="floating-search-backdrop" (click)="closeFloatingSearch()">
+          <div class="floating-search-backdrop" (click)="closeFloatingSearch()" @fadeBackdrop>
             <div class="floating-search-panel" (click)="$event.stopPropagation()" role="search"
+              @fadeSlideUp
               aria-label="Find in editor">
               <mat-icon class="floating-search-lead-icon" aria-hidden="true">search</mat-icon>
               <mat-button-toggle-group class="floating-search-targets" [hideSingleSelectionIndicator]="true"
@@ -337,6 +342,7 @@
             [class.dual-pane-mode]="workspaceLayout === 'dual'"
             [class.input-panel-last]="!isInputPanelFirst"
             [style.--input-panel-width.%]="inputPanelWidth"
+            [class.jb-panel-resizing]="panelResizing"
             class="editor-columns">
             @if (workspaceLayout === 'dual' || singlePaneFocus === 'input') {
               <app-json-input-editor
@@ -379,6 +385,7 @@
                 (toggleTreeView)="toggleTreeView()"
                 (toggleViewMode)="handleViewModeChange($event)"
                 (treeSearch)="searchInTree($event)"
+                [copyFeedbackActive]="copyFeedbackState === 'copied'"
                 [expandedNodes]="expandedNodes"
                 [isDarkTheme]="isDarkTheme"
                 [isMaximized]="isOutputMaximized"

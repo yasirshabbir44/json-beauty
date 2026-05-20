@@ -1,9 +1,11 @@
 import {Component, Input} from '@angular/core';
+import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 
 @Component({
     selector: 'app-json-status',
     templateUrl: './json-status.component.html',
     styleUrls: ['./json-status.component.scss'],
+    animations: MICRO_INTERACTION_ANIMATIONS,
     standalone: false
 })
 export class JsonStatusComponent {

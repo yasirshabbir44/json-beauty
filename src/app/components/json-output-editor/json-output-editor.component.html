@@ -39,8 +39,9 @@
     <div class="output-toolbar-actions">
       @if (isValidJson) {
         <button (click)="copy.emit()" matTooltip="Copy to Clipboard"
-          class="copy-btn" mat-icon-button>
-          <mat-icon>content_copy</mat-icon>
+          class="copy-btn" mat-icon-button
+          [class.jb-copy-success]="copyFeedbackActive">
+          <mat-icon>{{ copyFeedbackActive ? 'check' : 'content_copy' }}</mat-icon>
         </button>
       }
 
