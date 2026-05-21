@@ -1,4 +1,5 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, inject} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-header',
@@ -10,6 +11,13 @@ export class HeaderComponent {
     @Input() title: string = '';
     @Input() subtitle: string = '';
 
-    constructor() {
+    private readonly router = inject(Router);
+
+    onLogoClick(event: MouseEvent): void {
+        const path = this.router.url.split('?')[0].split('#')[0];
+        if (path === '/' || path === '') {
+            event.preventDefault();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
     }
 }
