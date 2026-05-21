@@ -67,6 +67,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     @Output() toggleJsonPathQuery = new EventEmitter<void>();
     @Output() toggleJsonCompare = new EventEmitter<void>();
     @Output() toggleJsonVisualize = new EventEmitter<void>();
+    @Output() toggleMockDataSimulator = new EventEmitter<void>();
     
     // Export-related event emitters
     @Output() download = new EventEmitter<void>();
@@ -381,6 +382,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     onToggleJsonVisualize(): void {
         this.toggleJsonVisualize.emit();
+    }
+
+    onToggleMockDataSimulator(): void {
+        this.toggleMockDataSimulator.emit();
     }
 
     /**

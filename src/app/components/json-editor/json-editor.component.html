@@ -18,6 +18,12 @@
 
           (toggleSchemaEditor)="showSchemaEditor = !showSchemaEditor"
           (validateJsonSchema)="validateJsonSchema()"
+          (toggleMockDataSimulator)="toggleMockDataSimulator()"
+          (updateMockDataPreview)="updateMockDataPreview()"
+          (generateMockData)="generateMockData()"
+          (shuffleMockDataSeed)="shuffleMockDataSeed()"
+          (mockDataModeChange)="setMockDataMode($event)"
+          (mockDataStringStyleChange)="setMockDataStringStyle($event)"
           [compareJsonInput]="compareJsonInput"
           [compareError]="compareError"
           [currentJson]="jsonInput.value || ''"
@@ -39,7 +45,20 @@
           [showJsonVisualize]="showJsonVisualize"
 
           [showKeyboardShortcuts]="showKeyboardShortcuts"
-          [showSchemaEditor]="showSchemaEditor">
+          [showSchemaEditor]="showSchemaEditor"
+          [showMockDataSimulator]="showMockDataSimulator"
+          [mockDataMode]="mockDataMode"
+          [mockDataSeed]="mockDataSeed"
+          [mockDataArrayLength]="mockDataArrayLength"
+          [mockDataStringStyle]="mockDataStringStyle"
+          [mockDataStringPrefix]="mockDataStringPrefix"
+          [mockDataNumberMin]="mockDataNumberMin"
+          [mockDataNumberMax]="mockDataNumberMax"
+          [mockDataFieldOverrides]="mockDataFieldOverrides"
+          [mockDataStatus]="mockDataStatus"
+          [mockDataStatusMessage]="mockDataStatusMessage"
+          [mockDataGenerating]="mockDataGenerating"
+          [mockDataPreview]="mockDataPreview">
         </app-json-dialogs>
 
         <section class="editor-control-panel" aria-label="Editor controls">
@@ -417,6 +436,7 @@
                 (toggleJsonPathQuery)="toggleJsonPathQuery()"
                 (toggleJsonPaths)="toggleJsonPaths()"
                 (toggleJsonVisualize)="toggleJsonVisualize()"
+                (toggleMockDataSimulator)="toggleMockDataSimulator()"
                 (toggleMaximize)="toggleOutputMaximize()"
                 (toggleNode)="toggleNode($event)"
                 (toggleOutputFormat)="toggleOutputFormat()"

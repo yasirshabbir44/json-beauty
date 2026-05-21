@@ -31,6 +31,7 @@ export class JsonToolbarComponent {
     @Output() toggleJsonPathQuery = new EventEmitter<void>();
     @Output() toggleJsonCompare = new EventEmitter<void>();
     @Output() toggleJsonVisualize = new EventEmitter<void>();
+    @Output() toggleMockDataSimulator = new EventEmitter<void>();
 
     // Settings
     @Output() toggleTheme = new EventEmitter<void>();

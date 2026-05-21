@@ -9,3 +9,4 @@ export * from './json-conversion.interface';
 export * from './json-schema.interface';
 export * from './json-comparison.interface';
 export * from './json-path.interface';
+export * from './json-mock-data.interface';

@@ -35,6 +35,14 @@ import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.
 import {KEYBOARD_SHORTCUTS} from '../../data/keyboard-shortcuts.data';
 import {ConfigurationService} from '../../services/configuration.service';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
+import {JsonValue} from '../../types/json.types';
+import {
+    BlueprintNode,
+    MockDataGenerationMode,
+    MockDataSimulatorOptions,
+    MockDataStringStyle,
+    StructureBlueprint
+} from '../../types/mock-data.types';
 
 /**
  * Coordinates JSON input/output editors, dialogs, and panels.
@@ -141,6 +149,21 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // JSON visualization properties
     showJsonVisualize = false;
+
+    // Mock data generator properties
+    showMockDataSimulator = false;
+    mockDataMode: MockDataGenerationMode = 'auto';
+    mockDataSeed = new FormControl('json-beauty');
+    mockDataArrayLength = new FormControl('');
+    mockDataStringStyle: MockDataStringStyle = 'placeholder';
+    mockDataStringPrefix = new FormControl('value_');
+    mockDataNumberMin = new FormControl('');
+    mockDataNumberMax = new FormControl('');
+    mockDataFieldOverrides = new FormControl('{}');
+    mockDataPreview = '';
+    mockDataStatus: 'idle' | 'ready' | 'error' = 'idle';
+    mockDataStatusMessage = '';
+    mockDataGenerating = false;
 
     // Search and replace properties
     showSearchReplace = false;
@@ -1386,6 +1409,171 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 errors: [{message: e.message}]
             };
         }
+    }
+
+    /**
+     * Opens the mock data generator and auto-builds a preview when JSON is valid.
+     */
+    toggleMockDataSimulator(): void {
+        this.showMockDataSimulator = !this.showMockDataSimulator;
+        if (this.showMockDataSimulator) {
+            this.updateMockDataPreview();
+        }
+    }
+
+    /**
+     * Regenerates preview with the current seed (does not replace editor input).
+     */
+    updateMockDataPreview(): void {
+        const json = this.getValidJsonInputQuiet();
+        if (!json) {
+            this.mockDataStatus = 'error';
+            this.mockDataStatusMessage = 'Paste valid JSON in the editor first.';
+            this.mockDataPreview = '';
+            return;
+        }
+
+        try {
+            this.mockDataGenerating = true;
+            const blueprint = this.jsonService.buildStructureBlueprint(json);
+            this.mockDataPreview = this.jsonService.generateMockDataset(blueprint, this.buildMockDataOptions());
+            this.mockDataStatus = 'ready';
+            this.mockDataStatusMessage = this.describeBlueprint(blueprint);
+        } catch (error) {
+            this.mockDataStatus = 'error';
+            this.mockDataStatusMessage = this.toErrorMessage(error);
+            this.mockDataPreview = '';
+        } finally {
+            this.mockDataGenerating = false;
+        }
+    }
+
+    /**
+     * Applies generated mock data to the editor and refreshes the output.
+     */
+    generateMockData(): void {
+        const json = this.getValidJsonInputQuiet();
+        if (!json) {
+            this.showError('Paste valid JSON in the editor before generating mock data');
+            return;
+        }
+
+        try {
+            this.mockDataGenerating = true;
+            const mockJson = this.jsonService.generateMockDataFromJson(json, this.buildMockDataOptions());
+            this.jsonInput.setValue(mockJson);
+            this.mockDataPreview = mockJson;
+            this.mockDataStatus = 'ready';
+            this.validateJson();
+            this.beautifyJson();
+            this.showSuccess('Mock data applied to editor');
+        } catch (error) {
+            this.mockDataStatus = 'error';
+            this.mockDataStatusMessage = this.toErrorMessage(error);
+            this.showError(`Mock generation failed: ${this.toErrorMessage(error)}`);
+        } finally {
+            this.mockDataGenerating = false;
+        }
+    }
+
+    shuffleMockDataSeed(): void {
+        const seed = `run-${Date.now().toString(36)}`;
+        this.mockDataSeed.setValue(seed);
+        this.updateMockDataPreview();
+    }
+
+    setMockDataMode(mode: MockDataGenerationMode): void {
+        this.mockDataMode = mode;
+        this.updateMockDataPreview();
+    }
+
+    setMockDataStringStyle(style: MockDataStringStyle): void {
+        this.mockDataStringStyle = style;
+        this.updateMockDataPreview();
+    }
+
+    private buildMockDataOptions(): MockDataSimulatorOptions {
+        const seed = (this.mockDataSeed.value || 'json-beauty').trim();
+        const lengthRaw = (this.mockDataArrayLength.value || '').trim();
+        const parsedLength = lengthRaw ? Number.parseInt(lengthRaw, 10) : Number.NaN;
+        const options: MockDataSimulatorOptions = {
+            seed: seed.length > 0 ? seed : 'json-beauty',
+            mode: this.mockDataMode
+        };
+        if (Number.isFinite(parsedLength) && parsedLength > 0) {
+            options.arrayLength = parsedLength;
+        }
+        if (this.mockDataMode === 'custom') {
+            options.custom = {
+                stringStyle: this.mockDataStringStyle,
+                stringPrefix: (this.mockDataStringPrefix.value || 'value_').trim() || 'value_',
+                ...this.parseOptionalNumberRange(),
+                fieldOverrides: this.parseFieldOverrides()
+            };
+        }
+        return options;
+    }
+
+    private parseOptionalNumberRange(): { numberMin?: number; numberMax?: number } {
+        const minRaw = (this.mockDataNumberMin.value || '').trim();
+        const maxRaw = (this.mockDataNumberMax.value || '').trim();
+        const min = minRaw ? Number.parseInt(minRaw, 10) : Number.NaN;
+        const max = maxRaw ? Number.parseInt(maxRaw, 10) : Number.NaN;
+        const out: { numberMin?: number; numberMax?: number } = {};
+        if (Number.isFinite(min)) {
+            out.numberMin = min;
+        }
+        if (Number.isFinite(max)) {
+            out.numberMax = max;
+        }
+        return out;
+    }
+
+    private parseFieldOverrides(): Record<string, JsonValue> | undefined {
+        const raw = (this.mockDataFieldOverrides.value || '').trim();
+        if (!raw || raw === '{}') {
+            return undefined;
+        }
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                return parsed as Record<string, JsonValue>;
+            }
+            throw new Error('Overrides must be a JSON object');
+        } catch (error) {
+            throw new Error(
+                `Invalid field overrides: ${error instanceof Error ? error.message : String(error)}`
+            );
+        }
+    }
+
+    private getValidJsonInputQuiet(): string | null {
+        const value = (this.jsonInput.value || '').trim();
+        if (!value) {
+            return null;
+        }
+        return this.jsonService.validateJson(value).isValid ? value : null;
+    }
+
+    private describeBlueprint(blueprint: StructureBlueprint): string {
+        let fields = 0;
+        let arrays = 0;
+        const walk = (node: BlueprintNode): void => {
+            if (node.kind === 'object' && node.properties) {
+                for (const child of Object.values(node.properties)) {
+                    fields++;
+                    walk(child);
+                }
+            } else if (node.kind === 'array') {
+                arrays++;
+                if (node.itemTemplate) {
+                    walk(node.itemTemplate);
+                }
+            }
+        };
+        walk(blueprint.root);
+        const modeLabel = this.mockDataMode === 'auto' ? 'Auto' : 'Custom';
+        return `Ready (${modeLabel}) — ${fields} fields, ${arrays} arrays · same seed = same data`;
     }
 
     /**

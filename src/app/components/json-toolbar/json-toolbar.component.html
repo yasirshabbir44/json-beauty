@@ -28,6 +28,10 @@
                     <mat-icon>bar_chart</mat-icon>
                     <span>Visualize</span>
                 </button>
+                <button (click)="toggleMockDataSimulator.emit()" [disabled]="!isValidJson" mat-menu-item>
+                    <mat-icon>science</mat-icon>
+                    <span>Mock Data Generator</span>
+                </button>
             </mat-menu>
         </div>
     </div>
