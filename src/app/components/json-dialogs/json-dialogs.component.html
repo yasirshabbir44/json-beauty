@@ -24,36 +24,152 @@
 
 <!-- Formatting Options Dialog -->
 @if (showFormattingOptions) {
-  <div class="overlay-dialog">
-    <mat-card class="dialog-card">
-      <mat-card-header>
-        <mat-card-title>Formatting Options</mat-card-title>
-        <button (click)="closeFormattingOptions()" class="close-btn" mat-icon-button>
+  <div class="overlay-dialog" role="presentation">
+    <mat-card class="dialog-card formatting-dialog-card" (click)="$event.stopPropagation()" role="dialog"
+              aria-labelledby="formatting-dialog-title" aria-modal="true">
+      <mat-card-header class="formatting-dialog-header">
+        <div class="formatting-dialog-heading">
+          <mat-card-title id="formatting-dialog-title">Formatting Options</mat-card-title>
+          <p class="formatting-dialog-subtitle">Customize indentation and output style. Changes apply to beautify and re-format actions.</p>
+        </div>
+        <button (click)="closeFormattingOptions()" class="close-btn" mat-icon-button type="button"
+                aria-label="Close formatting options">
           <mat-icon>close</mat-icon>
         </button>
       </mat-card-header>
-      <mat-card-content>
-        <div class="formatting-options">
-          <mat-form-field appearance="fill">
-            <mat-label>Indent Size</mat-label>
-            <mat-select [(ngModel)]="indentSize">
-              <mat-option [value]="2">2 spaces</mat-option>
-              <mat-option [value]="4">4 spaces</mat-option>
-              <mat-option [value]="8">8 spaces</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="fill">
-            <mat-label>Indent Character</mat-label>
-            <mat-select [(ngModel)]="indentChar">
-              <mat-option value=" ">Space</mat-option>
-              <mat-option value="\t">Tab</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <button (click)="onApplyFormatting()" color="primary" mat-raised-button>
-            Apply Formatting
-          </button>
+      <mat-card-content class="formatting-dialog-body">
+        <div class="formatting-layout">
+          <div class="formatting-settings">
+            <section class="format-section" aria-labelledby="format-indent-heading">
+              <div class="format-section-head">
+                <mat-icon class="format-section-icon" aria-hidden="true">format_indent_increase</mat-icon>
+                <div>
+                  <h3 id="format-indent-heading">Indentation</h3>
+                  <p>Control how nested structures are aligned.</p>
+                </div>
+              </div>
+              <div class="format-field">
+                <span class="format-field-label">Indent size</span>
+                <mat-button-toggle-group
+                  class="indent-size-toggle"
+                  [value]="draft.indentSize"
+                  (change)="setIndentSize($event.value)"
+                  aria-label="Indent size">
+                  @for (size of indentSizeChoices; track size) {
+                    <mat-button-toggle [value]="size">{{ size }}</mat-button-toggle>
+                  }
+                </mat-button-toggle-group>
+              </div>
+              <div class="format-field">
+                <span class="format-field-label">Indent character</span>
+                <mat-button-toggle-group
+                  class="indent-char-toggle"
+                  [value]="draft.indentChar"
+                  (change)="setIndentChar($event.value)"
+                  aria-label="Indent character">
+                  <mat-button-toggle value=" ">
+                    <mat-icon aria-hidden="true">space_bar</mat-icon>
+                    Spaces
+                  </mat-button-toggle>
+                  <mat-button-toggle [value]="'\t'">
+                    <mat-icon aria-hidden="true">keyboard_tab</mat-icon>
+                    Tabs
+                  </mat-button-toggle>
+                </mat-button-toggle-group>
+              </div>
+              <p class="format-hint">
+                <mat-icon aria-hidden="true">info</mat-icon>
+                Current: <strong>{{ indentLabel }}</strong> per level
+              </p>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section class="format-section" aria-labelledby="format-structure-heading">
+              <div class="format-section-head">
+                <mat-icon class="format-section-icon" aria-hidden="true">sort_by_alpha</mat-icon>
+                <div>
+                  <h3 id="format-structure-heading">Structure</h3>
+                  <p>Reorder object keys for consistent diffs.</p>
+                </div>
+              </div>
+              <div class="format-toggle-row">
+                <div class="format-toggle-copy">
+                  <span class="format-toggle-title">Sort keys alphabetically</span>
+                  <span class="format-toggle-desc">Recursively sort object keys A–Z when formatting.</span>
+                </div>
+                <mat-slide-toggle
+                  [(ngModel)]="draft.sortKeys"
+                  (ngModelChange)="onDraftChanged()"
+                  color="primary"
+                  aria-label="Sort keys alphabetically">
+                </mat-slide-toggle>
+              </div>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section class="format-section" aria-labelledby="format-output-heading">
+              <div class="format-section-head">
+                <mat-icon class="format-section-icon" aria-hidden="true">output</mat-icon>
+                <div>
+                  <h3 id="format-output-heading">Output</h3>
+                  <p>Fine-tune serialized JSON appearance.</p>
+                </div>
+              </div>
+              <div class="format-toggle-row">
+                <div class="format-toggle-copy">
+                  <span class="format-toggle-title">Trailing newline</span>
+                  <span class="format-toggle-desc">Add a final line break (POSIX-friendly files).</span>
+                </div>
+                <mat-slide-toggle
+                  [(ngModel)]="draft.trailingNewline"
+                  (ngModelChange)="onDraftChanged()"
+                  color="primary"
+                  aria-label="Trailing newline">
+                </mat-slide-toggle>
+              </div>
+              <div class="format-toggle-row">
+                <div class="format-toggle-copy">
+                  <span class="format-toggle-title">Escape Unicode</span>
+                  <span class="format-toggle-desc">Encode non-ASCII characters as \\uXXXX sequences.</span>
+                </div>
+                <mat-slide-toggle
+                  [(ngModel)]="draft.escapeUnicode"
+                  (ngModelChange)="onDraftChanged()"
+                  color="primary"
+                  aria-label="Escape Unicode">
+                </mat-slide-toggle>
+              </div>
+            </section>
+          </div>
+
+          <aside class="formatting-preview" aria-label="Live preview">
+            <div class="formatting-preview-head">
+              <span class="formatting-preview-title">
+                <mat-icon aria-hidden="true">visibility</mat-icon>
+                Live preview
+              </span>
+              <span class="formatting-preview-badge">
+                {{ previewUsesSample ? 'Sample JSON' : 'Your document' }}
+              </span>
+            </div>
+            <pre class="formatting-preview-code"><code>{{ previewText }}</code></pre>
+          </aside>
         </div>
       </mat-card-content>
+      <mat-card-actions class="formatting-dialog-actions">
+        <button (click)="resetToDefaults()" mat-stroked-button type="button" class="format-reset-btn">
+          <mat-icon aria-hidden="true">restart_alt</mat-icon>
+          Reset defaults
+        </button>
+        <span class="formatting-actions-spacer"></span>
+        <button (click)="closeFormattingOptions()" mat-button type="button">Cancel</button>
+        <button (click)="onApplyFormatting()" color="primary" mat-raised-button type="button" class="format-apply-btn">
+          <mat-icon aria-hidden="true">auto_fix_high</mat-icon>
+          Apply formatting
+        </button>
+      </mat-card-actions>
     </mat-card>
   </div>
 }

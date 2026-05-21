@@ -212,29 +212,263 @@
 }
 
 /* Formatting Options Dialog */
-.formatting-options {
+.formatting-dialog-card {
+  max-width: 920px;
   display: flex;
   flex-direction: column;
+}
+
+.formatting-dialog-header {
+  align-items: flex-start;
+  gap: 12px;
+
+  .formatting-dialog-heading {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .formatting-dialog-subtitle {
+    margin: 6px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: var(--jb-text-secondary, #475569);
+    font-weight: 400;
+  }
+}
+
+.formatting-dialog-body {
+  padding-top: 8px !important;
+}
+
+.formatting-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
+  align-items: start;
 
-  mat-form-field {
-    width: 100%;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formatting-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.format-section {
+  padding: 4px 0 8px;
+}
+
+.format-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+
+  h3 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--jb-text, #0f172a);
   }
 
-  button {
-    align-self: flex-end;
-    padding: 8px 24px;
-    font-weight: 500;
-    border-radius: 4px;
-    background: #4285F4;
-    color: white;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background: #1a73e8;
-      transform: translateY(-2px);
-    }
+  p {
+    margin: 4px 0 0;
+    font-size: 0.8125rem;
+    color: var(--jb-text-muted, #94a3b8);
+    line-height: 1.4;
   }
+}
+
+.format-section-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  color: var(--jb-accent, #2563eb);
+  margin-top: 2px;
+}
+
+.format-field {
+  margin-bottom: 12px;
+
+  &:last-of-type {
+    margin-bottom: 8px;
+  }
+}
+
+.format-field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--jb-text-secondary, #475569);
+}
+
+.indent-size-toggle,
+.indent-char-toggle {
+  width: 100%;
+
+  ::ng-deep .mat-button-toggle-label-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+    padding: 0 10px;
+  }
+}
+
+.format-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  color: var(--jb-text-secondary, #475569);
+  background: var(--jb-accent-subtle, rgba(37, 99, 235, 0.08));
+  border: 1px solid var(--jb-accent-border, rgba(37, 99, 235, 0.22));
+  border-radius: var(--jb-radius-sm, 8px);
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--jb-accent, #2563eb);
+  }
+
+  strong {
+    color: var(--jb-text, #0f172a);
+    font-weight: 600;
+  }
+}
+
+.format-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+
+  & + & {
+    border-top: 1px solid var(--jb-border, #e4e9f0);
+  }
+}
+
+.format-toggle-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.format-toggle-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--jb-text, #0f172a);
+}
+
+.format-toggle-desc {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: var(--jb-text-muted, #94a3b8);
+  line-height: 1.35;
+}
+
+.formatting-preview {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  border: 1px solid var(--jb-border, #e4e9f0);
+  border-radius: var(--jb-radius-md, 12px);
+  background: var(--jb-bg-code, #fafbfd);
+  overflow: hidden;
+}
+
+.formatting-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--jb-border, #e4e9f0);
+  background: var(--jb-bg-muted, #f6f8fb);
+}
+
+.formatting-preview-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--jb-text, #0f172a);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: var(--jb-accent, #2563eb);
+  }
+}
+
+.formatting-preview-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--jb-radius-pill, 999px);
+  background: var(--jb-accent-subtle, rgba(37, 99, 235, 0.08));
+  color: var(--jb-accent, #2563eb);
+  border: 1px solid var(--jb-accent-border, rgba(37, 99, 235, 0.22));
+  white-space: nowrap;
+}
+
+.formatting-preview-code {
+  flex: 1;
+  margin: 0;
+  padding: 14px;
+  overflow: auto;
+  font-family: var(--jb-font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--jb-text, #0f172a);
+  white-space: pre;
+  max-height: 360px;
+
+  code {
+    font-family: inherit;
+  }
+}
+
+.formatting-dialog-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px 16px !important;
+  margin: 0 !important;
+  border-top: 1px solid var(--jb-border, #e4e9f0);
+  background: var(--jb-bg-muted, #f6f8fb);
+}
+
+.formatting-actions-spacer {
+  flex: 1;
+}
+
+.format-reset-btn mat-icon {
+  margin-right: 4px;
+}
+
+.format-apply-btn mat-icon {
+  margin-right: 4px;
 }
 
 /* JSON Path Query Dialog */
@@ -530,10 +764,41 @@
     }
   }
 
-  .formatting-options button {
-    &:hover {
-      background: #5c9eff;
-    }
+  .formatting-dialog-header .formatting-dialog-subtitle {
+    color: #b0b8c4;
+  }
+
+  .format-section-head h3,
+  .format-toggle-title,
+  .formatting-preview-title {
+    color: #e8eaed;
+  }
+
+  .format-hint strong {
+    color: #e8eaed;
+  }
+
+  .formatting-preview {
+    background: #252525;
+    border-color: #3d3d3d;
+  }
+
+  .formatting-preview-head {
+    background: #1e1e1e;
+    border-bottom-color: #3d3d3d;
+  }
+
+  .formatting-preview-code {
+    color: #e0e0e0;
+  }
+
+  .formatting-dialog-actions {
+    background: #1e1e1e;
+    border-top-color: #3d3d3d;
+  }
+
+  .format-toggle-row + .format-toggle-row {
+    border-top-color: #3d3d3d;
   }
 
   // Dark theme for JSON Path Query Dialog

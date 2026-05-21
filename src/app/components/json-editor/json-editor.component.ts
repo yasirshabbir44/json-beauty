@@ -31,6 +31,8 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 import {KEYBOARD_SHORTCUTS} from '../../data/keyboard-shortcuts.data';
+import {ConfigurationService} from '../../services/configuration.service';
+import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
 
 /**
  * Coordinates JSON input/output editors, dialogs, and panels.
@@ -85,8 +87,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     jsonTreeData: any = null;
     expandedNodes: Set<string> = new Set();
     showFormattingOptions = false;
-    indentSize = 2;
-    indentChar = ' ';
+    formattingOptions: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
 
     keyboardShortcuts = KEYBOARD_SHORTCUTS;
 
@@ -180,6 +181,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private themeService: ThemeService,
         private shareService: ShareService,
         private recentFilesService: RecentFilesService,
+        private configService: ConfigurationService,
         private destroyRef: DestroyRef
     ) {
         this.outputConversionStrategies = {
@@ -772,6 +774,9 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.formattingOptions = this.configService.getFormattingOptions();
+        this.jsonService.setFormattingPreferences(this.formattingOptions);
+
         this.isDarkTheme = this.themeService.isDarkTheme();
         this.themeService.currentTheme$
             .pipe(takeUntilDestroyed(this.destroyRef))
@@ -1036,7 +1041,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             const jsonString = (this.jsonInput.value || '').trim();
             try {
                 const parsed = JSON.parse(jsonString);
-                const formatted = JSON.stringify(parsed, null, this.indentChar.repeat(this.indentSize));
+                const formatted = this.jsonService.formatJson(jsonString, this.formattingOptions);
                 this.jsonOutput.setValue(formatted);
 
                 if (this.showTreeView) {
@@ -1737,27 +1742,26 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     /**
      * Applies formatting options from the dialog (indent values come from the dialog payload).
      */
-    applyFormatting(options?: { indentSize: number; indentChar: string }): void {
+    applyFormatting(options?: FormattingOptions): void {
         if (!this.isValidJson) {
             return;
         }
 
         if (options) {
-            this.indentSize = options.indentSize;
-            this.indentChar = options.indentChar;
+            this.formattingOptions = { ...options };
         }
 
         try {
-            // Update the JSON service with the new indentation settings
-            this.jsonService.setIndentation(this.indentSize, this.indentChar as ' ' | '\t');
+            this.configService.updateFormattingOptions(this.formattingOptions);
+            this.jsonService.setFormattingPreferences(this.formattingOptions);
 
-            // Re-beautify the JSON with the new settings
-            const formatted = this.jsonService.beautifyJson(this.jsonInput.value || '{}');
+            const formatted = this.jsonService.formatJson(
+                this.jsonInput.value || '{}',
+                this.formattingOptions
+            );
 
-            // Update the output
             this.jsonOutput.setValue(formatted);
-
-            // The output editor will be updated through data binding in the child component
+            this.jsonInput.setValue(formatted);
 
             this.showSuccess('Formatting options applied');
 
@@ -2097,7 +2101,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         try {
             const sanitizedContent = this.sanitizationService.sanitizeFileContent(content, 'json');
             const parsedJson = JSON.parse(sanitizedContent);
-            const normalizedJson = JSON.stringify(parsedJson, null, this.indentSize);
+            const normalizedJson = this.jsonService.formatJson(
+                JSON.stringify(parsedJson),
+                this.formattingOptions
+            );
             this.jsonInputEditor?.setValue(normalizedJson);
             this.jsonInput.setValue(normalizedJson);
             this.validateJson();
