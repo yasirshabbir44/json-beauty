@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
 import {IJsonFormattingService} from '../../interfaces';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
+import {JsonRepairResult} from '../../types/json-repair.types';
 import * as JSON5 from 'json5';
+import {JsonRepairService} from './json-repair.service';
 
 const PREVIEW_SAMPLE = {
     name: 'json-beauty',
@@ -20,7 +22,7 @@ const PREVIEW_SAMPLE = {
 export class JsonFormattingService implements IJsonFormattingService {
     private preferences: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
 
-    constructor() {
+    constructor(private jsonRepairService: JsonRepairService) {
     }
 
     getPreferences(): FormattingOptions {
@@ -89,16 +91,47 @@ export class JsonFormattingService implements IJsonFormattingService {
     }
 
     repairLenientJson(jsonString: string): string {
+        return this.fixMyJson(jsonString).repairedJson;
+    }
+
+    /**
+     * Deterministic fault-tolerant recovery for invalid JSON (Fix My JSON).
+     */
+    fixMyJson(jsonString: string): JsonRepairResult {
         const source = (jsonString || '').trim();
         if (!source) {
-            throw new Error('Nothing to repair');
+            return {
+                success: false,
+                repairedJson: '',
+                fixesApplied: [],
+                error: 'Nothing to repair'
+            };
         }
-        try {
-            return this.formatJson(source);
-        } catch (e) {
-            const errorMessage = e instanceof Error ? e.message : String(e);
-            throw new Error(`Could not repair JSON: ${errorMessage}`);
+
+        const indentSize = this.preferences.indentSize;
+        const result = this.jsonRepairService.repair(source, indentSize);
+        if (!result.success) {
+            return result;
         }
+
+        if (this.preferences.sortKeys) {
+            try {
+                const sorted = this.sortObjectKeys(JSON.parse(result.repairedJson));
+                result.repairedJson = JSON.stringify(
+                    sorted,
+                    null,
+                    this.preferences.indentChar.repeat(indentSize)
+                );
+            } catch {
+                // keep repaired text as-is
+            }
+        }
+
+        if (this.preferences.trailingNewline && !result.repairedJson.endsWith('\n')) {
+            result.repairedJson += '\n';
+        }
+
+        return result;
     }
 
     fixInconsistentIndentation(jsonString: string): string {

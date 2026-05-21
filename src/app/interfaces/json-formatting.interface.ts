@@ -1,4 +1,5 @@
 import {FormattingOptions} from '../models/json-editor.models';
+import {JsonRepairResult} from '../types/json-repair.types';
 
 /**
  * Interface for JSON formatting services
@@ -23,6 +24,8 @@ export interface IJsonFormattingService {
     fixInconsistentIndentation(jsonString: string): string;
 
     repairLenientJson(jsonString: string): string;
+
+    fixMyJson(jsonString: string): JsonRepairResult;
 
     sortObjectKeys(obj: unknown): unknown;
 }

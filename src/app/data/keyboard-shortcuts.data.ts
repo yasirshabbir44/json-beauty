@@ -9,7 +9,7 @@ export const KEYBOARD_SHORTCUTS: KeyboardShortcutItem[] = [
     {key: 'Ctrl / Cmd + Shift + F', action: 'Show or hide Search & Replace panel'},
     {key: 'Ctrl + B', action: 'Beautify JSON'},
     {key: 'Ctrl + M', action: 'Minify JSON'},
-    {key: 'Ctrl + L', action: 'Lint and fix JSON'},
+    {key: 'Ctrl + L', action: 'Lint JSON, or Fix My JSON when invalid'},
     {key: 'Ctrl + C', action: 'Copy to clipboard'},
     {key: 'Ctrl + S', action: 'Download JSON'},
     {key: 'Ctrl + D', action: 'Clear editor'},

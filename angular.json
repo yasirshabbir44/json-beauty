@@ -31,6 +31,8 @@
               "ace-builds",
               "jsondiffpatch",
               "jsonlint-mod",
+              "jsonrepair",
+              "json5",
               "xml2js",
               "jsonpath"
             ],

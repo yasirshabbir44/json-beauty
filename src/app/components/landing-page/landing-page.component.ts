@@ -46,8 +46,8 @@ export class LandingPageComponent {
         },
         {
             icon: 'rule',
-            title: 'Validate & lint',
-            description: 'Catch syntax errors early with inline markers and quick fixes.',
+            title: 'Validate & Fix My JSON',
+            description: 'Catch syntax errors early, then run deterministic repair for quotes, commas, and brackets.',
         },
         {
             icon: 'account_tree',

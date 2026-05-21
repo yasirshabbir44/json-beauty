@@ -8,6 +8,7 @@ export * from './validation/json-validation.service';
 
 // Export formatting services
 export * from './formatting/json-formatting.service';
+export * from './formatting/json-repair.service';
 
 // Export conversion services
 export * from './conversion/json-conversion.service';
