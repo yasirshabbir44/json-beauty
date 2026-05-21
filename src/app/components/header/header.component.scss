@@ -31,6 +31,22 @@
   align-items: center;
   min-width: 0;
   flex-shrink: 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--jb-radius-sm);
+  margin: -0.25rem;
+  padding: 0.25rem;
+  transition: background var(--jb-duration-normal) var(--jb-ease-standard);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.45);
+    outline-offset: 2px;
+  }
 }
 
 .logo-animation {
