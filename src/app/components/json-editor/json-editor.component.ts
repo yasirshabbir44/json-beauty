@@ -66,7 +66,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             'Beautify JSON',
             'Minify JSON',
             'Validate JSON',
-            'Lint JSON',
+            'Fix My JSON',
             'Format nested JSON',
             'Syntax highlighting'
         ],
@@ -393,7 +393,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 if (this.isValidJson) {
                     this.beautifyJson();
                 } else {
-                    this.showError('Fix JSON syntax errors before beautifying (or use Lint & fix)');
+                    this.showError('Fix JSON syntax errors before beautifying (or use Fix My JSON — Ctrl+L)');
                 }
                 break;
             case 'm':
@@ -1059,11 +1059,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     lintJson(): void {
         if (!this.isValidJson) {
-            this.runJsonTransform(
-                () => this.jsonService.repairLenientJson(this.jsonInput.value || ''),
-                'Syntax repaired — converted to strict JSON',
-                'Could not repair JSON syntax'
-            );
+            this.fixMyJson();
             return;
         }
         this.runJsonTransform(
@@ -1071,6 +1067,25 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             'JSON linted successfully',
             'Error linting JSON'
         );
+    }
+
+    fixMyJson(): void {
+        try {
+            const result = this.jsonService.fixMyJson(this.jsonInput.value || '');
+            if (!result.success) {
+                this.showError(`Could not repair JSON: ${result.error ?? 'unknown error'}`);
+                return;
+            }
+            this.applyTransformedJson(result.repairedJson);
+            const fixSummary = result.fixesApplied.length > 0
+                ? result.fixesApplied
+                    .map((kind) => this.jsonService.describeJsonRepairFix(kind))
+                    .join('; ')
+                : 'JSON was already valid — reformatted';
+            this.showSuccess(`Fix My JSON: ${fixSummary}`);
+        } catch (error: unknown) {
+            this.showError(`Could not repair JSON: ${this.toErrorMessage(error)}`);
+        }
     }
 
     sortObjectKeys(obj: any): any {

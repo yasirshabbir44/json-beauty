@@ -1,3 +1,5 @@
+import {JsonRepairFixKind} from '../types/json-repair.types';
+
 /**
  * Interface for JSON validation services
  * Follows the Interface Segregation Principle by defining a focused set of methods
@@ -28,6 +30,8 @@ export interface IJsonValidationService {
         formattingIssues: string[];
         suggestions: string[];
         fixedJson?: string;
+        repairAvailable?: boolean;
+        fixesApplied?: JsonRepairFixKind[];
     };
 
     /**

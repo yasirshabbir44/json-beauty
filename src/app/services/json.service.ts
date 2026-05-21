@@ -8,6 +8,8 @@ import {JsonComparisonService} from './comparison/json-comparison.service';
 import {JsonPathService} from './path/json-path.service';
 import {InputSanitizationService} from './security/input-sanitization.service';
 import {MockDataSimulatorService} from './mock-data/mock-data-simulator.service';
+import {JsonRepairService} from './formatting/json-repair.service';
+import {JsonRepairFixKind} from '../types/json-repair.types';
 import {MockDataSimulatorOptions, StructureBlueprint} from '../types/mock-data.types';
 
 /**
@@ -27,7 +29,8 @@ export class JsonService {
         private comparisonService: JsonComparisonService,
         private pathService: JsonPathService,
         private sanitizationService: InputSanitizationService,
-        private mockDataService: MockDataSimulatorService
+        private mockDataService: MockDataSimulatorService,
+        private jsonRepairService: JsonRepairService
     ) {
     }
 
@@ -132,6 +135,17 @@ export class JsonService {
      */
     repairLenientJson(jsonString: string): string {
         return this.formattingService.repairLenientJson(jsonString);
+    }
+
+    /**
+     * Deterministic fault-tolerant JSON recovery (Fix My JSON).
+     */
+    fixMyJson(jsonString: string) {
+        return this.formattingService.fixMyJson(jsonString);
+    }
+
+    describeJsonRepairFix(kind: JsonRepairFixKind): string {
+        return this.jsonRepairService.describeFixes([kind])[0] ?? kind;
     }
 
     /**

@@ -222,9 +222,9 @@
                 Minify
               </button>
               <button type="button" mat-stroked-button (click)="lintJson()"
-                [matTooltip]="isValidJson ? 'Lint formatting (Ctrl+L)' : 'Repair syntax — trailing commas, comments (Ctrl+L)'">
-                <mat-icon>{{ isValidJson ? 'rule' : 'build' }}</mat-icon>
-                {{ isValidJson ? 'Lint' : 'Repair' }}
+                [matTooltip]="isValidJson ? 'Lint formatting (Ctrl+L)' : 'Fix My JSON — quotes, trailing commas, brackets (Ctrl+L)'">
+                <mat-icon>{{ isValidJson ? 'rule' : 'auto_fix_high' }}</mat-icon>
+                {{ isValidJson ? 'Lint' : 'Fix My JSON' }}
               </button>
             </div>
             <div class="toolbar-divider" aria-hidden="true"></div>
@@ -520,7 +520,7 @@
             <article class="launch-description-item">
               <h2>Core features</h2>
               <ul>
-                <li>Beautify, minify, lint, and validate JSON instantly</li>
+                <li>Beautify, minify, validate, and Fix My JSON with deterministic repair</li>
                 <li>Explore data using tree and table views</li>
                 <li>Search, replace, and query with JSONPath</li>
                 <li>Compare versions and inspect structured diffs</li>

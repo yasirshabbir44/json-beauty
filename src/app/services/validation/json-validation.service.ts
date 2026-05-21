@@ -1,7 +1,18 @@
 import {Injectable} from '@angular/core';
 import {IJsonValidationService} from '../../interfaces';
+import {JsonRepairFixKind} from '../../types/json-repair.types';
 import Ajv from 'ajv';
 import * as JSON5 from 'json5';
+import {JsonRepairService} from '../formatting/json-repair.service';
+
+export type JsonLintResult = {
+    isValid: boolean;
+    formattingIssues: string[];
+    suggestions: string[];
+    fixedJson?: string;
+    repairAvailable?: boolean;
+    fixesApplied?: JsonRepairFixKind[];
+};
 
 /**
  * Service for JSON validation operations
@@ -13,7 +24,7 @@ import * as JSON5 from 'json5';
 export class JsonValidationService implements IJsonValidationService {
     private ajv = new Ajv({allErrors: true});
 
-    constructor() {
+    constructor(private jsonRepairService: JsonRepairService) {
     }
 
     /**
@@ -114,18 +125,28 @@ export class JsonValidationService implements IJsonValidationService {
      * @param jsonString The JSON string to lint
      * @returns Object containing lint results
      */
-    lintJson(jsonString: string): {
-        isValid: boolean;
-        formattingIssues: string[];
-        suggestions: string[];
-        fixedJson?: string;
-    } {
+    lintJson(jsonString: string): JsonLintResult {
         const validation = this.validateJson(jsonString);
         if (!validation.isValid) {
+            const repair = this.jsonRepairService.repair(jsonString);
+            if (repair.success) {
+                const fixDescriptions = this.jsonRepairService.describeFixes(repair.fixesApplied);
+                return {
+                    isValid: false,
+                    formattingIssues: [validation.error || 'Invalid JSON'],
+                    suggestions: [
+                        'Use Fix My JSON (Ctrl+L) to apply deterministic repairs',
+                        ...fixDescriptions
+                    ],
+                    fixedJson: repair.repairedJson,
+                    repairAvailable: true,
+                    fixesApplied: repair.fixesApplied
+                };
+            }
             return {
                 isValid: false,
                 formattingIssues: [validation.error || 'Invalid JSON'],
-                suggestions: ['Fix the JSON syntax errors before linting']
+                suggestions: ['Fix the JSON syntax errors manually — automatic repair could not recover this document']
             };
         }
 
