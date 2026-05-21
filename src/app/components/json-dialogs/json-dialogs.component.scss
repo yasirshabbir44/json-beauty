@@ -748,32 +748,10 @@
 }
 
 .visualization-container {
-  padding: 20px;
+  padding: 16px;
   background: #f8f9fa;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
-  text-align: center;
-
-  .coming-soon {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: #4285F4;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    mat-icon {
-      margin-right: 8px;
-      color: #fbbc05;
-    }
-  }
-
-  p {
-    color: #3c4043;
-    line-height: 1.5;
-    margin-bottom: 0;
-  }
 }
 
 /* Dark Theme Styles */
@@ -979,13 +957,5 @@
   .visualization-container {
     background: #3d3d3d;
     border-color: #4d4d4d;
-
-    .coming-soon {
-      color: #8ab4f8;
-    }
-
-    p {
-      color: #e0e0e0;
-    }
   }
 }

@@ -7,6 +7,8 @@ import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {JsonService} from '../../services/json.service';
 import {VersionHistoryService} from '../../services/history/version-history.service';
 import {RecentFile, RecentFilesService} from '../../services/history/recent-files.service';
+import {WorkspaceDraft, WorkspaceDraftService} from '../../services/history/workspace-draft.service';
+import {InputHistoryLogService} from '../../services/history/input-history-log.service';
 import {countJsonStructure, JsonStructureStats} from '../../utils/json-stats.util';
 import {InputSanitizationService} from '../../services/security/input-sanitization.service';
 import {SecurityUtilsService} from '../../services/security/security-utils.service';
@@ -148,8 +150,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     isOutputMaximized = false;
     inputPanelWidth = 50;
     private hasLoadedSharedJson = false;
+    private hasRestoredWorkspaceDraft = false;
     isFileDragActive = false;
     private dragEventDepth = 0;
+    private historyLogSaveTimer: ReturnType<typeof setTimeout> | null = null;
+    private readonly historyLogDebounceMs = 2000;
 
     /** True when the input editor has no content (shows onboarding overlay). */
     get isWorkspaceEmpty(): boolean {
@@ -181,6 +186,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         private themeService: ThemeService,
         private shareService: ShareService,
         private recentFilesService: RecentFilesService,
+        private workspaceDraftService: WorkspaceDraftService,
+        private inputHistoryLogService: InputHistoryLogService,
         private configService: ConfigurationService,
         private destroyRef: DestroyRef
     ) {
@@ -204,6 +211,8 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     onJsonInputChange(value: string): void {
         this.jsonInput.setValue(value);
         this.validateJson();
+        this.persistWorkspaceDraft(value);
+        this.scheduleHistoryLogEntry(value);
 
         // Auto-save version if JSON is valid and not empty
         if (this.isValidJson && value.trim() !== '') {
@@ -241,6 +250,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.validateJson();
         this.updateOutput();
+        this.persistWorkspaceDraft(content);
+    }
+
+    /**
+     * Loads JSON content from the optional history log.
+     */
+    loadHistoryEntryContent(content: string): void {
+        this.loadVersionContent(content);
     }
 
     /**
@@ -617,6 +634,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
+        if (this.historyLogSaveTimer) {
+            clearTimeout(this.historyLogSaveTimer);
+            this.historyLogSaveTimer = null;
+        }
+        this.workspaceDraftService.flush();
         if (this.floatingSearchTimer) {
             clearTimeout(this.floatingSearchTimer);
         }
@@ -802,14 +824,27 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(files => (this.recentFiles = files));
 
-        // Check for JSON data in URL (for shared links)
+        // Check for JSON data in URL (for shared links), then restore cached workspace draft
         void this.loadJsonFromUrl().then(() => {
-            if (!this.hasLoadedSharedJson) {
-                const sample = JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2);
-                this.jsonInput.setValue(sample);
-                this.validateJson();
+            if (this.hasLoadedSharedJson) {
+                return;
             }
+
+            const draft = this.workspaceDraftService.getDraft();
+            if (draft?.jsonInput?.trim()) {
+                this.restoreWorkspaceDraft(draft);
+                return;
+            }
+
+            const sample = JSON.stringify(JsonEditorComponent.DEFAULT_SAMPLE_OBJECT, null, 2);
+            this.jsonInput.setValue(sample);
+            this.validateJson();
         });
+    }
+
+    @HostListener('window:beforeunload')
+    onBeforeUnload(): void {
+        this.workspaceDraftService.flush();
     }
 
     ngAfterViewInit(): void {
@@ -822,6 +857,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             // Validate the initial JSON to update the output
             this.validateJson();
             this.scheduleScrollSyncBind();
+
+            if (this.hasRestoredWorkspaceDraft) {
+                this.showSuccess('Restored your last session from local storage');
+            }
         }, 100);
     }
 
@@ -1718,12 +1757,14 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
             this.jsonInput.setValue(sanitizedJson);
             this.hasLoadedSharedJson = true;
+            this.persistWorkspaceDraft(sanitizedJson);
 
             setTimeout(() => {
                 if (this.jsonInputEditor) {
                     this.jsonInputEditor.setValue(sanitizedJson);
                 }
                 this.beautifyJson();
+                this.inputHistoryLogService.addEntry(sanitizedJson, 'shared link');
                 this.showSuccess('JSON loaded from shared link');
             }, 100);
         } catch (error) {
@@ -1774,18 +1815,23 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     /**
-     * Initializes the JSON visualization
+     * Initializes the JSON visualization from the current editor input.
      */
     private initializeVisualization(): void {
         if (!this.ensureValidJsonInput('Please enter valid JSON to visualize')) {
+            this.showJsonVisualize = false;
             return;
         }
 
         try {
-            // For now, just show a message that visualization is not fully implemented
-            this.showSuccess('JSON visualization feature is coming soon!');
+            const parsed = this.tryUpdateTreeDataFromJsonString(this.jsonInput.value || '');
+            if (!parsed) {
+                this.showError('Could not parse JSON for visualization');
+                this.showJsonVisualize = false;
+            }
         } catch (error) {
             this.showError(`Error initializing visualization: ${this.toErrorMessage(error)}`);
+            this.showJsonVisualize = false;
         }
     }
 
@@ -2110,10 +2156,51 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             this.validateJson();
             this.updateOutput();
             this.recentFilesService.addRecent(sourceName, normalizedJson);
+            this.persistWorkspaceDraft(normalizedJson);
+            this.inputHistoryLogService.addEntry(normalizedJson, sourceName);
             this.showSuccess(successMessage);
         } catch (error) {
             const sanitizedError = this.sanitizationService.sanitizeString(this.toErrorMessage(error));
             this.showError(`Error importing ${sourceName}: ${sanitizedError}`);
         }
+    }
+
+    private restoreWorkspaceDraft(draft: WorkspaceDraft): void {
+        this.jsonInput.setValue(draft.jsonInput);
+        if (draft.compareJsonInput) {
+            this.compareJsonInput.setValue(draft.compareJsonInput);
+        }
+        if (draft.schemaInput) {
+            this.schemaInput.setValue(draft.schemaInput);
+        }
+        this.hasRestoredWorkspaceDraft = true;
+        this.validateJson();
+    }
+
+    private persistWorkspaceDraft(value = this.jsonInput.value || ''): void {
+        if (!value.trim()) {
+            return;
+        }
+
+        this.workspaceDraftService.scheduleSave({
+            jsonInput: value,
+            compareJsonInput: this.compareJsonInput.value || undefined,
+            schemaInput: this.schemaInput.value || undefined
+        });
+    }
+
+    private scheduleHistoryLogEntry(value: string, source = 'typed'): void {
+        if (!value.trim()) {
+            return;
+        }
+
+        if (this.historyLogSaveTimer) {
+            clearTimeout(this.historyLogSaveTimer);
+        }
+
+        this.historyLogSaveTimer = setTimeout(() => {
+            this.inputHistoryLogService.addEntry(value, source);
+            this.historyLogSaveTimer = null;
+        }, this.historyLogDebounceMs);
     }
 }
