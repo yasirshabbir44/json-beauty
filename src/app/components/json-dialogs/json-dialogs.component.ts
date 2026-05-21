@@ -63,6 +63,33 @@ export class JsonDialogsComponent implements OnChanges {
     @Input() jsonData: any = null;
     @Output() toggleJsonVisualize = new EventEmitter<void>();
 
+    @Input() showMockDataSimulator = false;
+    @Input() mockDataMode: 'auto' | 'custom' = 'auto';
+    @Input() mockDataSeed: FormControl = new FormControl('json-beauty');
+    @Input() mockDataArrayLength: FormControl = new FormControl('');
+    @Input() mockDataStringStyle: 'placeholder' | 'lorem' | 'sequential' | 'words' = 'placeholder';
+    @Input() mockDataStringPrefix: FormControl = new FormControl('value_');
+    @Input() mockDataNumberMin: FormControl = new FormControl('');
+    @Input() mockDataNumberMax: FormControl = new FormControl('');
+    @Input() mockDataFieldOverrides: FormControl = new FormControl('{}');
+    @Input() mockDataStatus: 'idle' | 'ready' | 'error' = 'idle';
+    @Input() mockDataStatusMessage = '';
+    @Input() mockDataGenerating = false;
+    @Input() mockDataPreview = '';
+    @Output() toggleMockDataSimulator = new EventEmitter<void>();
+    @Output() updateMockDataPreview = new EventEmitter<void>();
+    @Output() generateMockData = new EventEmitter<void>();
+    @Output() shuffleMockDataSeed = new EventEmitter<void>();
+    @Output() mockDataModeChange = new EventEmitter<'auto' | 'custom'>();
+    @Output() mockDataStringStyleChange = new EventEmitter<'placeholder' | 'lorem' | 'sequential' | 'words'>();
+
+    readonly mockStringStyleOptions: { value: 'placeholder' | 'lorem' | 'sequential' | 'words'; label: string }[] = [
+        {value: 'placeholder', label: 'Placeholder (value_xxx)'},
+        {value: 'words', label: 'Random words'},
+        {value: 'sequential', label: 'Sequential (item_1, item_2…)'},
+        {value: 'lorem', label: 'Lorem text'}
+    ];
+
     constructor(private formattingService: JsonFormattingService) {
     }
 
@@ -199,6 +226,49 @@ export class JsonDialogsComponent implements OnChanges {
 
     closeJsonVisualize(): void {
         this.toggleJsonVisualize.emit();
+    }
+
+    closeMockDataSimulator(): void {
+        this.toggleMockDataSimulator.emit();
+    }
+
+    onUpdateMockPreview(): void {
+        this.updateMockDataPreview.emit();
+    }
+
+    onGenerateMockData(): void {
+        this.generateMockData.emit();
+    }
+
+    onShuffleSeed(): void {
+        this.shuffleMockDataSeed.emit();
+    }
+
+    onSeedInput(): void {
+        this.updateMockDataPreview.emit();
+    }
+
+    onMockModeChange(mode: 'auto' | 'custom'): void {
+        this.mockDataModeChange.emit(mode);
+    }
+
+    onStringStyleChange(style: 'placeholder' | 'lorem' | 'sequential' | 'words'): void {
+        this.mockDataStringStyleChange.emit(style);
+    }
+
+    get showStringPrefix(): boolean {
+        return this.mockDataStringStyle === 'placeholder' || this.mockDataStringStyle === 'sequential';
+    }
+
+    async copyMockPreview(): Promise<void> {
+        if (!this.mockDataPreview) {
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(this.mockDataPreview);
+        } catch {
+            // Clipboard unavailable
+        }
     }
 
     private syncDraftFromInput(): void {

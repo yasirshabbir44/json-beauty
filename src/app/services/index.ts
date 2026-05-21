@@ -20,3 +20,6 @@ export * from './comparison/json-comparison.service';
 
 // Export path services
 export * from './path/json-path.service';
+
+// Export mock data services
+export * from './mock-data/mock-data-simulator.service';

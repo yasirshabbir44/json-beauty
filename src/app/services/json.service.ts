@@ -7,6 +7,8 @@ import {JsonSchemaService} from './schema/json-schema.service';
 import {JsonComparisonService} from './comparison/json-comparison.service';
 import {JsonPathService} from './path/json-path.service';
 import {InputSanitizationService} from './security/input-sanitization.service';
+import {MockDataSimulatorService} from './mock-data/mock-data-simulator.service';
+import {MockDataSimulatorOptions, StructureBlueprint} from '../types/mock-data.types';
 
 /**
  * Main JSON service that delegates to specialized services
@@ -24,7 +26,8 @@ export class JsonService {
         private schemaService: JsonSchemaService,
         private comparisonService: JsonComparisonService,
         private pathService: JsonPathService,
-        private sanitizationService: InputSanitizationService
+        private sanitizationService: InputSanitizationService,
+        private mockDataService: MockDataSimulatorService
     ) {
     }
 
@@ -220,6 +223,43 @@ export class JsonService {
      */
     generateJsonSchema(jsonString: string): string {
         return this.schemaService.generateJsonSchema(jsonString);
+    }
+
+    /**
+     * Builds a finalized structural blueprint from a JSON sample.
+     */
+    buildStructureBlueprint(jsonString: string): StructureBlueprint {
+        const sanitized = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.mockDataService.buildBlueprintFromJson(sanitized);
+    }
+
+    /**
+     * Builds a finalized structural blueprint from a JSON Schema document.
+     */
+    buildStructureBlueprintFromSchema(schemaString: string): StructureBlueprint {
+        return this.mockDataService.buildBlueprintFromSchema(schemaString);
+    }
+
+    /**
+     * Generates a structural-compliant mock dataset from a finalized blueprint.
+     */
+    generateMockDataset(blueprint: StructureBlueprint, options?: MockDataSimulatorOptions): string {
+        return this.mockDataService.generateMockDataset(blueprint, options);
+    }
+
+    /**
+     * Infers blueprint from JSON and generates deterministic mock data in one step.
+     */
+    generateMockDataFromJson(jsonString: string, options?: MockDataSimulatorOptions): string {
+        const sanitized = this.sanitizationService.sanitizeJsonInput(jsonString);
+        return this.mockDataService.generateFromJsonSample(sanitized, options);
+    }
+
+    /**
+     * Infers blueprint from JSON Schema and generates deterministic mock data.
+     */
+    generateMockDataFromSchema(schemaString: string, options?: MockDataSimulatorOptions): string {
+        return this.mockDataService.generateFromSchema(schemaString, options);
     }
 
     /**

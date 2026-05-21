@@ -344,3 +344,166 @@
     </mat-card>
   </div>
 }
+
+<!-- Mock Data Generator Dialog -->
+@if (showMockDataSimulator) {
+  <div class="overlay-dialog">
+    <mat-card class="dialog-card mock-data-dialog">
+      <mat-card-header>
+        <mat-card-title>Mock Data Generator</mat-card-title>
+        <button (click)="closeMockDataSimulator()" class="close-btn" mat-icon-button type="button" aria-label="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="mock-data-lead">
+          Keeps your JSON shape. Choose <strong>Auto</strong> for smart values from field names, or
+          <strong>Custom</strong> to control patterns and pin specific fields.
+        </p>
+
+        <div class="mock-data-mode">
+          <span class="mock-data-mode-label">Generation</span>
+          <mat-button-toggle-group
+            [value]="mockDataMode"
+            (change)="onMockModeChange($event.value)">
+            <mat-button-toggle value="auto">
+              <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+              Auto
+            </mat-button-toggle>
+            <mat-button-toggle value="custom">
+              <mat-icon aria-hidden="true">tune</mat-icon>
+              Custom
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        @if (mockDataMode === 'auto') {
+          <p class="mock-data-mode-hint">
+            Infers names, emails, versions, feature lists, dates, and UUIDs from your field names.
+          </p>
+        }
+        @if (mockDataMode === 'custom') {
+          <div class="mock-data-custom-panel">
+            <mat-form-field appearance="outline" class="mock-data-field mock-data-field--full">
+              <mat-label>String style</mat-label>
+              <mat-select [value]="mockDataStringStyle" (selectionChange)="onStringStyleChange($event.value)">
+                @for (opt of mockStringStyleOptions; track opt.value) {
+                  <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (showStringPrefix) {
+              <mat-form-field appearance="outline" class="mock-data-field mock-data-field--prefix">
+                <mat-label>{{ mockDataStringStyle === 'sequential' ? 'Sequential prefix' : 'Placeholder prefix' }}</mat-label>
+                <input matInput [formControl]="mockDataStringPrefix" (blur)="onSeedInput()" />
+              </mat-form-field>
+            }
+            <div class="mock-data-number-range">
+              <mat-form-field appearance="outline" class="mock-data-field">
+                <mat-label>Number min</mat-label>
+                <input matInput type="number" [formControl]="mockDataNumberMin" (blur)="onSeedInput()" />
+              </mat-form-field>
+              <mat-form-field appearance="outline" class="mock-data-field">
+                <mat-label>Number max</mat-label>
+                <input matInput type="number" [formControl]="mockDataNumberMax" (blur)="onSeedInput()" />
+              </mat-form-field>
+            </div>
+            <label class="mock-data-overrides-label" for="mock-data-overrides">Field overrides (JSON)</label>
+            <textarea
+              id="mock-data-overrides"
+              class="mock-data-overrides"
+              [formControl]="mockDataFieldOverrides"
+              (blur)="onSeedInput()"
+              placeholder='{ "version": "2.0.0", "features": ["export", "api"] }'></textarea>
+            <p class="mock-data-overrides-hint">Use field names or paths to set exact values; everything else uses your string style.</p>
+          </div>
+        }
+
+        @if (mockDataStatus === 'error') {
+          <div class="mock-data-banner mock-data-banner--error" role="alert">
+            <mat-icon aria-hidden="true">error_outline</mat-icon>
+            <span>{{ mockDataStatusMessage }}</span>
+          </div>
+        }
+        @if (mockDataStatus === 'ready') {
+          <div class="mock-data-banner mock-data-banner--ready">
+            <mat-icon aria-hidden="true">check_circle</mat-icon>
+            <span>{{ mockDataStatusMessage }}</span>
+          </div>
+        }
+
+        <div class="mock-data-controls">
+          <mat-form-field appearance="outline" class="mock-data-field mock-data-field--seed">
+            <mat-label>Seed</mat-label>
+            <input
+              matInput
+              [formControl]="mockDataSeed"
+              (keyup.enter)="onUpdateMockPreview()"
+              (blur)="onSeedInput()" />
+            <mat-hint>Same seed → same mock data</mat-hint>
+          </mat-form-field>
+          <button
+            type="button"
+            mat-stroked-button
+            class="mock-data-shuffle-btn"
+            matTooltip="New random seed"
+            (click)="onShuffleSeed()"
+            [disabled]="mockDataGenerating">
+            <mat-icon aria-hidden="true">casino</mat-icon>
+            Shuffle
+          </button>
+          <mat-form-field appearance="outline" class="mock-data-field mock-data-field--count">
+            <mat-label>Items per array</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              max="25"
+              [formControl]="mockDataArrayLength"
+              placeholder="Same as sample"
+              (blur)="onSeedInput()" />
+          </mat-form-field>
+        </div>
+
+        <div class="mock-data-preview-wrap">
+          <div class="mock-data-preview-head">
+            <span>Preview</span>
+            @if (mockDataGenerating) {
+              <mat-spinner diameter="18" aria-label="Generating preview"></mat-spinner>
+            }
+            <button
+              type="button"
+              mat-button
+              class="mock-data-refresh-btn"
+              (click)="onUpdateMockPreview()"
+              [disabled]="mockDataGenerating">
+              Refresh
+            </button>
+          </div>
+          <textarea
+            class="mock-data-preview"
+            readonly
+            [value]="mockDataPreview"
+            placeholder="Valid JSON in the editor will show a live preview here…"></textarea>
+        </div>
+      </mat-card-content>
+      <mat-card-actions class="mock-data-dialog-actions">
+        <button type="button" (click)="copyMockPreview()" [disabled]="!mockDataPreview" mat-stroked-button>
+          <mat-icon aria-hidden="true">content_copy</mat-icon>
+          Copy
+        </button>
+        <span class="mock-data-actions-spacer"></span>
+        <button type="button" (click)="closeMockDataSimulator()" mat-button>Cancel</button>
+        <button
+          type="button"
+          (click)="onGenerateMockData()"
+          color="primary"
+          mat-raised-button
+          [disabled]="mockDataGenerating || mockDataStatus === 'error'">
+          <mat-icon aria-hidden="true">auto_fix_high</mat-icon>
+          Apply to editor
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+}
