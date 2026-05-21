@@ -1,5 +1,10 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {
+    findMatchingPresetId,
+    FORMATTING_PRESETS,
+    FormattingPreset,
+} from '../../data/formatting-presets.data';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
 import {JsonFormattingService} from '../../services/formatting/json-formatting.service';
 
@@ -12,6 +17,7 @@ import {JsonFormattingService} from '../../services/formatting/json-formatting.s
 export class JsonDialogsComponent implements OnChanges {
     readonly indentSizeChoices = [2, 4, 8] as const;
     readonly defaultOptions = DEFAULT_FORMATTING_OPTIONS;
+    readonly formattingPresets = FORMATTING_PRESETS;
 
     @Input() showKeyboardShortcuts: boolean = false;
     @Input() keyboardShortcuts: { key: string, action: string }[] = [];
@@ -26,6 +32,8 @@ export class JsonDialogsComponent implements OnChanges {
     draft: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
     previewText = '';
     previewUsesSample = true;
+    previewCopied = false;
+    private previewCopyResetTimer?: ReturnType<typeof setTimeout>;
 
     @Input() showSchemaEditor: boolean = false;
     @Input() schemaInput: FormControl = new FormControl('');
@@ -77,6 +85,27 @@ export class JsonDialogsComponent implements OnChanges {
         return `${this.draft.indentSize} ${unit}${plural}`;
     }
 
+    get activePresetId(): string | null {
+        return findMatchingPresetId(this.draft);
+    }
+
+    get activePresetLabel(): string {
+        const id = this.activePresetId;
+        if (!id) {
+            return 'Custom';
+        }
+        return this.formattingPresets.find(p => p.id === id)?.label ?? 'Custom';
+    }
+
+    isPresetActive(preset: FormattingPreset): boolean {
+        return this.activePresetId === preset.id;
+    }
+
+    applyPreset(preset: FormattingPreset): void {
+        this.draft = { ...preset.options };
+        this.onDraftChanged();
+    }
+
     closeKeyboardShortcuts(): void {
         this.toggleKeyboardShortcuts.emit();
     }
@@ -87,6 +116,24 @@ export class JsonDialogsComponent implements OnChanges {
 
     onDraftChanged(): void {
         this.refreshPreview();
+    }
+
+    async copyPreviewToClipboard(): Promise<void> {
+        if (!this.previewText) {
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(this.previewText);
+            this.previewCopied = true;
+            if (this.previewCopyResetTimer) {
+                clearTimeout(this.previewCopyResetTimer);
+            }
+            this.previewCopyResetTimer = setTimeout(() => {
+                this.previewCopied = false;
+            }, 2000);
+        } catch {
+            this.previewCopied = false;
+        }
     }
 
     setIndentSize(size: number | null): void {

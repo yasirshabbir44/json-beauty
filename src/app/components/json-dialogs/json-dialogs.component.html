@@ -40,6 +40,38 @@
       <mat-card-content class="formatting-dialog-body">
         <div class="formatting-layout">
           <div class="formatting-settings">
+            <section class="format-section format-presets-section" aria-labelledby="format-presets-heading">
+              <div class="format-section-head">
+                <mat-icon class="format-section-icon" aria-hidden="true">tune</mat-icon>
+                <div>
+                  <h3 id="format-presets-heading">Quick presets</h3>
+                  <p>One-click profiles for common workflows. Fine-tune below anytime.</p>
+                </div>
+              </div>
+              <div class="format-preset-grid" role="list">
+                @for (preset of formattingPresets; track preset.id) {
+                  <button
+                    type="button"
+                    role="listitem"
+                    class="format-preset-card"
+                    [class.format-preset-card--active]="isPresetActive(preset)"
+                    [attr.aria-pressed]="isPresetActive(preset)"
+                    [attr.aria-label]="preset.label + ': ' + preset.description"
+                    (click)="applyPreset(preset)">
+                    <mat-icon class="format-preset-icon" aria-hidden="true">{{ preset.icon }}</mat-icon>
+                    <span class="format-preset-label">{{ preset.label }}</span>
+                    <span class="format-preset-desc">{{ preset.description }}</span>
+                  </button>
+                }
+              </div>
+              <p class="format-hint format-preset-status">
+                <mat-icon aria-hidden="true">auto_awesome</mat-icon>
+                Active profile: <strong>{{ activePresetLabel }}</strong>
+              </p>
+            </section>
+
+            <mat-divider></mat-divider>
+
             <section class="format-section" aria-labelledby="format-indent-heading">
               <div class="format-section-head">
                 <mat-icon class="format-section-icon" aria-hidden="true">format_indent_increase</mat-icon>
@@ -150,9 +182,20 @@
                 <mat-icon aria-hidden="true">visibility</mat-icon>
                 Live preview
               </span>
-              <span class="formatting-preview-badge">
-                {{ previewUsesSample ? 'Sample JSON' : 'Your document' }}
-              </span>
+              <div class="formatting-preview-actions">
+                <span class="formatting-preview-badge">
+                  {{ previewUsesSample ? 'Sample JSON' : 'Your document' }}
+                </span>
+                <button
+                  type="button"
+                  mat-icon-button
+                  class="formatting-preview-copy"
+                  [attr.aria-label]="previewCopied ? 'Copied preview' : 'Copy preview to clipboard'"
+                  [matTooltip]="previewCopied ? 'Copied!' : 'Copy preview'"
+                  (click)="copyPreviewToClipboard()">
+                  <mat-icon aria-hidden="true">{{ previewCopied ? 'done' : 'content_copy' }}</mat-icon>
+                </button>
+              </div>
             </div>
             <pre class="formatting-preview-code"><code>{{ previewText }}</code></pre>
           </aside>
