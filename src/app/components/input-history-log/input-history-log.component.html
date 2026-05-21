@@ -1,0 +1,74 @@
+<div class="input-history-container">
+  <button
+    (click)="togglePanel()"
+    aria-label="Toggle input history log"
+    class="toggle-button"
+    matTooltip="History Log">
+    <mat-icon>list_alt</mat-icon>
+  </button>
+
+  @if (isOpen) {
+    <div class="history-panel" @fadeSlideUp>
+      <div class="panel-header">
+        <h2>History Log</h2>
+        <button
+          (click)="togglePanel()"
+          aria-label="Close panel"
+          mat-icon-button>
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="panel-content">
+        @if (entries.length === 0) {
+          <div class="no-entries">
+            <p>No recent inputs yet.</p>
+            <p class="hint">Your JSON inputs are saved here as you work so you can restore them later.</p>
+          </div>
+        }
+
+        @if (entries.length > 0) {
+          <div class="entries-list">
+            @for (entry of entries; track entry.id) {
+              <div
+                (click)="loadEntry(entry)"
+                class="history-entry">
+                <div class="entry-info">
+                  <div class="entry-preview">{{ entry.preview }}</div>
+                  <div class="entry-meta">
+                    <span class="entry-timestamp">{{ formatDate(entry.timestamp) }}</span>
+                    <span class="entry-size">{{ formatSize(entry.sizeBytes) }}</span>
+                    @if (entry.source) {
+                      <span class="entry-source">{{ entry.source }}</span>
+                    }
+                  </div>
+                </div>
+                <div class="entry-actions">
+                  <button
+                    (click)="removeEntry(entry.id, $event)"
+                    aria-label="Remove entry"
+                    mat-icon-button
+                    matTooltip="Remove entry">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      @if (entries.length > 0) {
+        <div class="panel-footer">
+          <button
+            (click)="clearHistory()"
+            aria-label="Clear history log"
+            color="warn"
+            mat-button>
+            Clear History Log
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,4 +1,17 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+
+export interface NumericChartDatum {
+    path: string;
+    value: number;
+}
+
+export interface VisualizationSummary {
+    rootType: 'object' | 'array' | 'primitive';
+    propertyCount: number;
+    arrayItemCount: number;
+    maxDepth: number;
+    numericFields: NumericChartDatum[];
+}
 
 @Component({
     selector: 'app-json-visualization',
@@ -7,141 +20,211 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/cor
     standalone: false
 })
 export class JsonVisualizationComponent implements OnInit, OnChanges {
-  @Input() jsonData: any;
-  
-  // Visualization properties
-  visualizationData: any = null;
-  expandedNodes: Set<string> = new Set<string>();
-  
-  constructor() { }
+    @Input() jsonData: unknown = null;
 
-  ngOnInit(): void {
-    this.initializeVisualization();
-  }
+    visualizationData: unknown = null;
+    summary: VisualizationSummary | null = null;
+    expandedNodes = new Set<string>(['$']);
+    readonly maxChartBars = 12;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['jsonData']) {
-      this.initializeVisualization();
+    ngOnInit(): void {
+        this.initializeVisualization();
     }
-  }
 
-  /**
-   * Initializes the JSON visualization
-   */
-  initializeVisualization(): void {
-    if (this.jsonData) {
-      try {
-        // If jsonData is a string, parse it
-        if (typeof this.jsonData === 'string') {
-          this.visualizationData = JSON.parse(this.jsonData);
-        } else {
-          this.visualizationData = this.jsonData;
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['jsonData']) {
+            this.initializeVisualization();
         }
-        
-        // Expand the root node by default
-        this.expandedNodes.add('root');
-      } catch (error) {
-        console.error('Error initializing visualization:', error);
-        this.visualizationData = null;
-      }
     }
-  }
 
-  /**
-   * Gets the keys of an object
-   * @param obj The object to get keys from
-   * @returns Array of keys
-   */
-  getObjectKeys(obj: any): string[] {
-    if (!obj || typeof obj !== 'object') return [];
-    return Object.keys(obj);
-  }
+    initializeVisualization(): void {
+        if (this.jsonData == null || this.jsonData === '') {
+            this.visualizationData = null;
+            this.summary = null;
+            return;
+        }
 
-  /**
-   * Checks if a value is expandable (object or array)
-   * @param value The value to check
-   * @returns True if the value is expandable
-   */
-  isExpandable(value: any): boolean {
-    return (this.isObject(value) || this.isArray(value)) &&
-      (this.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
-  }
-
-  /**
-   * Toggles a node's expanded state
-   * @param nodeId The ID of the node to toggle
-   */
-  toggleNode(nodeId: string): void {
-    if (this.expandedNodes.has(nodeId)) {
-      this.expandedNodes.delete(nodeId);
-    } else {
-      this.expandedNodes.add(nodeId);
+        try {
+            if (typeof this.jsonData === 'string') {
+                this.visualizationData = JSON.parse(this.jsonData);
+            } else {
+                this.visualizationData = this.jsonData;
+            }
+            this.summary = this.buildSummary(this.visualizationData);
+            this.expandedNodes = new Set<string>(['$']);
+        } catch (error) {
+            console.error('Error initializing visualization:', error);
+            this.visualizationData = null;
+            this.summary = null;
+        }
     }
-  }
 
-  /**
-   * Checks if a node is expanded
-   * @param nodeId The ID of the node to check
-   * @returns True if the node is expanded
-   */
-  isNodeExpanded(nodeId: string): boolean {
-    return this.expandedNodes.has(nodeId);
-  }
+    get chartMaxValue(): number {
+        const values = this.summary?.numericFields.map(d => Math.abs(d.value)) ?? [];
+        return values.length ? Math.max(...values) : 1;
+    }
 
-  /**
-   * Checks if a value is a string
-   * @param value The value to check
-   * @returns True if the value is a string
-   */
-  isString(value: any): boolean {
-    return typeof value === 'string';
-  }
+    get chartData(): NumericChartDatum[] {
+        return (this.summary?.numericFields ?? []).slice(0, this.maxChartBars);
+    }
 
-  /**
-   * Checks if a value is a number
-   * @param value The value to check
-   * @returns True if the value is a number
-   */
-  isNumber(value: any): boolean {
-    return typeof value === 'number';
-  }
+    get hasChartData(): boolean {
+        return this.chartData.length > 0;
+    }
 
-  /**
-   * Checks if a value is a boolean
-   * @param value The value to check
-   * @returns True if the value is a boolean
-   */
-  isBoolean(value: any): boolean {
-    return typeof value === 'boolean';
-  }
+    getObjectKeys(obj: unknown): string[] {
+        if (!obj || typeof obj !== 'object') {
+            return [];
+        }
+        return Object.keys(obj);
+    }
 
-  /**
-   * Checks if a value is an array
-   * @param value The value to check
-   * @returns True if the value is an array
-   */
-  isArray(value: any): boolean {
-    return Array.isArray(value);
-  }
+    isExpandable(value: unknown): boolean {
+        return (this.isObject(value) || this.isArray(value)) &&
+            (this.isArray(value) ? value.length > 0 : Object.keys(value as object).length > 0);
+    }
 
-  /**
-   * Checks if a value is an object
-   * @param value The value to check
-   * @returns True if the value is an object
-   */
-  isObject(value: any): boolean {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-  }
+    toggleNode(nodeId: string): void {
+        if (this.expandedNodes.has(nodeId)) {
+            this.expandedNodes.delete(nodeId);
+        } else {
+            this.expandedNodes.add(nodeId);
+        }
+    }
 
-  /**
-   * Formats a value for display
-   * @param value The value to format
-   * @returns Formatted value as a string
-   */
-  formatValue(value: any): string {
-    if (value === null) return 'null';
-    if (value === undefined) return 'undefined';
-    if (this.isString(value)) return `"${value}"`;
-    return String(value);
-  }
+    isNodeExpanded(nodeId: string): boolean {
+        return this.expandedNodes.has(nodeId);
+    }
+
+    expandAll(): void {
+        if (!this.visualizationData) {
+            return;
+        }
+        this.expandedNodes = this.collectExpandablePaths(this.visualizationData, '$');
+    }
+
+    collapseAll(): void {
+        this.expandedNodes = new Set<string>(['$']);
+    }
+
+    isString(value: unknown): boolean {
+        return typeof value === 'string';
+    }
+
+    isNumber(value: unknown): boolean {
+        return typeof value === 'number' && Number.isFinite(value);
+    }
+
+    isBoolean(value: unknown): boolean {
+        return typeof value === 'boolean';
+    }
+
+    isArray(value: unknown): value is unknown[] {
+        return Array.isArray(value);
+    }
+
+    isObject(value: unknown): value is Record<string, unknown> {
+        return typeof value === 'object' && value !== null && !Array.isArray(value);
+    }
+
+    formatValue(value: unknown): string {
+        if (value === null) {
+            return 'null';
+        }
+        if (value === undefined) {
+            return 'undefined';
+        }
+        if (this.isString(value)) {
+            return `"${value}"`;
+        }
+        return String(value);
+    }
+
+    getNodeLabel(path: string): string {
+        if (path === '$') {
+            return 'root';
+        }
+        const segments = path.replace(/\[\d+\]/g, match => `.${match.slice(1, -1)}`).split('.');
+        return segments[segments.length - 1] || path;
+    }
+
+    getBarWidth(value: number): number {
+        const max = this.chartMaxValue;
+        if (max === 0) {
+            return 0;
+        }
+        return Math.max(4, (Math.abs(value) / max) * 100);
+    }
+
+    private buildSummary(data: unknown): VisualizationSummary {
+        const numericFields: NumericChartDatum[] = [];
+        this.collectNumericFields(data, '$', numericFields);
+
+        return {
+            rootType: this.isArray(data) ? 'array' : this.isObject(data) ? 'object' : 'primitive',
+            propertyCount: this.isObject(data) ? Object.keys(data).length : 0,
+            arrayItemCount: this.isArray(data) ? data.length : 0,
+            maxDepth: this.measureDepth(data),
+            numericFields: numericFields.sort((a, b) => Math.abs(b.value) - Math.abs(a.value)),
+        };
+    }
+
+    private collectNumericFields(value: unknown, path: string, out: NumericChartDatum[]): void {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            out.push({ path, value });
+            return;
+        }
+        if (this.isArray(value)) {
+            value.forEach((item, index) => {
+                this.collectNumericFields(item, `${path}[${index}]`, out);
+            });
+            return;
+        }
+        if (this.isObject(value)) {
+            for (const key of Object.keys(value)) {
+                const childPath = path === '$' ? key : `${path}.${key}`;
+                this.collectNumericFields(value[key], childPath, out);
+            }
+        }
+    }
+
+    private measureDepth(value: unknown): number {
+        if (!this.isObject(value) && !this.isArray(value)) {
+            return 0;
+        }
+        if (this.isArray(value)) {
+            if (value.length === 0) {
+                return 1;
+            }
+            return 1 + Math.max(...value.map(item => this.measureDepth(item)));
+        }
+        const keys = Object.keys(value);
+        if (keys.length === 0) {
+            return 1;
+        }
+        return 1 + Math.max(...keys.map(key => this.measureDepth(value[key])));
+    }
+
+    private collectExpandablePaths(value: unknown, path: string): Set<string> {
+        const paths = new Set<string>([path]);
+        if (this.isArray(value)) {
+            value.forEach((item, index) => {
+                const childPath = `${path}[${index}]`;
+                if (this.isExpandable(item)) {
+                    this.collectExpandablePaths(item, childPath).forEach(p => paths.add(p));
+                }
+            });
+            return paths;
+        }
+        if (this.isObject(value)) {
+            for (const key of Object.keys(value)) {
+                const childPath = path === '$' ? key : `${path}.${key}`;
+                const child = value[key];
+                if (this.isExpandable(child)) {
+                    this.collectExpandablePaths(child, childPath).forEach(p => paths.add(p));
+                }
+            }
+        }
+        return paths;
+    }
 }

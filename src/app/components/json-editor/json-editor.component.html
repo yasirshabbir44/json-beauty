@@ -470,6 +470,10 @@
           </app-json-search-replace>
         }
 
+        <app-input-history-log
+          (entrySelected)="loadHistoryEntryContent($event)">
+        </app-input-history-log>
+
         @if (jsonInput.value) {
           <app-version-history
             (compareVersionSelected)="compareWithVersionContent($event)"

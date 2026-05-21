@@ -31,6 +31,7 @@ import { JsonToolbarComponent } from '../../components/json-toolbar/json-toolbar
 import { JsonStatusComponent } from '../../components/json-status/json-status.component';
 import { JsonPathsComponent } from '../../components/json-paths/json-paths.component';
 import { VersionHistoryComponent } from '../../components/version-history/version-history.component';
+import { InputHistoryLogComponent } from '../../components/input-history-log/input-history-log.component';
 import { ShareDialogComponent } from '../../components/share-dialog/share-dialog.component';
 import { JsonVisualizationComponent } from '../../components/json-visualization/json-visualization.component';
 import { JsonComparisonComponent } from '../../components/json-comparison/json-comparison.component';
@@ -57,6 +58,7 @@ const routes: Routes = [
     JsonStatusComponent,
     JsonPathsComponent,
     VersionHistoryComponent,
+    InputHistoryLogComponent,
     ShareDialogComponent,
     JsonVisualizationComponent,
     JsonComparisonComponent,
