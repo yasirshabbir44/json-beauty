@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {FormattingOptions} from '../models/json-editor.models';
 import {JsonValidationService} from './validation/json-validation.service';
 import {JsonFormattingService} from './formatting/json-formatting.service';
 import {JsonConversionService} from './conversion/json-conversion.service';
@@ -82,6 +83,18 @@ export class JsonService {
      */
     setIndentation(size: number, char: ' ' | '\t'): void {
         this.formattingService.setIndentation(size, char);
+    }
+
+    setFormattingPreferences(options: Partial<FormattingOptions>): void {
+        this.formattingService.setPreferences(options);
+    }
+
+    formatJson(jsonString: string, options?: Partial<FormattingOptions>): string {
+        return this.formattingService.formatJson(jsonString, options);
+    }
+
+    buildFormattingPreview(sourceJson?: string, options?: Partial<FormattingOptions>): string {
+        return this.formattingService.buildPreview(sourceJson, options);
     }
 
     /**

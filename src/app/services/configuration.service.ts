@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { DEFAULT_FORMATTING_OPTIONS, FormattingOptions } from '../models/json-editor.models';
 
 export interface AppConfig {
   theme: 'light' | 'dark';
   indentSize: number;
   indentChar: string;
+  sortKeysOnFormat: boolean;
+  trailingNewline: boolean;
+  escapeUnicode: boolean;
   defaultOutputFormat: string;
   maxHistoryItems: number;
 }
@@ -14,75 +18,79 @@ export interface AppConfig {
 })
 export class ConfigurationService {
   private readonly STORAGE_KEY = 'json-beauty-config';
-  
+
   private defaultConfig: AppConfig = {
     theme: 'light',
-    indentSize: 2,
-    indentChar: ' ',
+    indentSize: DEFAULT_FORMATTING_OPTIONS.indentSize,
+    indentChar: DEFAULT_FORMATTING_OPTIONS.indentChar,
+    sortKeysOnFormat: DEFAULT_FORMATTING_OPTIONS.sortKeys,
+    trailingNewline: DEFAULT_FORMATTING_OPTIONS.trailingNewline,
+    escapeUnicode: DEFAULT_FORMATTING_OPTIONS.escapeUnicode,
     defaultOutputFormat: 'json',
     maxHistoryItems: 10
   };
-  
+
   private configSubject: BehaviorSubject<AppConfig>;
-  
+
   constructor() {
-    // Load config from localStorage or use default
     const savedConfig = this.loadFromStorage();
     this.configSubject = new BehaviorSubject<AppConfig>(savedConfig || this.defaultConfig);
   }
-  
-  /**
-   * Gets the current configuration
-   * @returns The current configuration
-   */
+
   getConfig(): AppConfig {
     return this.configSubject.value;
   }
-  
-  /**
-   * Gets the configuration as an observable
-   * @returns An observable of the configuration
-   */
+
   getConfig$(): Observable<AppConfig> {
     return this.configSubject.asObservable();
   }
-  
-  /**
-   * Updates the configuration
-   * @param config The new configuration
-   */
+
+  getFormattingOptions(): FormattingOptions {
+    const config = this.getConfig();
+    return {
+      indentSize: config.indentSize,
+      indentChar: config.indentChar === '\t' ? '\t' : ' ',
+      sortKeys: config.sortKeysOnFormat,
+      trailingNewline: config.trailingNewline,
+      escapeUnicode: config.escapeUnicode,
+    };
+  }
+
   updateConfig(config: Partial<AppConfig>): void {
     const updatedConfig = { ...this.configSubject.value, ...config };
     this.configSubject.next(updatedConfig);
     this.saveToStorage(updatedConfig);
   }
-  
-  /**
-   * Resets the configuration to default
-   */
+
+  updateFormattingOptions(options: FormattingOptions): void {
+    this.updateConfig({
+      indentSize: options.indentSize,
+      indentChar: options.indentChar,
+      sortKeysOnFormat: options.sortKeys,
+      trailingNewline: options.trailingNewline,
+      escapeUnicode: options.escapeUnicode,
+    });
+  }
+
   resetConfig(): void {
     this.configSubject.next(this.defaultConfig);
     this.saveToStorage(this.defaultConfig);
   }
-  
-  /**
-   * Loads the configuration from localStorage
-   * @returns The loaded configuration or null if not found
-   */
+
   private loadFromStorage(): AppConfig | null {
     try {
       const storedConfig = localStorage.getItem(this.STORAGE_KEY);
-      return storedConfig ? JSON.parse(storedConfig) : null;
+      if (!storedConfig) {
+        return null;
+      }
+      const parsed = JSON.parse(storedConfig) as Partial<AppConfig>;
+      return { ...this.defaultConfig, ...parsed };
     } catch (error) {
       console.error('Error loading configuration from storage:', error);
       return null;
     }
   }
-  
-  /**
-   * Saves the configuration to localStorage
-   * @param config The configuration to save
-   */
+
   private saveToStorage(config: AppConfig): void {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));

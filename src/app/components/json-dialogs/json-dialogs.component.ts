@@ -1,5 +1,7 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
+import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
+import {JsonFormattingService} from '../../services/formatting/json-formatting.service';
 
 @Component({
     selector: 'app-json-dialogs',
@@ -7,34 +9,36 @@ import {FormControl} from '@angular/forms';
     styleUrls: ['./json-dialogs.component.scss'],
     standalone: false
 })
-export class JsonDialogsComponent {
-    // Keyboard shortcuts dialog
+export class JsonDialogsComponent implements OnChanges {
+    readonly indentSizeChoices = [2, 4, 8] as const;
+    readonly defaultOptions = DEFAULT_FORMATTING_OPTIONS;
+
     @Input() showKeyboardShortcuts: boolean = false;
     @Input() keyboardShortcuts: { key: string, action: string }[] = [];
     @Output() toggleKeyboardShortcuts = new EventEmitter<void>();
 
-    // Formatting options dialog
     @Input() showFormattingOptions: boolean = false;
-    @Input() indentSize: number = 2;
-    @Input() indentChar: string = ' ';
+    @Input() formattingOptions: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
+    @Input() formatPreviewSource = '';
     @Output() toggleFormattingOptions = new EventEmitter<void>();
-    @Output() applyFormatting = new EventEmitter<{ indentSize: number, indentChar: string }>();
+    @Output() applyFormatting = new EventEmitter<FormattingOptions>();
 
-    // Schema validation dialog
+    draft: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
+    previewText = '';
+    previewUsesSample = true;
+
     @Input() showSchemaEditor: boolean = false;
     @Input() schemaInput: FormControl = new FormControl('');
     @Input() schemaValidationResult: { isValid: boolean, errors: any[] } | null = null;
     @Output() toggleSchemaEditor = new EventEmitter<void>();
     @Output() validateJsonSchema = new EventEmitter<void>();
 
-    // JSON path query dialog
     @Input() showJsonPathQueryDialog: boolean = false;
     @Input() jsonPathQuery: FormControl = new FormControl('');
     @Input() jsonPathQueryResult: string = '';
     @Output() toggleJsonPathQuery = new EventEmitter<void>();
     @Output() executeJsonPathQuery = new EventEmitter<void>();
 
-    // JSON comparison dialog
     @Input() showJsonCompare: boolean = false;
     @Input() currentJson: string = '';
     @Input() compareJsonInput: FormControl = new FormControl('');
@@ -47,83 +51,93 @@ export class JsonDialogsComponent {
     @Output() swapCompareSides = new EventEmitter<void>();
     @Output() formatCompareInput = new EventEmitter<void>();
 
-    // JSON visualization dialog
     @Input() showJsonVisualize: boolean = false;
     @Input() jsonData: any = null;
     @Output() toggleJsonVisualize = new EventEmitter<void>();
 
-    constructor() {
+    constructor(private formattingService: JsonFormattingService) {
     }
 
-    /**
-     * Closes the keyboard shortcuts dialog
-     */
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['showFormattingOptions']?.currentValue === true || changes['formattingOptions']) {
+            this.syncDraftFromInput();
+        }
+        if (
+            changes['showFormattingOptions'] ||
+            changes['formattingOptions'] ||
+            changes['formatPreviewSource']
+        ) {
+            this.refreshPreview();
+        }
+    }
+
+    get indentLabel(): string {
+        const unit = this.draft.indentChar === '\t' ? 'tab' : 'space';
+        const plural = this.draft.indentSize === 1 ? '' : 's';
+        return `${this.draft.indentSize} ${unit}${plural}`;
+    }
+
     closeKeyboardShortcuts(): void {
         this.toggleKeyboardShortcuts.emit();
     }
 
-    /**
-     * Closes the formatting options dialog
-     */
     closeFormattingOptions(): void {
         this.toggleFormattingOptions.emit();
     }
 
-    /**
-     * Applies the formatting options
-     */
-    onApplyFormatting(): void {
-        this.applyFormatting.emit({
-            indentSize: this.indentSize,
-            indentChar: this.indentChar
-        });
+    onDraftChanged(): void {
+        this.refreshPreview();
     }
 
-    /**
-     * Closes the schema editor dialog
-     */
+    setIndentSize(size: number | null): void {
+        if (size == null) {
+            return;
+        }
+        this.draft = { ...this.draft, indentSize: size };
+        this.onDraftChanged();
+    }
+
+    setIndentChar(char: ' ' | '\t' | null): void {
+        if (char == null) {
+            return;
+        }
+        this.draft = { ...this.draft, indentChar: char };
+        this.onDraftChanged();
+    }
+
+    resetToDefaults(): void {
+        this.draft = { ...DEFAULT_FORMATTING_OPTIONS };
+        this.onDraftChanged();
+    }
+
+    onApplyFormatting(): void {
+        this.applyFormatting.emit({ ...this.draft });
+    }
+
     closeSchemaEditor(): void {
         this.toggleSchemaEditor.emit();
     }
 
-    /**
-     * Validates the JSON against the schema
-     */
     onValidateJsonSchema(): void {
         this.validateJsonSchema.emit();
     }
 
-    /**
-     * Closes the JSON path query dialog
-     */
     closeJsonPathQuery(): void {
         this.toggleJsonPathQuery.emit();
     }
 
-    /**
-     * Executes the JSON path query
-     */
     onExecuteJsonPathQuery(): void {
         this.executeJsonPathQuery.emit();
     }
 
-    /**
-     * Closes the JSON comparison dialog
-     */
     closeJsonCompare(): void {
         this.toggleJsonCompare.emit();
     }
 
-    /**
-     * Compares the JSON documents
-     */
     onCompareJson(): void {
         this.compareJson.emit();
     }
 
-    /**
-     * Requests prefilling compare input from latest saved version.
-     */
     onUseLatestVersionForCompare(): void {
         this.useLatestVersionForCompare.emit();
     }
@@ -136,10 +150,17 @@ export class JsonDialogsComponent {
         this.formatCompareInput.emit();
     }
 
-    /**
-     * Closes the JSON visualization dialog
-     */
     closeJsonVisualize(): void {
         this.toggleJsonVisualize.emit();
+    }
+
+    private syncDraftFromInput(): void {
+        this.draft = { ...this.formattingOptions };
+    }
+
+    private refreshPreview(): void {
+        const source = (this.formatPreviewSource || '').trim();
+        this.previewUsesSample = source.length === 0;
+        this.previewText = this.formattingService.buildPreview(source, this.draft);
     }
 }

@@ -1,99 +1,119 @@
 import {Injectable} from '@angular/core';
 import {IJsonFormattingService} from '../../interfaces';
+import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
 import * as JSON5 from 'json5';
+
+const PREVIEW_SAMPLE = {
+    name: 'json-beauty',
+    count: 3,
+    active: true,
+    tags: ['demo', 'preview'],
+    meta: {version: 1, locale: 'en-US'},
+};
 
 /**
  * Service for JSON formatting operations
- * Follows the Single Responsibility Principle by focusing only on formatting concerns
  */
 @Injectable({
     providedIn: 'root'
 })
 export class JsonFormattingService implements IJsonFormattingService {
-    // Default indentation settings
-    private indentSize = 2;
-    private indentChar = ' ';
+    private preferences: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
 
     constructor() {
     }
 
-    /**
-     * Sets custom indentation settings
-     * @param size The number of characters to use for indentation
-     * @param char The character to use for indentation (space or tab)
-     */
-    setIndentation(size: number, char: string): void {
-        this.indentSize = size;
-        this.indentChar = char;
+    getPreferences(): FormattingOptions {
+        return { ...this.preferences };
     }
 
-    /**
-     * Enforces strict double quotes in JSON keys and string values
-     * @param jsonString The JSON string to process
-     * @returns The JSON string with strict double quotes
-     */
+    setPreferences(options: Partial<FormattingOptions>): void {
+        this.preferences = { ...this.preferences, ...options };
+    }
+
+    setIndentation(size: number, char: string): void {
+        this.preferences.indentSize = size;
+        this.preferences.indentChar = char === '\t' ? '\t' : ' ';
+    }
+
+    formatJson(jsonString: string, options?: Partial<FormattingOptions>): string {
+        const prefs = { ...this.preferences, ...options };
+        const source = (jsonString || '').trim();
+        if (!source) {
+            throw new Error('Nothing to format');
+        }
+
+        let jsonObj: unknown;
+        try {
+            jsonObj = JSON.parse(source);
+        } catch {
+            jsonObj = JSON5.parse(source);
+        }
+
+        if (prefs.sortKeys) {
+            jsonObj = this.sortObjectKeys(jsonObj);
+        }
+
+        const indent = prefs.indentChar.repeat(prefs.indentSize);
+        let result = JSON.stringify(jsonObj, null, indent);
+
+        if (prefs.escapeUnicode) {
+            result = this.escapeNonAscii(result);
+        }
+
+        if (prefs.trailingNewline && !result.endsWith('\n')) {
+            result += '\n';
+        }
+
+        return result;
+    }
+
+    buildPreview(sourceJson?: string, options?: Partial<FormattingOptions>): string {
+        const sample = (sourceJson || '').trim();
+        const input = sample.length > 0 ? sample : JSON.stringify(PREVIEW_SAMPLE);
+        try {
+            return this.formatJson(input, options);
+        } catch {
+            return this.formatJson(JSON.stringify(PREVIEW_SAMPLE), options);
+        }
+    }
+
     enforceStrictDoubleQuotes(jsonString: string): string {
         try {
             const jsonObj = JSON.parse((jsonString || '').trim() || '{}');
-            return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+            return this.formatJson(JSON.stringify(jsonObj), { sortKeys: false });
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
             throw new Error(`Error enforcing strict double quotes: ${errorMessage}`);
         }
     }
 
-    /**
-     * Repairs relaxed JSON (JSON5) into strict RFC JSON — trailing commas, comments, single quotes, etc.
-     * Only use when the user explicitly requests a repair; not for validation or live preview.
-     */
     repairLenientJson(jsonString: string): string {
         const source = (jsonString || '').trim();
         if (!source) {
             throw new Error('Nothing to repair');
         }
         try {
-            const jsonObj = JSON.parse(source);
-            return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
-        } catch {
-            try {
-                const jsonObj = JSON5.parse(source);
-                return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
-            } catch (e) {
-                const errorMessage = e instanceof Error ? e.message : String(e);
-                throw new Error(`Could not repair JSON: ${errorMessage}`);
-            }
+            return this.formatJson(source);
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            throw new Error(`Could not repair JSON: ${errorMessage}`);
         }
     }
 
-    /**
-     * Fixes inconsistent indentation in arrays and objects
-     * @param jsonString The JSON string to fix
-     * @returns The JSON string with consistent indentation
-     */
     fixInconsistentIndentation(jsonString: string): string {
         try {
-            // Parse the JSON to get the object structure
             const jsonObj = JSON.parse(jsonString || '{}');
-
-            // Use JSON.stringify with a custom replacer to ensure consistent indentation
-            return JSON.stringify(jsonObj, null, this.indentChar.repeat(this.indentSize));
+            return this.formatJson(JSON.stringify(jsonObj), { sortKeys: false });
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
             throw new Error(`Error fixing indentation: ${errorMessage}`);
         }
     }
 
-    /**
-     * Beautifies a JSON string
-     * @param jsonString The JSON string to beautify
-     * @returns The beautified JSON string
-     */
     beautifyJson(jsonString: string): string {
         try {
-            // First enforce strict double quotes
             const strictJson = this.enforceStrictDoubleQuotes(jsonString);
-
-            // Then fix inconsistent indentation
             return this.fixInconsistentIndentation(strictJson);
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
@@ -101,49 +121,42 @@ export class JsonFormattingService implements IJsonFormattingService {
         }
     }
 
-    /**
-     * Minifies a JSON string
-     * @param jsonString The JSON string to minify
-     * @returns The minified JSON string
-     */
     minifyJson(jsonString: string): string {
         try {
-            // First enforce strict double quotes
             const strictJson = this.enforceStrictDoubleQuotes(jsonString);
-
-            // Parse the JSON to get the object structure
             const jsonObj = JSON.parse(strictJson);
-
-            // Use JSON.stringify without indentation to minify
-            return JSON.stringify(jsonObj);
+            let result = JSON.stringify(jsonObj);
+            if (this.preferences.escapeUnicode) {
+                result = this.escapeNonAscii(result);
+            }
+            return result;
         } catch (e) {
             const errorMessage = e instanceof Error ? e.message : String(e);
             throw new Error(`Error minifying JSON: ${errorMessage}`);
         }
     }
 
-    /**
-     * Sorts the keys of an object alphabetically
-     * @param obj The object to sort
-     * @returns A new object with sorted keys
-     */
-    sortObjectKeys(obj: any): any {
-        // If null or not an object, return as is
+    sortObjectKeys(obj: unknown): unknown {
         if (obj === null || typeof obj !== 'object') {
             return obj;
         }
 
-        // Handle arrays - map each item and recursively sort if it's an object
         if (Array.isArray(obj)) {
             return obj.map(item => this.sortObjectKeys(item));
         }
 
-        // Create a new object with sorted keys
-        const sortedObj: any = {};
-        Object.keys(obj).sort().forEach(key => {
-            sortedObj[key] = this.sortObjectKeys(obj[key]);
+        const sortedObj: Record<string, unknown> = {};
+        Object.keys(obj as Record<string, unknown>).sort().forEach(key => {
+            sortedObj[key] = this.sortObjectKeys((obj as Record<string, unknown>)[key]);
         });
 
         return sortedObj;
+    }
+
+    private escapeNonAscii(json: string): string {
+        return json.replace(/[\u0080-\uFFFF]/g, (ch) => {
+            const code = ch.charCodeAt(0).toString(16).padStart(4, '0');
+            return `\\u${code}`;
+        });
     }
 }
