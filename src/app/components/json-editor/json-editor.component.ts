@@ -71,6 +71,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     private isResizingPanels = false;
+    private resizeContainerEl: HTMLElement | null = null;
+    private viewportWasWide = true;
+    /** True at ≤991px — stacked layout, touch-friendly pane switcher. */
+    isCompactViewport = false;
     /** Exposed for template: disables panel width transition while dragging. */
     panelResizing = false;
     copyFeedbackState: 'idle' | 'copied' = 'idle';
@@ -436,18 +440,21 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    @HostListener('window:mousemove', ['$event'])
-    onPanelResize(event: MouseEvent): void {
+    @HostListener('window:pointermove', ['$event'])
+    onPanelResize(event: PointerEvent): void {
         if (!this.isResizingPanels || !this.canResizePanels()) {
             return;
         }
 
-        const viewportWidth = window.innerWidth;
-        const nextWidth = (event.clientX / viewportWidth) * 100;
-        this.inputPanelWidth = JsonEditorUiHelper.clampPanelWidth(nextWidth);
+        this.updatePanelWidthFromClientX(event.clientX);
     }
 
-    @HostListener('window:mouseup')
+    @HostListener('window:resize')
+    onWindowResize(): void {
+        this.syncViewportMode();
+    }
+
+    @HostListener('window:pointerup')
     stopPanelResize(): void {
         if (!this.isResizingPanels) {
             return;
@@ -455,6 +462,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.isResizingPanels = false;
         this.panelResizing = false;
+        this.resizeContainerEl = null;
         document.body.classList.remove('resizing-panels');
     }
 
@@ -711,12 +719,19 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.settingsService.toggleKeyboardShortcuts();
     }
 
-    startPanelResize(event: MouseEvent): void {
-        if (!this.canResizePanels()) {
+    startPanelResize(event: PointerEvent): void {
+        if (!this.canResizePanels() || event.button !== 0) {
+            return;
+        }
+
+        const divider = event.currentTarget as HTMLElement;
+        this.resizeContainerEl = divider.closest('.editor-columns');
+        if (!this.resizeContainerEl) {
             return;
         }
 
         event.preventDefault();
+        divider.setPointerCapture(event.pointerId);
         this.isResizingPanels = true;
         this.panelResizing = true;
         document.body.classList.add('resizing-panels');
@@ -817,6 +832,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        this.syncViewportMode();
         this.formattingOptions = this.configService.getFormattingOptions();
         this.jsonService.setFormattingPreferences(this.formattingOptions);
         this.themePreference = this.configService.getConfig().theme;
@@ -2235,6 +2251,32 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
     private canResizePanels(): boolean {
         return window.innerWidth > JsonEditorComponent.DESKTOP_RESIZE_BREAKPOINT;
+    }
+
+    private syncViewportMode(): void {
+        const wide = this.canResizePanels();
+        if (!wide && this.viewportWasWide) {
+            this.stopPanelResize();
+        }
+        this.viewportWasWide = wide;
+        this.isCompactViewport = !wide;
+    }
+
+    private updatePanelWidthFromClientX(clientX: number): void {
+        if (!this.resizeContainerEl) {
+            return;
+        }
+
+        const rect = this.resizeContainerEl.getBoundingClientRect();
+        if (rect.width <= 0) {
+            return;
+        }
+
+        this.inputPanelWidth = JsonEditorUiHelper.panelWidthFromPointer(
+            rect,
+            clientX,
+            this.isInputPanelFirst
+        );
     }
 
     private togglePanelMaximize(panel: 'input' | 'output'): void {

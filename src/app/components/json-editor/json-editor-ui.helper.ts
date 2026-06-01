@@ -14,6 +14,19 @@ export class JsonEditorUiHelper {
         return Math.min(max, Math.max(min, widthPercent));
     }
 
+    /** Input panel width (%) from a pointer X coordinate within the editor columns container. */
+    static panelWidthFromPointer(
+        containerRect: DOMRect,
+        clientX: number,
+        inputPanelFirst: boolean,
+        min = 25,
+        max = 75
+    ): number {
+        const ratio = ((clientX - containerRect.left) / containerRect.width) * 100;
+        const width = inputPanelFirst ? ratio : 100 - ratio;
+        return JsonEditorUiHelper.clampPanelWidth(width, min, max);
+    }
+
     static applyPanelMaximize(state: PanelMaximizeState, panel: PanelFocus): PanelMaximizeState {
         if (state.workspaceLayout === 'single') {
             return {
