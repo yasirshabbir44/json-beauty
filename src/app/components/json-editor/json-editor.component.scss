@@ -799,8 +799,9 @@
   }
 }
 
-// Dark theme styles - only the essential ones for this component
-.dark-theme {
+// Dark / Monokai theme styles for the editor workspace chrome
+.dark-theme,
+.monokai-theme {
   .editor-control-panel {
     background: var(--jb-bg-muted);
     border-color: var(--jb-border);

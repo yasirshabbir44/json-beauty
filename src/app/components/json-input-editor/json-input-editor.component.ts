@@ -18,7 +18,7 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
     selector: 'app-json-input-editor',
     templateUrl: './json-input-editor.component.html',
     styleUrls: ['./json-input-editor.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
@@ -66,6 +66,10 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['isValidJson'] || changes['errorLine']) {
             this.updateErrorHighlight();
+        }
+
+        if (changes['isDarkTheme']) {
+            this.updateEditorTheme();
         }
     }
     

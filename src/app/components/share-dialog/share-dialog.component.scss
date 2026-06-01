@@ -156,7 +156,50 @@ mat-dialog-actions {
     color: var(--jb-text, #e2e8f0);
   }
 
+  .compression-row {
+    border-bottom-color: var(--jb-border);
+  }
+
   .qr-code {
     background: #fff;
+  }
+
+  .action-grid,
+  .social-grid {
+    button.mat-mdc-outlined-button:not(:disabled),
+    a.social-btn.mat-mdc-outlined-button {
+      --mdc-outlined-button-label-text-color: var(--jb-text);
+      color: var(--jb-text);
+      border-color: var(--jb-border-strong);
+
+      .mat-icon {
+        color: var(--jb-text-secondary);
+      }
+
+      &:hover:not([disabled]) {
+        border-color: var(--jb-accent-border);
+        background: var(--jb-accent-subtle);
+        color: var(--jb-accent);
+
+        .mat-icon {
+          color: var(--jb-accent);
+        }
+      }
+    }
+
+    button.mat-mdc-outlined-button.mat-primary:not(:disabled) {
+      color: var(--jb-accent);
+
+      .mat-icon {
+        color: var(--jb-accent);
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    .mat-mdc-button:not(:disabled) {
+      --mdc-text-button-label-text-color: var(--jb-text-secondary);
+      color: var(--jb-text-secondary);
+    }
   }
 }

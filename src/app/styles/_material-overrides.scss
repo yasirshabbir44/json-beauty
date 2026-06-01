@@ -14,6 +14,8 @@
   --mat-dialog-container-color: var(--jb-bg-elevated);
   --mat-dialog-subhead-color: var(--jb-text);
   --mat-dialog-supporting-text-color: var(--jb-text-secondary);
+  --mat-tooltip-container-color: var(--jb-tooltip-bg);
+  --mat-tooltip-supporting-text-color: var(--jb-tooltip-fg);
 }
 
 .mat-mdc-card {
@@ -65,9 +67,37 @@
   --mdc-filled-button-label-text-color: #fff;
 }
 
-.mat-mdc-outlined-button {
+.mat-mdc-button:not(:disabled) {
+  --mdc-text-button-label-text-color: var(--jb-text);
+}
+
+.mat-mdc-outlined-button:not(:disabled) {
   --mdc-outlined-button-outline-color: var(--jb-border-strong);
   --mdc-outlined-button-label-text-color: var(--jb-text);
+  color: var(--jb-text);
+
+  .mat-icon {
+    color: var(--jb-text-secondary);
+  }
+}
+
+.mat-mdc-outlined-button.mat-primary:not(:disabled) {
+  --mdc-outlined-button-label-text-color: var(--jb-accent);
+  color: var(--jb-accent);
+
+  .mat-icon {
+    color: var(--jb-accent);
+  }
+}
+
+// Social / link-styled outlined buttons must not inherit global `a { color }` alone
+a.mat-mdc-outlined-button {
+  text-decoration: none;
+  color: var(--jb-text);
+
+  &:hover {
+    color: var(--jb-text);
+  }
 }
 
 .mat-mdc-icon-button {
@@ -204,8 +234,11 @@
 .mat-mdc-tooltip .mdc-tooltip__surface {
   font-family: var(--jb-font-sans);
   font-size: 0.75rem;
-  background: var(--jb-text);
+  font-weight: 500;
+  background: var(--jb-tooltip-bg) !important;
+  color: var(--jb-tooltip-fg) !important;
   border-radius: var(--jb-radius-sm);
+  box-shadow: var(--jb-shadow-md);
 }
 
 .mat-mdc-chip {
