@@ -1,13 +1,24 @@
 {
+  "id": "/",
   "name": "JSON Beauty",
   "short_name": "JSON Beauty",
-  "description": "Format, validate, and explore JSON in your browser",
-  "theme_color": "#4285F4",
-  "background_color": "#ffffff",
+  "description": "Format, validate, and explore JSON in your browser — works offline after install",
+  "theme_color": "#2563eb",
+  "background_color": "#f0f2f7",
   "display": "standalone",
   "scope": "/",
   "start_url": "/",
   "orientation": "any",
+  "categories": ["developer", "utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Format JSON",
+      "short_name": "Format",
+      "description": "Open the JSON formatter",
+      "url": "/",
+      "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-72.png",

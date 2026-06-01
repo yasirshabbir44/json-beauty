@@ -14,6 +14,17 @@
             </div>
         </a>
 
+        @if ((pwa.isOnline$ | async) === false) {
+            <div
+                class="offline-badge jb-badge hidden sm:inline-flex shrink-0"
+                matTooltip="You are offline. Cached app features still work."
+                matTooltipPosition="below"
+                role="status"
+                aria-live="polite">
+                <mat-icon class="offline-badge-icon !w-4 !h-4 !text-base" aria-hidden="true">cloud_off</mat-icon>
+                <span>Offline</span>
+            </div>
+        }
         <div
             class="trust-badge jb-badge jb-badge--accent hidden sm:inline-flex shrink-0"
             matTooltip="100% Secure: All processing happens entirely in your browser. Your data never leaves your machine."

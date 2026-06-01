@@ -1,5 +1,27 @@
 <div id="jb-root" class="app-container min-h-screen flex flex-col bg-jb-app text-jb-text font-sans">
     <app-header [title]="title" subtitle="Format • Validate • Compare • Convert">
+        @if (pwa.showInstallButton$ | async) {
+            <button
+                type="button"
+                mat-icon-button
+                class="install-app-btn"
+                [class.install-app-btn--ready]="pwa.canInstall$ | async"
+                (click)="installApp()"
+                matTooltip="Install app for offline use"
+                aria-label="Install app for offline use">
+                <mat-icon>install_mobile</mat-icon>
+            </button>
+        } @else {
+            <button
+                type="button"
+                mat-icon-button
+                class="install-app-btn install-app-btn--installed"
+                disabled
+                matTooltip="Installed — works offline"
+                aria-label="App installed for offline use">
+                <mat-icon>offline_pin</mat-icon>
+            </button>
+        }
         <button
             type="button"
             mat-icon-button

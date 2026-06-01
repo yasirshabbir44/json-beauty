@@ -32,6 +32,7 @@ import { JsonSearchReplaceComponent } from '../../components/json-search-replace
 import { LoadingIndicatorComponent } from '../../components/loading-indicator/loading-indicator.component';
 import { JsonPaginationComponent } from '../../components/json-pagination/json-pagination.component';
 import { VirtualScrollComponent } from '../../components/virtual-scroll/virtual-scroll.component';
+import { PwaIosInstallDialogComponent } from '../../components/pwa-ios-install-dialog/pwa-ios-install-dialog.component';
 
 // Directives
 import { DebounceInputDirective } from '../../directives/debounce-input.directive';
@@ -52,7 +53,8 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     LoadingIndicatorComponent,
     JsonPaginationComponent,
     VirtualScrollComponent,
-    
+    PwaIosInstallDialogComponent,
+
     // Directives
     DebounceInputDirective
   ],
@@ -122,7 +124,7 @@ import { MemoryOptimizedJsonService } from '../../services/optimization/memory-o
     LoadingIndicatorComponent,
     JsonPaginationComponent,
     VirtualScrollComponent,
-    
+
     // Directives
     DebounceInputDirective
   ]

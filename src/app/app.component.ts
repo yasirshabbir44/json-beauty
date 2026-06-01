@@ -6,6 +6,7 @@ import {CSPService} from './services/security/csp.service';
 import {SecurityUtilsService} from './services/security/security-utils.service';
 import {SettingsService} from './services/settings/settings.service';
 import {ThemeService} from './services/theme/theme.service';
+import {PwaService} from './services/pwa/pwa.service';
 
 /**
  * Application shell: layout, security bootstrap, and settings the template can bind to.
@@ -30,8 +31,10 @@ export class AppComponent implements OnInit {
     private readonly securityUtils = inject(SecurityUtilsService);
     private readonly themeService = inject(ThemeService);
     private readonly destroyRef = inject(DestroyRef);
+    readonly pwa = inject(PwaService);
 
     ngOnInit(): void {
+        this.pwa.init();
         this.cspService.initializeCSP();
         this.cspService.listenForViolations();
         this.securityUtils.initializeCSRFProtection();
@@ -59,5 +62,9 @@ export class AppComponent implements OnInit {
 
     toggleTheme(): void {
         this.themeService.toggleTheme();
+    }
+
+    installApp(): void {
+        this.pwa.openInstallFlow();
     }
 }
