@@ -2,8 +2,11 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { DEFAULT_FORMATTING_OPTIONS, FormattingOptions } from '../models/json-editor.models';
 
+/** User-chosen app theme; `system` follows OS light/dark preference. */
+export type ThemePreference = 'light' | 'dark' | 'system';
+
 export interface AppConfig {
-  theme: 'light' | 'dark';
+  theme: ThemePreference;
   indentSize: number;
   indentChar: string;
   sortKeysOnFormat: boolean;

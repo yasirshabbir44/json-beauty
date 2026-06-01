@@ -6,7 +6,9 @@ import {
     FormattingPreset,
 } from '../../data/formatting-presets.data';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
+import {ThemePreference} from '../../services/configuration.service';
 import {JsonFormattingService} from '../../services/formatting/json-formatting.service';
+import {ThemeService} from '../../services/theme/theme.service';
 
 @Component({
     selector: 'app-json-dialogs',
@@ -16,6 +18,11 @@ import {JsonFormattingService} from '../../services/formatting/json-formatting.s
 })
 export class JsonDialogsComponent implements OnChanges {
     readonly indentSizeChoices = [2, 4, 8] as const;
+    readonly themePreferenceChoices: { value: ThemePreference; label: string }[] = [
+        {value: 'light', label: 'Light'},
+        {value: 'dark', label: 'Dark'},
+        {value: 'system', label: 'System'},
+    ];
     readonly defaultOptions = DEFAULT_FORMATTING_OPTIONS;
     readonly formattingPresets = FORMATTING_PRESETS;
 
@@ -25,11 +32,13 @@ export class JsonDialogsComponent implements OnChanges {
 
     @Input() showFormattingOptions: boolean = false;
     @Input() formattingOptions: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
+    @Input() themePreference: ThemePreference = 'light';
     @Input() formatPreviewSource = '';
     @Output() toggleFormattingOptions = new EventEmitter<void>();
     @Output() applyFormatting = new EventEmitter<FormattingOptions>();
 
     draft: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
+    draftTheme: ThemePreference = 'light';
     previewText = '';
     previewUsesSample = true;
     previewCopied = false;
@@ -90,11 +99,18 @@ export class JsonDialogsComponent implements OnChanges {
         {value: 'lorem', label: 'Lorem text'}
     ];
 
-    constructor(private formattingService: JsonFormattingService) {
+    constructor(
+        private formattingService: JsonFormattingService,
+        private themeService: ThemeService
+    ) {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['showFormattingOptions']?.currentValue === true || changes['formattingOptions']) {
+        if (
+            changes['showFormattingOptions']?.currentValue === true ||
+            changes['formattingOptions'] ||
+            changes['themePreference']
+        ) {
             this.syncDraftFromInput();
         }
         if (
@@ -179,8 +195,18 @@ export class JsonDialogsComponent implements OnChanges {
         this.onDraftChanged();
     }
 
+    setThemePreference(preference: ThemePreference | null): void {
+        if (preference == null) {
+            return;
+        }
+        this.draftTheme = preference;
+        this.themeService.setThemePreference(preference);
+    }
+
     resetToDefaults(): void {
         this.draft = { ...DEFAULT_FORMATTING_OPTIONS };
+        this.draftTheme = 'light';
+        this.themeService.setThemePreference('light');
         this.onDraftChanged();
     }
 
@@ -273,6 +299,7 @@ export class JsonDialogsComponent implements OnChanges {
 
     private syncDraftFromInput(): void {
         this.draft = { ...this.formattingOptions };
+        this.draftTheme = this.themePreference;
     }
 
     private refreshPreview(): void {

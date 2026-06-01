@@ -33,7 +33,7 @@ import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 import {KEYBOARD_SHORTCUTS} from '../../data/keyboard-shortcuts.data';
-import {ConfigurationService} from '../../services/configuration.service';
+import {ConfigurationService, ThemePreference} from '../../services/configuration.service';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
 import {JsonValue} from '../../types/json.types';
 import {
@@ -98,6 +98,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     expandedNodes: Set<string> = new Set();
     showFormattingOptions = false;
     formattingOptions: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
+    themePreference: ThemePreference = 'light';
 
     keyboardShortcuts = KEYBOARD_SHORTCUTS;
 
@@ -821,6 +822,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     ngOnInit(): void {
         this.formattingOptions = this.configService.getFormattingOptions();
         this.jsonService.setFormattingPreferences(this.formattingOptions);
+        this.themePreference = this.configService.getConfig().theme;
+        this.configService.getConfig$()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((config) => {
+                this.themePreference = config.theme;
+            });
 
         this.isDarkTheme = this.themeService.isDarkTheme();
         this.themeService.currentTheme$
