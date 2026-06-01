@@ -49,6 +49,14 @@
 }
 
 /* Global */
+@supports (height: 100dvh) {
+  :root {
+    --jb-vh: 1dvh;
+    --jb-editor-pane-h: clamp(220px, 48dvh, 70dvh);
+    --jb-workspace-min-h: clamp(280px, 55dvh, 720px);
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -69,6 +77,16 @@ body {
 body.resizing-panels {
   cursor: col-resize !important;
   user-select: none;
+  touch-action: none;
+}
+
+#jb-root {
+  padding-left: var(--jb-safe-left);
+  padding-right: var(--jb-safe-right);
+  padding-bottom: var(--jb-safe-bottom);
+  box-sizing: border-box;
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 h1,

@@ -1,5 +1,7 @@
-<div
+<article
   class="editor-container"
+  aria-labelledby="editor-page-title"
+  [class.editor-container--compact]="isCompactViewport"
   [class.dark-theme]="currentTheme === 'dark'"
   [class.monokai-theme]="currentTheme === 'monokai'"
   [class.solarized-theme]="currentTheme === 'solarized'">
@@ -70,8 +72,8 @@
           <div class="editor-control-head">
             <div class="editor-control-title">
               <span class="workspace-label">Workspace</span>
-              <h2>JSON editor</h2>
-              <p>Paste or drop JSON — beautify, validate, and explore. All processing stays in your browser.</p>
+              <h1 id="editor-page-title">Online JSON Formatter, Beautifier &amp; Validator</h1>
+              <p>Paste or drop JSON to parse JSON, validate JSON strings, beautify, and minify JSON — all in your browser, with no uploads.</p>
             </div>
             <div class="editor-status-pills" aria-live="polite">
               <span class="status-pill" [class.status-pill-invalid]="!isValidJson"
@@ -365,7 +367,27 @@
             <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
               Sync scroll
             </mat-slide-toggle>
-            <span class="split-hint">Drag the center bar to resize panels</span>
+            <span class="split-hint split-hint--drag">Drag the center bar to resize · double-click to reset 50/50</span>
+            <span class="split-hint split-hint--stacked">Input and output stack on smaller screens</span>
+          </div>
+        }
+
+        @if (isCompactViewport && workspaceLayout === 'single') {
+          <div class="mobile-pane-switcher" role="tablist" aria-label="Editor pane">
+            <button type="button" role="tab" mat-stroked-button
+              [attr.aria-selected]="singlePaneFocus === 'input'"
+              [class.active-action]="singlePaneFocus === 'input'"
+              (click)="setSinglePaneFocus('input')">
+              <mat-icon>edit_note</mat-icon>
+              Input
+            </button>
+            <button type="button" role="tab" mat-stroked-button
+              [attr.aria-selected]="singlePaneFocus === 'output'"
+              [class.active-action]="singlePaneFocus === 'output'"
+              (click)="setSinglePaneFocus('output')">
+              <mat-icon>preview</mat-icon>
+              Output
+            </button>
           </div>
         }
 
@@ -423,10 +445,16 @@
             }
 
             @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized) {
-              <div (mousedown)="startPanelResize($event)"
+              <div (pointerdown)="startPanelResize($event)"
+                (dblclick)="inputPanelWidth = 50"
                 aria-label="Resize input and output panels"
+                aria-orientation="vertical"
+                aria-valuemin="25"
+                aria-valuemax="75"
+                [attr.aria-valuenow]="inputPanelWidth"
                 class="panel-divider"
-                role="separator">
+                role="separator"
+                tabindex="0">
               </div>
             }
 
@@ -508,6 +536,37 @@
           </app-version-history>
         }
 
+        <div class="launch-description launch-description--open">
+          <div class="launch-description-body" aria-labelledby="editor-howto-title">
+            <article class="launch-description-item">
+              <h2 id="editor-howto-title">How to use this online JSON formatter</h2>
+              <p>
+                Paste or import your JSON into the input panel. The tool will parse JSON automatically and highlight
+                syntax errors so you can validate JSON strings before you ship. Click <strong>Beautify</strong> to format
+                readable output, or <strong>Minify</strong> to compress whitespace for APIs and logs.
+              </p>
+              <p>
+                Use tree and table views to explore nested data, run JSONPath queries, compare versions with diff, and
+                convert to YAML, CSV, or XML — everything runs locally in your browser for privacy.
+              </p>
+            </article>
+            <article class="launch-description-item">
+              <h2 id="editor-features-title">JSON formatter features</h2>
+              <p>
+                JSON Beauty combines an online JSON beautifier, JSON validator, and developer toolkit in one workspace:
+                beautify and minify JSON, repair broken payloads with Fix My JSON, validate against JSON Schema, and
+                export or share results in one click.
+              </p>
+              <ul>
+                <li><strong>Beautify &amp; minify JSON</strong> — readable formatting or compact single-line output</li>
+                <li><strong>Validate JSON strings</strong> — real-time syntax checks and schema validation</li>
+                <li><strong>Parse JSON</strong> — tree view, table view, and JSONPath extraction</li>
+                <li><strong>Compare &amp; convert</strong> — structural diff, YAML/CSV/XML export, version history</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+
         <details class="launch-description">
           <summary class="launch-description-summary">
             <span>About JSON Beauty</span>
@@ -572,4 +631,4 @@
       </div>
     </mat-card-content>
   </mat-card>
-</div>
+</article>

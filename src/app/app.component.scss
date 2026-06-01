@@ -1,5 +1,7 @@
 .app-container {
   overflow-x: hidden;
+  min-height: 100%;
+  min-height: 100dvh;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 

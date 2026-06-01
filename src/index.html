@@ -2,23 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>JSON Beauty - JSON Formatter & Validator</title>
+  <title>Online JSON Formatter, Beautifier &amp; Validator | JSON Beauty</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A powerful tool for formatting, validating, and manipulating JSON data">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Free online JSON formatter, JSON beautifier, and JSON validator. Parse JSON, validate JSON strings, beautify and minify JSON in your browser — private, fast, no upload.">
+  <meta name="keywords" content="online JSON formatter, JSON beautifier, JSON validator, parse JSON, validate JSON string, minify JSON, JSON prettifier, JSON linter">
+  <meta name="robots" content="index, follow">
+  <meta name="google-site-verification" content="zG-CU35FMoWf4FjFmviIYBmHhgCJN1zTKgC6MrJfmD4" />
   <meta name="theme-color" content="#2563eb">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="JSON Beauty">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Online JSON Formatter, Beautifier &amp; Validator | JSON Beauty">
+  <meta property="og:description" content="Format, beautify, validate, and minify JSON online. 100% client-side — your data never leaves your browser.">
+  <meta property="og:site_name" content="JSON Beauty">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Online JSON Formatter, Beautifier &amp; Validator | JSON Beauty">
+  <meta name="twitter:description" content="Format, beautify, validate, and minify JSON online. 100% client-side — your data never leaves your browser.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <link rel="alternate icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+  <link rel="preload" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"></noscript>
+  <script type="application/ld+json" id="webapp-schema">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON Beauty — Online JSON Formatter",
+      "alternateName": ["JSON Beautifier", "JSON Validator"],
+      "description": "Free online JSON formatter, beautifier, and validator. Parse, validate, beautify, and minify JSON entirely in your browser.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "JSON formatting and beautification",
+        "JSON validation and linting",
+        "JSON minification",
+        "JSON comparison and diff",
+        "JSON to YAML, CSV, and XML conversion"
+      ]
+    }
+  </script>
+  <script>
+    (function () {
+      try {
+        var el = document.getElementById('webapp-schema');
+        if (!el || !location.origin) {
+          return;
+        }
+        var data = JSON.parse(el.textContent);
+        data.url = location.origin + '/editor';
+        el.textContent = JSON.stringify(data);
+      } catch (e) {
+        /* ignore */
+      }
+    })();
+  </script>
 </head>
 <body>
   <script>

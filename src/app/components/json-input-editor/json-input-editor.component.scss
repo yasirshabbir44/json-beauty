@@ -181,8 +181,8 @@
 // Editor wrapper styles
 .editor-wrapper {
   position: relative;
-  height: 70vh;
-  min-height: 400px;
+  height: var(--jb-editor-pane-h);
+  min-height: var(--jb-editor-pane-min-h);
   border: none;
   overflow: hidden;
   background-color: var(--jb-bg-code);
@@ -195,13 +195,13 @@
   }
 
   @media (max-width: 767px) {
-    height: 65vh;
-    min-height: 350px;
+    height: clamp(200px, 42dvh, 55dvh);
+    min-height: 200px;
   }
 
   @media (max-width: 480px) {
-    height: 50vh;
-    min-height: 220px;
+    height: clamp(180px, 38dvh, 50dvh);
+    min-height: 180px;
   }
 }
 

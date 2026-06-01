@@ -2,7 +2,7 @@
   "id": "/",
   "name": "JSON Beauty",
   "short_name": "JSON Beauty",
-  "description": "Format, validate, and explore JSON in your browser — works offline after install",
+  "description": "Free online JSON formatter, beautifier, and validator — format, validate, and minify JSON in your browser",
   "theme_color": "#2563eb",
   "background_color": "#f0f2f7",
   "display": "standalone",

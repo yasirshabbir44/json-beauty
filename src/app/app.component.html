@@ -69,9 +69,9 @@
         }
     </app-header>
 
-    <div class="main-content" [class.main-content--landing]="isLandingRoute">
+    <main id="main-content" class="main-content" [class.main-content--landing]="isLandingRoute">
         <router-outlet></router-outlet>
-    </div>
+    </main>
 
     <app-footer tagline="Format · Validate · Compare · Convert"></app-footer>
 </div>
