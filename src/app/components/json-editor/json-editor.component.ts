@@ -27,11 +27,6 @@ import {
 import {JsonEditorUiHelper, PanelFocus} from './json-editor-ui.helper';
 import {ShareDialogComponent, ShareDialogData} from '../share-dialog/share-dialog.component';
 import {ShareService} from '../../services/share/share.service';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-dracula';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/ext-searchbox';
 import {MICRO_INTERACTION_ANIMATIONS} from '../../animations/micro-interactions.animations';
 import {KEYBOARD_SHORTCUTS} from '../../data/keyboard-shortcuts.data';
 import {ConfigurationService, ThemePreference} from '../../services/configuration.service';
@@ -804,7 +799,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
             if (this.selectedOutputFormat === 'json') {
                 setTimeout(() => {
                     if (this.jsonOutputEditor) {
-                        this.jsonOutputEditor.initializeOutputEditor();
+                        void this.jsonOutputEditor.initializeOutputEditor();
                     }
                     this.updateOutput();
                 }, 100);
@@ -1038,7 +1033,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 // Initialize the output editor if switching to JSON mode
                 setTimeout(() => {
                     if (this.jsonOutputEditor) {
-                        this.jsonOutputEditor.initializeOutputEditor();
+                        void this.jsonOutputEditor.initializeOutputEditor();
                     }
                     // Update JSON output
                     this.updateOutput();
@@ -1081,8 +1076,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     fixMyJson(): void {
+        void this.runFixMyJson();
+    }
+
+    private async runFixMyJson(): Promise<void> {
         try {
-            const result = this.jsonService.fixMyJson(this.jsonInput.value || '');
+            const result = await this.jsonService.fixMyJson(this.jsonInput.value || '');
             if (!result.success) {
                 this.showError(`Could not repair JSON: ${result.error ?? 'unknown error'}`);
                 return;
@@ -1399,6 +1398,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Validates JSON against the provided schema
      */
     validateJsonSchema(): void {
+        void this.runValidateJsonSchema();
+    }
+
+    private async runValidateJsonSchema(): Promise<void> {
         if (!this.isValidJson) {
             this.showError('Cannot validate invalid JSON');
             return;
@@ -1410,8 +1413,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         try {
-            // Get the validation result from the service
-            const validationResult = this.jsonService.validateJsonSchema(
+            const validationResult = await this.jsonService.validateJsonSchema(
                 this.jsonInput.value || '{}',
                 this.schemaInput.value
             );
@@ -1606,13 +1608,17 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Generates a JSON schema from the current JSON data
      */
     generateJsonSchema(): void {
+        void this.runGenerateJsonSchema();
+    }
+
+    private async runGenerateJsonSchema(): Promise<void> {
         if (!this.ensureValidJsonInput('Please enter valid JSON to generate a schema')) {
             return;
         }
 
         try {
             // Generate the schema
-            const schema = this.jsonService.generateJsonSchema(this.jsonInput.value || '');
+            const schema = await this.jsonService.generateJsonSchema(this.jsonInput.value || '');
 
             // Set the schema to the schema input
             this.schemaInput.setValue(schema);
@@ -1647,6 +1653,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Executes a JSONPath query on the current JSON data
      */
     executeJsonPathQuery(): void {
+        void this.runJsonPathQuery();
+    }
+
+    private async runJsonPathQuery(): Promise<void> {
         if (!this.ensureValidJsonInput('Please enter valid JSON to query')) {
             return;
         }
@@ -1657,8 +1667,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         try {
-            // Execute the query
-            this.jsonPathQueryResult = this.jsonService.queryJsonPath(
+            this.jsonPathQueryResult = await this.jsonService.queryJsonPath(
                 this.jsonInput.value || '',
                 this.jsonPathQuery.value
             );
@@ -1694,6 +1703,10 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
      * Compares the current JSON with another JSON document
      */
     compareJson(): void {
+        void this.runCompareJson();
+    }
+
+    private async runCompareJson(): Promise<void> {
         this.compareError = null;
         this.jsonDiffResult = null;
 
@@ -1714,7 +1727,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         try {
-            this.jsonDiffResult = this.jsonService.compareJson(
+            this.jsonDiffResult = await this.jsonService.compareJson(
                 this.jsonInput.value || '',
                 compareValue
             );
@@ -2180,20 +2193,22 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     private runJsonTransform(
-        transform: () => string,
+        transform: () => string | Promise<string>,
         successMessage: string,
         errorLabel: string,
         animateBeautify = false
     ): void {
-        try {
-            this.applyTransformedJson(transform());
-            if (animateBeautify) {
-                this.triggerBeautifyAnimation();
+        void (async () => {
+            try {
+                this.applyTransformedJson(await transform());
+                if (animateBeautify) {
+                    this.triggerBeautifyAnimation();
+                }
+                this.showSuccess(successMessage);
+            } catch (error: unknown) {
+                this.showError(`${errorLabel}: ${this.toErrorMessage(error)}`);
             }
-            this.showSuccess(successMessage);
-        } catch (error: unknown) {
-            this.showError(`${errorLabel}: ${this.toErrorMessage(error)}`);
-        }
+        })();
     }
 
     private applyTransformedJson(transformedJson: string): void {

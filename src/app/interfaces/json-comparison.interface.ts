@@ -10,9 +10,9 @@ export interface IJsonComparisonService {
      * @param rightJsonString The second JSON string
      * @returns Object containing comparison results
      */
-    compareJson(leftJsonString: string, rightJsonString: string): {
+    compareJson(leftJsonString: string, rightJsonString: string): Promise<{
         hasDifferences: boolean;
         differences: any;
         formattedDiff?: string;
-    };
+    }>;
 }

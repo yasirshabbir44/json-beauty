@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import * as yaml from 'js-yaml';
+import {loadYaml} from '../../../utils/lazy-import.util';
 import {IFormatToJsonConverter, IJsonToFormatConverter} from '../../../interfaces/converters/converter.interface';
 
 /**
@@ -38,6 +38,18 @@ abstract class BaseYamlConverter {
     protected handleConversionError<T>(conversionFn: () => T, operationName: string): T {
         try {
             return conversionFn();
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            throw new Error(`Error converting ${operationName}: ${errorMessage}`);
+        }
+    }
+
+    protected async handleConversionErrorAsync<T>(
+        conversionFn: () => T | Promise<T>,
+        operationName: string
+    ): Promise<T> {
+        try {
+            return await conversionFn();
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             throw new Error(`Error converting ${operationName}: ${errorMessage}`);
@@ -203,12 +215,10 @@ export class YamlToJsonConverter extends BaseYamlConverter implements IFormatToJ
      * @param yamlString The YAML string to convert
      * @returns The JSON string
      */
-    convert(yamlString: string): string {
-        return this.handleConversionError(() => {
-            // Parse YAML string to JavaScript object
+    async convert(yamlString: string): Promise<string> {
+        return this.handleConversionErrorAsync(async () => {
+            const yaml = await loadYaml();
             const obj = yaml.load(yamlString || this.DEFAULT_EMPTY_STRING);
-
-            // Convert the object to a JSON string with proper indentation
             return JSON.stringify(obj, null, this.getIndentation());
         }, 'YAML to JSON');
     }

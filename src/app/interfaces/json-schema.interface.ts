@@ -9,7 +9,7 @@ export interface IJsonSchemaService {
      * @param jsonString The JSON string to generate a schema for
      * @returns The generated JSON schema as a string
      */
-    generateJsonSchema(jsonString: string): string;
+    generateJsonSchema(jsonString: string): Promise<string>;
 
     /**
      * Validates a JSON string against a JSON schema
@@ -17,8 +17,8 @@ export interface IJsonSchemaService {
      * @param schemaString The JSON schema string
      * @returns Object containing validation result and any errors
      */
-    validateJsonSchema(jsonString: string, schemaString: string): {
+    validateJsonSchema(jsonString: string, schemaString: string): Promise<{
         isValid: boolean;
         errors?: any[];
-    };
+    }>;
 }

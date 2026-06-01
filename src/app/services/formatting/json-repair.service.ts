@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
-import {jsonrepair} from 'jsonrepair';
-import * as JSON5 from 'json5';
+import {getJson5Sync, loadJson5, loadJsonrepair} from '../../utils/lazy-import.util';
 import {JsonRepairFixKind, JsonRepairResult} from '../../types/json-repair.types';
 
 /**
@@ -8,15 +7,13 @@ import {JsonRepairFixKind, JsonRepairResult} from '../../types/json-repair.types
  * Uses an error-tolerant tokenizer (jsonrepair) for strict RFC JSON, with JSON5 as a fallback
  * for comments and other relaxed syntax.
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonRepairService {
     /**
      * Repairs invalid JSON into strict, parseable RFC JSON.
      * Same input always yields the same repaired output (deterministic).
      */
-    repair(jsonString: string, indentSize = 2): JsonRepairResult {
+    async repair(jsonString: string, indentSize = 2): Promise<JsonRepairResult> {
         const source = (jsonString ?? '').trim();
         if (!source) {
             return {
@@ -38,6 +35,7 @@ export class JsonRepairService {
         const detectedFixes = this.detectLikelyIssues(source);
 
         try {
+            const jsonrepair = await loadJsonrepair();
             const repairedText = jsonrepair(source);
             JSON.parse(repairedText);
             const fixesApplied = this.mergeFixKinds(detectedFixes, this.inferFixesFromDiff(source, repairedText));
@@ -51,6 +49,7 @@ export class JsonRepairService {
         }
 
         try {
+            const JSON5 = getJson5Sync() ?? await loadJson5();
             const parsed = JSON5.parse(source);
             const fixesApplied = this.mergeFixKinds(detectedFixes, ['json5-syntax']);
             return {

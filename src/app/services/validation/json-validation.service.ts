@@ -1,8 +1,7 @@
 import {Injectable} from '@angular/core';
 import {IJsonValidationService} from '../../interfaces';
 import {JsonRepairFixKind} from '../../types/json-repair.types';
-import Ajv from 'ajv';
-import * as JSON5 from 'json5';
+import {getJson5Sync, loadJson5} from '../../utils/lazy-import.util';
 import {JsonRepairService} from '../formatting/json-repair.service';
 
 export type JsonLintResult = {
@@ -18,12 +17,8 @@ export type JsonLintResult = {
  * Service for JSON validation operations
  * Follows the Single Responsibility Principle by focusing only on validation concerns
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonValidationService implements IJsonValidationService {
-    private ajv = new Ajv({allErrors: true});
-
     constructor(private jsonRepairService: JsonRepairService) {
     }
 
@@ -91,7 +86,7 @@ export class JsonValidationService implements IJsonValidationService {
      * @param json5String The JSON5 string to validate
      * @returns An object with validation result and error message if any
      */
-    validateJSON5(json5String: string): { isValid: boolean; error?: string; errorPosition?: number } {
+    async validateJSON5(json5String: string): Promise<{ isValid: boolean; error?: string; errorPosition?: number }> {
         if (!json5String) {
             return {
                 isValid: false,
@@ -100,6 +95,7 @@ export class JsonValidationService implements IJsonValidationService {
         }
 
         try {
+            const JSON5 = getJson5Sync() ?? await loadJson5();
             JSON5.parse(json5String);
             return {
                 isValid: true
@@ -125,10 +121,10 @@ export class JsonValidationService implements IJsonValidationService {
      * @param jsonString The JSON string to lint
      * @returns Object containing lint results
      */
-    lintJson(jsonString: string): JsonLintResult {
+    async lintJson(jsonString: string): Promise<JsonLintResult> {
         const validation = this.validateJson(jsonString);
         if (!validation.isValid) {
-            const repair = this.jsonRepairService.repair(jsonString);
+            const repair = await this.jsonRepairService.repair(jsonString);
             if (repair.success) {
                 const fixDescriptions = this.jsonRepairService.describeFixes(repair.fixesApplied);
                 return {
@@ -199,40 +195,6 @@ export class JsonValidationService implements IJsonValidationService {
                 isValid: false,
                 formattingIssues: [e instanceof Error ? e.message : String(e)],
                 suggestions: ['Fix the JSON syntax errors']
-            };
-        }
-    }
-
-    /**
-     * Validates a JSON string against a JSON schema
-     * @param jsonString The JSON string to validate
-     * @param schemaString The JSON schema string
-     * @returns Object containing validation result and any errors
-     */
-    validateJsonSchema(jsonString: string, schemaString: string): {
-        isValid: boolean;
-        errors?: any[];
-    } {
-        try {
-            // Parse the JSON and schema
-            const json = JSON.parse(jsonString);
-            const schema = JSON.parse(schemaString);
-
-            // Validate the JSON against the schema
-            const validate = this.ajv.compile(schema);
-            const isValid = validate(json);
-
-            // Return the validation result
-            return {
-                isValid,
-                errors: validate.errors || []
-            };
-        } catch (error) {
-            // If there's an error parsing the JSON or schema, return an error
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            return {
-                isValid: false,
-                errors: [{message: errorMessage}]
             };
         }
     }
