@@ -2,6 +2,7 @@
 @use 'app/styles/motion';
 @use 'app/styles/material-overrides';
 @use 'app/styles/cdk-overrides';
+@use 'app/styles/json-editor-global';
 
 @tailwind base;
 @tailwind components;
