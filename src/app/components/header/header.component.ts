@@ -1,5 +1,6 @@
 import {Component, Input, inject} from '@angular/core';
 import {Router} from '@angular/router';
+import {PwaService} from '../../services/pwa/pwa.service';
 
 @Component({
     selector: 'app-header',
@@ -12,6 +13,7 @@ export class HeaderComponent {
     @Input() subtitle: string = '';
 
     private readonly router = inject(Router);
+    readonly pwa = inject(PwaService);
 
     onLogoClick(event: MouseEvent): void {
         const path = this.router.url.split('?')[0].split('#')[0];
