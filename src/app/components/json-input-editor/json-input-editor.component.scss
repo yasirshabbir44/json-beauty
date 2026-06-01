@@ -123,15 +123,16 @@
     align-items: center;
 
     button {
-      color: #5f6368;
+      color: var(--jb-text-secondary);
 
       &:hover:not([disabled]) {
-        color: #1a73e8;
-        background-color: rgba(26, 115, 232, 0.08);
+        color: var(--jb-accent);
+        background-color: var(--jb-accent-subtle);
       }
 
       &[disabled] {
-        color: rgba(0, 0, 0, 0.26);
+        color: var(--jb-text-muted);
+        opacity: 0.5;
         cursor: not-allowed;
       }
 
@@ -145,11 +146,11 @@
   }
 
   .maximize-btn {
-    color: #5f6368;
+    color: var(--jb-text-secondary);
 
     &:hover {
-      color: #1a73e8;
-      background-color: rgba(26, 115, 232, 0.08);
+      color: var(--jb-accent);
+      background-color: var(--jb-accent-subtle);
     }
   }
 }
@@ -173,7 +174,7 @@
   }
 
   .input-toolbar-actions mat-icon {
-    color: #5f6368;
+    color: var(--jb-text-secondary);
   }
 }
 
@@ -327,20 +328,33 @@
   }
 }
 
-:host-context(.dark-theme) {
+:host-context(.dark-theme),
+:host-context(.monokai-theme),
+:host(.dark-theme),
+:host(.monokai-theme) {
   .editor-section.input-pane {
     border-color: var(--jb-border);
-    background: linear-gradient(180deg, var(--jb-panel-input-bg) 0%, var(--jb-bg-surface) 48px);
+    background: var(--jb-bg-surface);
+    box-shadow: var(--jb-shadow-sm);
 
     &:hover {
       box-shadow: var(--jb-shadow-md);
       border-color: var(--jb-border-strong);
     }
 
+    &.fullscreen-mode {
+      background-color: var(--jb-bg-surface);
+    }
+
     h3.input-toolbar {
+      background: var(--jb-bg-muted);
       border-bottom-color: var(--jb-border);
       color: var(--jb-text);
     }
+  }
+
+  .input-toolbar-sub {
+    border-color: var(--jb-accent-border);
   }
 
   .input-toolbar-brand-icon {
@@ -355,8 +369,21 @@
     background-color: var(--jb-bg-code);
 
     &:focus-within {
-      background-color: var(--jb-bg-surface);
+      background-color: var(--jb-bg-code);
+      box-shadow: inset 0 0 0 1px var(--jb-accent-border);
     }
+  }
+
+  .search-bar {
+    background-color: var(--jb-bg-elevated);
+    border-color: var(--jb-border);
+    color: var(--jb-text);
+  }
+
+  .error-message {
+    background-color: var(--jb-error-bg);
+    color: var(--jb-error);
+    border-top-color: rgba(248, 113, 113, 0.25);
   }
 
   ::ng-deep .ace_editor .ace_marker-layer .json-error-line {

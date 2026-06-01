@@ -16,6 +16,7 @@ import {JsonInputEditorComponent} from '../json-input-editor/json-input-editor.c
 import {JsonOutputEditorComponent} from '../json-output-editor/json-output-editor.component';
 import {SettingsService} from '../../services/settings/settings.service';
 import {ThemeService} from '../../services/theme/theme.service';
+import {AppConstants} from '../../constants/app.constants';
 import {
     CsvOutputConversionStrategy,
     OutputConversionExecution,
@@ -93,6 +94,7 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     showKeyboardShortcuts = false;
     showFeatures = false;
     isDarkTheme = false;
+    currentTheme = AppConstants.THEME_LIGHT;
     showTreeView = false;
     jsonTreeData: any = null;
     expandedNodes: Set<string> = new Set();
@@ -829,10 +831,12 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.themePreference = config.theme;
             });
 
+        this.currentTheme = this.themeService.getCurrentTheme();
         this.isDarkTheme = this.themeService.isDarkTheme();
         this.themeService.currentTheme$
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
+            .subscribe((theme) => {
+                this.currentTheme = theme;
                 this.isDarkTheme = this.themeService.isDarkTheme();
             });
 
