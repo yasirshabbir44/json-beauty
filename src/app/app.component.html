@@ -32,30 +32,41 @@
             matTooltip="{{ isDarkTheme ? 'Light mode' : 'Dark mode' }}">
             <mat-icon>{{ isDarkTheme ? 'light_mode' : 'dark_mode' }}</mat-icon>
         </button>
-        <button [matMenuTriggerFor]="settingsMenu" [matTooltip]="'Settings and Options'"
-                aria-label="Settings and Options" class="settings-btn"
-                mat-icon-button>
-            <mat-icon>settings</mat-icon>
-        </button>
-        <mat-menu #settingsMenu="matMenu">
-            <button (click)="settings.toggleFormattingOptions()" mat-menu-item>
-                <mat-icon>settings</mat-icon>
-                <span>Options</span>
-            </button>
-            <button (click)="settings.toggleKeyboardShortcuts()" mat-menu-item>
-                <mat-icon>keyboard</mat-icon>
-                <span>Shortcuts</span>
-            </button>
-            <button (click)="settings.toggleSearchReplace()" mat-menu-item>
-                <mat-icon>find_replace</mat-icon>
-                <span>Search & Replace</span>
-            </button>
-            <mat-divider></mat-divider>
-            <a mat-menu-item routerLink="/support">
+        @if (isLandingRoute) {
+            <a
+                mat-icon-button
+                class="support-header-btn"
+                routerLink="/support"
+                matTooltip="Support the project"
+                aria-label="Support the project">
                 <mat-icon>volunteer_activism</mat-icon>
-                <span>Support the project</span>
             </a>
-        </mat-menu>
+        } @else {
+            <button [matMenuTriggerFor]="settingsMenu" [matTooltip]="'Settings and Options'"
+                    aria-label="Settings and Options" class="settings-btn"
+                    mat-icon-button>
+                <mat-icon>settings</mat-icon>
+            </button>
+            <mat-menu #settingsMenu="matMenu">
+                <button (click)="settings.toggleFormattingOptions()" mat-menu-item>
+                    <mat-icon>settings</mat-icon>
+                    <span>Options</span>
+                </button>
+                <button (click)="settings.toggleKeyboardShortcuts()" mat-menu-item>
+                    <mat-icon>keyboard</mat-icon>
+                    <span>Shortcuts</span>
+                </button>
+                <button (click)="settings.toggleSearchReplace()" mat-menu-item>
+                    <mat-icon>find_replace</mat-icon>
+                    <span>Search & Replace</span>
+                </button>
+                <mat-divider></mat-divider>
+                <a mat-menu-item routerLink="/support">
+                    <mat-icon>volunteer_activism</mat-icon>
+                    <span>Support the project</span>
+                </a>
+            </mat-menu>
+        }
     </app-header>
 
     <div class="main-content" [class.main-content--landing]="isLandingRoute">

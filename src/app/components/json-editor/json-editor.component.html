@@ -1,4 +1,8 @@
-<div [class.dark-theme]="isDarkTheme" class="editor-container">
+<div
+  class="editor-container"
+  [class.dark-theme]="currentTheme === 'dark'"
+  [class.monokai-theme]="currentTheme === 'monokai'"
+  [class.solarized-theme]="currentTheme === 'solarized'">
   <mat-card class="editor-card">
     <mat-card-content class="p-1">
       <div class="editor-layout">
@@ -410,6 +414,8 @@
                 (toggleMaximize)="toggleInputMaximize()"
                 [errorLine]="jsonErrorLine"
                 [errorMessage]="errorMessage"
+                [class.dark-theme]="currentTheme === 'dark'"
+                [class.monokai-theme]="currentTheme === 'monokai'"
                 [isDarkTheme]="isDarkTheme"
                 [isMaximized]="isInputMaximized"
                 [isValidJson]="isValidJson">
