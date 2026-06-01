@@ -19,6 +19,34 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
 </head>
 <body>
+  <script>
+    (function () {
+      try {
+        var preference = 'light';
+        var configRaw = localStorage.getItem('json-beauty-config');
+        if (configRaw) {
+          var config = JSON.parse(configRaw);
+          if (config.theme === 'dark' || config.theme === 'light' || config.theme === 'system') {
+            preference = config.theme;
+          }
+        } else {
+          var legacy = localStorage.getItem('theme');
+          if (legacy === 'dark' || legacy === 'monokai') {
+            preference = 'dark';
+          }
+        }
+        var useDark =
+          preference === 'dark' ||
+          (preference === 'system' &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (useDark) {
+          document.body.classList.add('dark-theme');
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    })();
+  </script>
   <app-root></app-root>
 </body>
 </html>

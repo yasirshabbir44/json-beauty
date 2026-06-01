@@ -2,46 +2,160 @@
   <!-- Hero -->
   <section class="landing-hero" aria-labelledby="landing-hero-title">
     <div class="landing-hero__glow" aria-hidden="true"></div>
-    <div class="landing-hero__inner">
-      <p class="landing-hero__eyebrow">
-        <mat-icon aria-hidden="true">verified_user</mat-icon>
-        100% client-side · no account required
-      </p>
-      <h1 id="landing-hero-title" class="landing-hero__title">
-        Format, validate, and explore JSON — instantly
-      </h1>
-      <p class="landing-hero__lead">
-        A fast, privacy-first JSON toolkit for developers and analysts. Beautify messy API responses,
-        compare versions, query with JSONPath, and export to YAML — all without sending data to a server.
-      </p>
-      <div class="landing-hero__actions">
-        <a mat-flat-button color="primary" class="landing-cta landing-cta--primary" routerLink="/editor">
-          <mat-icon aria-hidden="true">play_arrow</mat-icon>
-          Open editor
-        </a>
-        <a mat-stroked-button class="landing-cta landing-cta--secondary" routerLink="/editor">
-          <mat-icon aria-hidden="true">auto_awesome</mat-icon>
-          Try with sample JSON
-        </a>
+    <div class="landing-hero__grid">
+      <div class="landing-hero__copy">
+        <h1 id="landing-hero-title" class="landing-hero__title">
+          Privacy-first JSON tools for developers
+        </h1>
+        <p class="landing-hero__lead">
+          Format, validate, compare, repair, and convert JSON in seconds — with local, in-browser
+          processing (no uploads).
+        </p>
+        <ul class="landing-hero__bullets">
+          @for (bullet of heroBullets; track bullet.text) {
+            <li>
+              <mat-icon aria-hidden="true">check_circle</mat-icon>
+              <span>{{ bullet.text }}</span>
+            </li>
+          }
+        </ul>
+        <div class="landing-hero__actions">
+          <a mat-flat-button color="primary" class="landing-cta landing-cta--primary" routerLink="/editor">
+            <mat-icon aria-hidden="true">play_arrow</mat-icon>
+            Try JSON Formatter
+          </a>
+          <a mat-stroked-button class="landing-cta landing-cta--secondary" href="#featured-tools">
+            Explore Tools
+          </a>
+        </div>
+        <nav class="landing-hero__jump" aria-label="Page sections">
+          <a href="#featured-tools">Featured tools</a>
+          <span aria-hidden="true">·</span>
+          <a href="#workflow-features">Workflow features</a>
+          <span aria-hidden="true">·</span>
+          <a href="#faq">FAQ</a>
+        </nav>
       </div>
-      <ul class="landing-hero__stats" aria-label="Highlights">
-        <li><strong>0</strong><span>server uploads</span></li>
-        <li><strong>13+</strong><span>keyboard shortcuts</span></li>
-        <li><strong>4</strong><span>output formats</span></li>
-      </ul>
+
+      <aside class="landing-hero__preview" aria-label="JSON Formatter preview">
+        <div class="landing-preview">
+          <header class="landing-preview__head">
+            <mat-icon aria-hidden="true">data_object</mat-icon>
+            <span>JSON Formatter Preview</span>
+            <a class="landing-preview__live" routerLink="/editor">Try Live</a>
+          </header>
+          <div class="landing-preview__tabs" role="tablist" aria-label="Preview modes">
+            @for (tab of previewTabs; track tab.id) {
+              <button
+                type="button"
+                role="tab"
+                class="landing-preview__tab"
+                [class.is-active]="activePreviewTab === tab.id"
+                [attr.aria-selected]="activePreviewTab === tab.id"
+                (click)="selectPreviewTab(tab.id)">
+                {{ tab.label }}
+              </button>
+            }
+          </div>
+          <pre class="landing-preview__code"><code>{{ previewSample }}</code></pre>
+          <footer class="landing-preview__foot">
+            <span>Try our JSON Formatter now</span>
+            <a routerLink="/editor">Open Full Tool →</a>
+          </footer>
+        </div>
+      </aside>
     </div>
   </section>
 
-  <!-- Features grid -->
-  <section class="landing-section" aria-labelledby="landing-features-title">
+  <!-- Value pillars -->
+  <section class="landing-pillars" aria-label="Why JSON Beauty">
+    <div class="landing-pillars__grid">
+      @for (pillar of pillars; track pillar.title) {
+        <article class="landing-pillar">
+          <div class="landing-pillar__icon" aria-hidden="true">
+            <mat-icon>{{ pillar.icon }}</mat-icon>
+          </div>
+          <h2>{{ pillar.title }}</h2>
+          <ul>
+            @for (item of pillar.items; track item) {
+              <li>{{ item }}</li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Featured tools -->
+  <section id="featured-tools" class="landing-section" aria-labelledby="landing-tools-title">
     <header class="landing-section__head">
-      <h2 id="landing-features-title">Everything you need in one workspace</h2>
-      <p>From quick formatting to deep inspection — no tab switching, no sign-up.</p>
+      <h2 id="landing-tools-title">Start here</h2>
+      <p>
+        The fastest path from “broken payload” to “shippable data.” Pick a tool and get back to
+        building.
+      </p>
     </header>
-    <div class="landing-features">
-      @for (feature of features; track feature.title) {
-        <article class="landing-feature-card jb-hover-lift">
-          <div class="landing-feature-card__icon" aria-hidden="true">
+    <div class="landing-tools">
+      @for (tool of featuredTools; track tool.title) {
+        <article class="landing-tool-card jb-hover-lift">
+          <div class="landing-tool-card__top">
+            <div class="landing-tool-card__icon" aria-hidden="true">
+              <mat-icon>{{ tool.icon }}</mat-icon>
+            </div>
+            @if (tool.badge) {
+              <span class="landing-tool-card__badge" [class]="'landing-tool-card__badge--' + tool.badge">
+                {{ badgeLabel(tool.badge) }}
+              </span>
+            }
+          </div>
+          <h3>{{ tool.title }}</h3>
+          <p class="landing-tool-card__desc">{{ tool.description }}</p>
+          <ul class="landing-tool-card__bullets">
+            @for (point of tool.bullets; track point) {
+              <li>{{ point }}</li>
+            }
+          </ul>
+          <a mat-flat-button color="primary" class="landing-tool-card__cta" [routerLink]="tool.route">
+            {{ tool.ctaLabel }}
+            <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+          </a>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Built like a developer tool -->
+  <section class="landing-section landing-section--muted" aria-labelledby="landing-built-title">
+    <header class="landing-section__head">
+      <h2 id="landing-built-title">Built like a developer tool</h2>
+      <p>
+        Local processing, fast workflows, and clean output — so you can spend less time fighting
+        data.
+      </p>
+    </header>
+    <div class="landing-values">
+      @for (value of devToolValues; track value.title) {
+        <article class="landing-value-card">
+          <mat-icon aria-hidden="true">{{ value.icon }}</mat-icon>
+          <h3>{{ value.title }}</h3>
+          <p>{{ value.description }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Workflow features -->
+  <section id="workflow-features" class="landing-section" aria-labelledby="landing-workflow-title">
+    <header class="landing-section__head">
+      <h2 id="landing-workflow-title">Workflow features</h2>
+      <p class="landing-section__sub">
+        The stuff you actually need — designed for API engineers, analysts, and developers.
+      </p>
+    </header>
+    <div class="landing-workflow">
+      @for (feature of workflowFeatures; track feature.title) {
+        <article class="landing-workflow-card">
+          <div class="landing-workflow-card__icon" aria-hidden="true">
             <mat-icon>{{ feature.icon }}</mat-icon>
           </div>
           <h3>{{ feature.title }}</h3>
@@ -51,158 +165,56 @@
     </div>
   </section>
 
-  <!-- Screenshots -->
-  <section class="landing-section landing-section--muted" aria-labelledby="landing-screenshots-title">
+  <!-- Tool directory -->
+  <section class="landing-section landing-section--muted landing-directory" aria-labelledby="landing-directory-title">
     <header class="landing-section__head">
-      <h2 id="landing-screenshots-title">See the workspace</h2>
-      <p>A focused editor layout designed for real API and data workflows.</p>
+      <h2 id="landing-directory-title">Browse all tools</h2>
+      <p>Quick links to every capability — formatters, validators, converters, and more.</p>
     </header>
-
-    <div class="landing-screenshots" role="tablist" aria-label="Workspace previews">
-      @for (shot of screenshots; track shot.id) {
-        <button
-          type="button"
-          class="landing-screenshots__tab"
-          role="tab"
-          [attr.aria-selected]="activeScreenshot === shot.id"
-          [class.is-active]="activeScreenshot === shot.id"
-          (click)="selectScreenshot(shot.id)">
-          {{ shot.label }}
-        </button>
+    <nav class="landing-directory__links" aria-label="Tool quick links">
+      @for (link of toolLinks; track link.label) {
+        <a [routerLink]="link.route">{{ link.label }}</a>
       }
+    </nav>
+    <div class="landing-directory__actions">
+      <a mat-flat-button color="primary" class="landing-cta landing-cta--primary" routerLink="/editor">
+        Open JSON Formatter
+      </a>
+      <a mat-stroked-button class="landing-cta landing-cta--secondary" href="#featured-tools">
+        Browse featured tools
+      </a>
     </div>
-
-    <figure class="landing-mockup" [attr.data-panel]="activeScreenshot">
-      <figcaption class="landing-mockup__caption">
-        <strong>{{ activeScreenshotPanel.title }}</strong>
-        <span>{{ activeScreenshotPanel.caption }}</span>
-      </figcaption>
-
-      <div class="landing-mockup__chrome" aria-hidden="true">
-        <span class="landing-mockup__dot"></span>
-        <span class="landing-mockup__dot"></span>
-        <span class="landing-mockup__dot"></span>
-        <span class="landing-mockup__url">json-beauty.app/editor</span>
-      </div>
-
-      @if (activeScreenshot === 'workspace') {
-        <div class="landing-mockup__body landing-mockup__body--split">
-          <div class="landing-mockup__panel landing-mockup__panel--input">
-            <header>Input</header>
-            <pre>{{ workspaceInputMock }}</pre>
-          </div>
-          <div class="landing-mockup__panel landing-mockup__panel--output">
-            <header>Output · Valid</header>
-            <pre>{{ workspaceOutputMock }}</pre>
-          </div>
-        </div>
-      }
-
-      @if (activeScreenshot === 'tree') {
-        <div class="landing-mockup__body landing-mockup__body--tree">
-          <ul>
-            <li><span class="key">user</span> <span class="type">object</span></li>
-            <li class="indent"><span class="key">id</span> <span class="val">42</span></li>
-            <li><span class="key">roles</span> <span class="type">array[1]</span></li>
-            <li class="indent"><span class="key">[0]</span> <span class="val">"admin"</span></li>
-          </ul>
-        </div>
-      }
-
-      @if (activeScreenshot === 'compare') {
-        <div class="landing-mockup__body landing-mockup__body--diff">
-          <div class="diff-row diff-row--add"><span>+ "email": "dev@example.com"</span></div>
-          <div class="diff-row diff-row--same"><span>  "id": 42</span></div>
-          <div class="diff-row diff-row--remove"><span>- "legacy": true</span></div>
-        </div>
-      }
-    </figure>
-  </section>
-
-  <!-- Keyboard shortcuts -->
-  <section class="landing-section" aria-labelledby="landing-shortcuts-title">
-    <header class="landing-section__head">
-      <h2 id="landing-shortcuts-title">Keyboard shortcuts</h2>
-      <p>Stay in flow — the same shortcuts work in the editor (<kbd>Ctrl</kbd>+<kbd>K</kbd> to open the list).</p>
-    </header>
-    <div class="landing-shortcuts">
-      <table class="landing-shortcuts__table">
-        <thead>
-          <tr>
-            <th scope="col">Shortcut</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (shortcut of keyboardShortcuts; track shortcut.key) {
-            <tr>
-              <td><kbd class="landing-kbd">{{ shortcut.key }}</kbd></td>
-              <td>{{ shortcut.action }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Why developers love it -->
-  <section class="landing-section landing-section--muted" aria-labelledby="landing-love-title">
-    <header class="landing-section__head">
-      <h2 id="landing-love-title">Why developers love it</h2>
-      <p>Built for the way you already work with JSON — fast, local, and distraction-free.</p>
-    </header>
-    <div class="landing-love">
-      @for (item of developerHighlights; track item.title) {
-        <article class="landing-love-card">
-          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.body }}</p>
-        </article>
-      }
-    </div>
-    <blockquote class="landing-quote">
-      <p>
-        “Finally a JSON tool that doesn’t phone home. I keep it pinned for API debugging and log cleanup.”
-      </p>
-      <footer>— Typical backend / platform engineer workflow</footer>
-    </blockquote>
-  </section>
-
-  <!-- Performance benchmarks -->
-  <section class="landing-section" aria-labelledby="landing-bench-title">
-    <header class="landing-section__head">
-      <h2 id="landing-bench-title">Performance benchmarks</h2>
-      <p>
-        Client-side processing with web workers and virtualized views — representative timings on a modern laptop.
-      </p>
-    </header>
-    <div class="landing-benchmarks">
-      @for (row of benchmarks; track row.label) {
-        <div class="landing-benchmark">
-          <div class="landing-benchmark__meta">
-            <span class="landing-benchmark__label">{{ row.label }}</span>
-            <span class="landing-benchmark__detail">{{ row.detail }}</span>
-          </div>
-          <div class="landing-benchmark__bar-track" role="presentation">
-            <div class="landing-benchmark__bar-fill" [style.width]="benchmarkWidth(row)"></div>
-          </div>
-          <div class="landing-benchmark__value">
-            <strong>{{ row.value }}{{ row.unit }}</strong>
-            <span>{{ row.note }}</span>
-          </div>
-        </div>
-      }
-    </div>
-    <p class="landing-benchmarks__disclaimer">
-      Benchmarks are indicative client-side measurements; actual times vary by device and payload shape.
+    <p class="landing-directory__note">
+      Free, fast, and browser-based — explore every JSON workflow in one workspace.
     </p>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="landing-section landing-faq" aria-labelledby="landing-faq-title">
+    <header class="landing-section__head">
+      <h2 id="landing-faq-title">Frequently Asked Questions</h2>
+      <p>Quick answers about privacy, limits, and workflows.</p>
+    </header>
+    <div class="landing-faq__list">
+      @for (item of faqItems; track item.question; let i = $index) {
+        <details class="landing-faq__item" [attr.open]="i === 0 ? '' : null">
+          <summary>
+            <span>{{ item.question }}</span>
+            <mat-icon class="landing-faq__chevron" aria-hidden="true">expand_more</mat-icon>
+          </summary>
+          <div class="landing-faq__answer">
+            <p>{{ item.answer }}</p>
+          </div>
+        </details>
+      }
+    </div>
   </section>
 
   <!-- Final CTA -->
   <section class="landing-cta-band" aria-label="Get started">
     <h2>Ready to clean up your JSON?</h2>
     <p>Open the editor — free, instant, and private.</p>
-    <a mat-flat-button color="primary" class="landing-cta landing-cta--primary" routerLink="/editor">
+    <a mat-flat-button color="primary" class="landing-cta landing-cta--primary landing-cta--inverse" routerLink="/editor">
       Launch JSON Beauty
       <mat-icon aria-hidden="true">arrow_forward</mat-icon>
     </a>

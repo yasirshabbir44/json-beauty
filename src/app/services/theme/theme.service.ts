@@ -1,6 +1,7 @@
 import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AppConstants } from '../../constants/app.constants';
+import { ConfigurationService, ThemePreference } from '../configuration.service';
 
 /**
  * Interface for theme options
@@ -26,38 +27,53 @@ export class ThemeService {
     { value: AppConstants.THEME_MONOKAI, label: 'Monokai' }
   ];
 
-  // Current theme subject for state management
+  // Current resolved theme (light, dark, solarized, monokai)
   private currentThemeSubject = new BehaviorSubject<string>(AppConstants.THEME_LIGHT);
-  
+
   // Observable for components to subscribe to
   public currentTheme$: Observable<string> = this.currentThemeSubject.asObservable();
-  
-  private renderer: Renderer2;
 
-  constructor(rendererFactory: RendererFactory2) {
-    // Create a renderer instance
+  private renderer: Renderer2;
+  private systemThemeListener?: (event: MediaQueryListEvent) => void;
+
+  constructor(
+    rendererFactory: RendererFactory2,
+    private configService: ConfigurationService
+  ) {
     this.renderer = rendererFactory.createRenderer(null, null);
-    
-    // Initialize theme on service creation
-    this.initializeTheme();
+    this.migrateLegacyThemeStorage();
+    this.listenForSystemThemeChanges();
+    this.configService.getConfig$().subscribe((config) => {
+      this.applyThemePreference(config.theme);
+    });
   }
 
-  /**
-   * Initialize theme based on user preferences
-   */
-  private initializeTheme(): void {
-    // Check if user has a theme preference stored
-    const savedTheme = localStorage.getItem(AppConstants.THEME_STORAGE_KEY);
-    
-    if (savedTheme) {
-      this.setTheme(savedTheme);
-    } else {
-      // Check if user prefers dark mode at OS level
-      const prefersDark = window.matchMedia(AppConstants.PREFERS_DARK_MEDIA_QUERY).matches;
-      if (prefersDark) {
-        this.setTheme(AppConstants.THEME_DARK);
-      }
+  private migrateLegacyThemeStorage(): void {
+    const legacy = localStorage.getItem(AppConstants.THEME_STORAGE_KEY);
+    if (!legacy) {
+      return;
     }
+
+    const preference = this.legacyThemeToPreference(legacy);
+    this.configService.updateConfig({ theme: preference });
+    localStorage.removeItem(AppConstants.THEME_STORAGE_KEY);
+  }
+
+  private legacyThemeToPreference(legacy: string): ThemePreference {
+    if (legacy === AppConstants.THEME_DARK || legacy === AppConstants.THEME_MONOKAI) {
+      return 'dark';
+    }
+    return 'light';
+  }
+
+  private listenForSystemThemeChanges(): void {
+    const media = window.matchMedia(AppConstants.PREFERS_DARK_MEDIA_QUERY);
+    this.systemThemeListener = () => {
+      if (this.configService.getConfig().theme === 'system') {
+        this.applyThemePreference('system');
+      }
+    };
+    media.addEventListener('change', this.systemThemeListener);
   }
 
   /**
@@ -69,7 +85,21 @@ export class ThemeService {
   }
 
   /**
-   * Get the current theme
+   * Saved theme preference (may be `system`).
+   */
+  getThemePreference(): ThemePreference {
+    return this.configService.getConfig().theme;
+  }
+
+  /**
+   * Persist and apply a theme preference.
+   */
+  setThemePreference(preference: ThemePreference): void {
+    this.configService.updateConfig({ theme: preference });
+  }
+
+  /**
+   * Get the current resolved theme
    * @returns Current theme value
    */
   getCurrentTheme(): string {
@@ -81,19 +111,20 @@ export class ThemeService {
    * For backward compatibility with the simple toggle button
    */
   toggleTheme(): void {
-    // Toggle between light and dark only
-    const newTheme = this.isDarkTheme() ? AppConstants.THEME_LIGHT : AppConstants.THEME_DARK;
-    this.setTheme(newTheme);
+    const newPreference: ThemePreference = this.isDarkTheme() ? 'light' : 'dark';
+    this.setThemePreference(newPreference);
   }
 
   /**
-   * Set a specific theme
+   * Set a specific resolved theme (legacy API; maps to light/dark preference).
    * @param theme The theme to set
    */
   setTheme(theme: string): void {
-    this.currentThemeSubject.next(theme);
-    this.applyTheme(theme);
-    localStorage.setItem(AppConstants.THEME_STORAGE_KEY, theme);
+    const preference: ThemePreference =
+      theme === AppConstants.THEME_DARK || theme === AppConstants.THEME_MONOKAI
+        ? 'dark'
+        : 'light';
+    this.setThemePreference(preference);
   }
 
   /**
@@ -102,8 +133,23 @@ export class ThemeService {
    */
   isDarkTheme(): boolean {
     const currentTheme = this.currentThemeSubject.value;
-    return currentTheme === AppConstants.THEME_DARK || 
+    return currentTheme === AppConstants.THEME_DARK ||
            currentTheme === AppConstants.THEME_MONOKAI;
+  }
+
+  private applyThemePreference(preference: ThemePreference): void {
+    const resolved = this.resolveTheme(preference);
+    this.currentThemeSubject.next(resolved);
+    this.applyTheme(resolved);
+  }
+
+  private resolveTheme(preference: ThemePreference): string {
+    if (preference === 'system') {
+      return window.matchMedia(AppConstants.PREFERS_DARK_MEDIA_QUERY).matches
+        ? AppConstants.THEME_DARK
+        : AppConstants.THEME_LIGHT;
+    }
+    return preference;
   }
 
   /**
@@ -111,12 +157,10 @@ export class ThemeService {
    * @param theme The theme to apply
    */
   private applyTheme(theme: string): void {
-    // Remove all theme classes first
     this.renderer.removeClass(document.body, AppConstants.DARK_THEME_CLASS);
     this.renderer.removeClass(document.body, AppConstants.SOLARIZED_THEME_CLASS);
     this.renderer.removeClass(document.body, AppConstants.MONOKAI_THEME_CLASS);
-    
-    // Apply the appropriate theme class
+
     switch (theme) {
       case AppConstants.THEME_DARK:
         this.renderer.addClass(document.body, AppConstants.DARK_THEME_CLASS);
@@ -127,7 +171,6 @@ export class ThemeService {
       case AppConstants.THEME_MONOKAI:
         this.renderer.addClass(document.body, AppConstants.MONOKAI_THEME_CLASS);
         break;
-      // Light theme is the default, no class needed
     }
   }
 }

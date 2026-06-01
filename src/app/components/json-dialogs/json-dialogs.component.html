@@ -30,7 +30,7 @@
       <mat-card-header class="formatting-dialog-header">
         <div class="formatting-dialog-heading">
           <mat-card-title id="formatting-dialog-title">Formatting Options</mat-card-title>
-          <p class="formatting-dialog-subtitle">Customize indentation and output style. Changes apply to beautify and re-format actions.</p>
+          <p class="formatting-dialog-subtitle">Customize appearance, indentation, and output style.</p>
         </div>
         <button (click)="closeFormattingOptions()" class="close-btn" mat-icon-button type="button"
                 aria-label="Close formatting options">
@@ -67,6 +67,38 @@
               <p class="format-hint format-preset-status">
                 <mat-icon aria-hidden="true">auto_awesome</mat-icon>
                 Active profile: <strong>{{ activePresetLabel }}</strong>
+              </p>
+            </section>
+
+            <mat-divider></mat-divider>
+
+            <section class="format-section" aria-labelledby="format-appearance-heading">
+              <div class="format-section-head">
+                <mat-icon class="format-section-icon" aria-hidden="true">palette</mat-icon>
+                <div>
+                  <h3 id="format-appearance-heading">Appearance</h3>
+                  <p>Default color theme for the app and editors.</p>
+                </div>
+              </div>
+              <div class="format-field">
+                <span class="format-field-label">Color theme</span>
+                <mat-button-toggle-group
+                  class="theme-preference-toggle"
+                  [value]="draftTheme"
+                  (change)="setThemePreference($event.value)"
+                  aria-label="Color theme">
+                  @for (choice of themePreferenceChoices; track choice.value) {
+                    <mat-button-toggle [value]="choice.value">{{ choice.label }}</mat-button-toggle>
+                  }
+                </mat-button-toggle-group>
+              </div>
+              <p class="format-hint">
+                <mat-icon aria-hidden="true">info</mat-icon>
+                @if (draftTheme === 'system') {
+                  Follows your device light/dark setting.
+                } @else {
+                  Using <strong>{{ draftTheme }}</strong> mode.
+                }
               </p>
             </section>
 
