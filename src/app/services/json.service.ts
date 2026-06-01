@@ -17,9 +17,7 @@ import {MockDataSimulatorOptions, StructureBlueprint} from '../types/mock-data.t
  * This service acts as a facade for all JSON-related operations
  * It delegates to specialized services to follow the Single Responsibility Principle
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonService {
     constructor(
         private validationService: JsonValidationService,
@@ -133,7 +131,7 @@ export class JsonService {
     /**
      * Repairs relaxed JSON (JSON5) into strict RFC JSON (explicit user action only).
      */
-    repairLenientJson(jsonString: string): string {
+    repairLenientJson(jsonString: string): Promise<string> {
         return this.formattingService.repairLenientJson(jsonString);
     }
 
@@ -162,33 +160,21 @@ export class JsonService {
      * @param jsonString The JSON string to lint
      * @returns The linted JSON string
      */
-    lintJson(jsonString: string): string {
-        const result = this.validationService.lintJson(jsonString);
+    async lintJson(jsonString: string): Promise<string> {
+        const result = await this.validationService.lintJson(jsonString);
         return result.fixedJson || jsonString;
     }
 
-    /**
-     * Validates JSON against a schema
-     * @param jsonString The JSON string to validate
-     * @param schemaString The JSON schema string
-     * @returns An object with validation result and errors if any
-     */
-    validateJsonSchema(jsonString: string, schemaString: string): { isValid: boolean, errors?: any[] } {
+    validateJsonSchema(jsonString: string, schemaString: string): Promise<{ isValid: boolean; errors?: any[] }> {
         return this.schemaService.validateJsonSchema(jsonString, schemaString);
     }
 
-    /**
-     * Compare two JSON objects and return the differences
-     * @param leftJsonString The first JSON string
-     * @param rightJsonString The second JSON string
-     * @returns An object with the comparison result and HTML representation
-     */
-    compareJson(leftJsonString: string, rightJsonString: string): {
-        delta: any,
-        htmlDiff: string,
-        hasChanges: boolean
-    } {
-        const result = this.comparisonService.compareJson(leftJsonString, rightJsonString);
+    async compareJson(leftJsonString: string, rightJsonString: string): Promise<{
+        delta: any;
+        htmlDiff: string;
+        hasChanges: boolean;
+    }> {
+        const result = await this.comparisonService.compareJson(leftJsonString, rightJsonString);
         return {
             delta: result.differences,
             htmlDiff: result.formattedDiff || '',
@@ -211,8 +197,8 @@ export class JsonService {
      * @param json5String The JSON5 string to validate
      * @returns An object with validation result and error message if any
      */
-    validateJSON5(json5String: string): { isValid: boolean; errorMessage: string } {
-        const result = this.validationService.validateJSON5(json5String);
+    async validateJSON5(json5String: string): Promise<{ isValid: boolean; errorMessage: string }> {
+        const result = await this.validationService.validateJSON5(json5String);
         return {
             isValid: result.isValid,
             errorMessage: result.error || ''
@@ -235,7 +221,7 @@ export class JsonService {
      * @param jsonString The JSON string to generate a schema for
      * @returns The generated schema as a string
      */
-    generateJsonSchema(jsonString: string): string {
+    generateJsonSchema(jsonString: string): Promise<string> {
         return this.schemaService.generateJsonSchema(jsonString);
     }
 
@@ -282,13 +268,12 @@ export class JsonService {
      * @param jsonPath The JSONPath expression
      * @returns The query result as a string
      */
-    queryJsonPath(jsonString: string, jsonPath: string): string {
+    async queryJsonPath(jsonString: string, jsonPath: string): Promise<string> {
         try {
-            // Sanitize both the JSON input and the JSONPath expression
             const sanitizedJson = this.sanitizationService.sanitizeJsonInput(jsonString);
             const sanitizedPath = this.sanitizationService.sanitizeString(jsonPath);
-            
-            const result = this.pathService.queryJsonPath(sanitizedJson, sanitizedPath);
+
+            const result = await this.pathService.queryJsonPath(sanitizedJson, sanitizedPath);
 
             if (result.error) {
                 throw new Error(result.error);
@@ -297,7 +282,6 @@ export class JsonService {
             return JSON.stringify(result.result, null, 2);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            // Sanitize error message before returning
             const sanitizedError = this.sanitizationService.sanitizeString(errorMessage);
             throw new Error(`Error querying JSON path: ${sanitizedError}`);
         }
@@ -371,7 +355,7 @@ export class JsonService {
      * @param path The JSONPath expression
      * @returns The query result
      */
-    private evaluateJsonPath(obj: any, path: string): any {
+    private evaluateJsonPath(obj: any, path: string): Promise<any> {
         return this.pathService.evaluateJsonPath(obj, path);
     }
 }

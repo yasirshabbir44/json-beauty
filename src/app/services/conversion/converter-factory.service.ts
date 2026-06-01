@@ -25,9 +25,7 @@ export enum ConversionType {
  * Factory service for creating converters
  * Implements the Factory pattern to create appropriate converter instances
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class ConverterFactoryService {
     constructor(
         private jsonToYamlConverter: JsonToYamlConverter,

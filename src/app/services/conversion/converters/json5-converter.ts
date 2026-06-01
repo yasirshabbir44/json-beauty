@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import * as JSON5 from 'json5';
+import {loadJson5} from '../../../utils/lazy-import.util';
 import {IFormatToJsonConverter} from '../../../interfaces/converters/converter.interface';
 
 /**
@@ -18,12 +18,10 @@ export class Json5ToJsonConverter implements IFormatToJsonConverter<string> {
      * @param json5String The JSON5 string to convert
      * @returns The JSON string
      */
-    convert(json5String: string): string {
+    async convert(json5String: string): Promise<string> {
         try {
-            // Parse the JSON5 string
+            const JSON5 = await loadJson5();
             const parsedObj = JSON5.parse(json5String || this.DEFAULT_EMPTY_OBJECT);
-
-            // Convert to formatted JSON string
             return JSON.stringify(parsedObj, null, this.getIndentation());
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);

@@ -1,37 +1,28 @@
 import {Injectable} from '@angular/core';
 import {IJsonSchemaService} from '../../interfaces';
-import Ajv from 'ajv';
-import * as generateSchemaLib from 'generate-schema';
+import {createAjv, loadGenerateSchema} from '../../utils/lazy-import.util';
 
 /**
  * Service for JSON schema operations
- * Follows the Single Responsibility Principle by focusing only on schema concerns
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonSchemaService implements IJsonSchemaService {
-    private ajv = new Ajv({allErrors: true});
-    private generateSchema = generateSchemaLib.json;
-
-    // Default indentation settings
+    private ajvPromise?: Promise<import('ajv').default>;
     private indentSize = 2;
     private indentChar = ' ';
 
-    constructor() {
+    private getAjv(): Promise<import('ajv').default> {
+        if (!this.ajvPromise) {
+            this.ajvPromise = createAjv({allErrors: true});
+        }
+        return this.ajvPromise;
     }
 
-    /**
-     * Generates a JSON schema from a JSON document
-     * @param jsonString The JSON string to generate a schema for
-     * @returns The generated schema as a string
-     */
-    generateJsonSchema(jsonString: string): string {
+    async generateJsonSchema(jsonString: string): Promise<string> {
         try {
+            const generateSchema = await loadGenerateSchema();
             const jsonObj = JSON.parse(jsonString || '{}');
-            const schema = this.generateSchema(jsonObj);
-
-            // Format the schema with proper indentation
+            const schema = generateSchema(jsonObj);
             return JSON.stringify(schema, null, this.indentChar.repeat(this.indentSize));
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -39,32 +30,22 @@ export class JsonSchemaService implements IJsonSchemaService {
         }
     }
 
-    /**
-     * Validates a JSON string against a JSON schema
-     * @param jsonString The JSON string to validate
-     * @param schemaString The JSON schema string
-     * @returns Object containing validation result and any errors
-     */
-    validateJsonSchema(jsonString: string, schemaString: string): {
+    async validateJsonSchema(jsonString: string, schemaString: string): Promise<{
         isValid: boolean;
         errors?: any[];
-    } {
+    }> {
         try {
-            // Parse the JSON and schema
+            const ajv = await this.getAjv();
             const json = JSON.parse(jsonString);
             const schema = JSON.parse(schemaString);
-
-            // Validate the JSON against the schema
-            const validate = this.ajv.compile(schema);
+            const validate = ajv.compile(schema);
             const isValid = validate(json);
 
-            // Return the validation result
             return {
-                isValid,
+                isValid: !!isValid,
                 errors: validate.errors || []
             };
         } catch (error) {
-            // If there's an error parsing the JSON or schema, return an error
             const errorMessage = error instanceof Error ? error.message : String(error);
             return {
                 isValid: false,

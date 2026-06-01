@@ -16,17 +16,8 @@ import {
 import {FormControl} from '@angular/forms';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 import {Subscription} from 'rxjs';
-import * as ace from 'ace-builds';
 import {JsonValue} from '../../types/json.types';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-dracula';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/ext-searchbox';
-import 'ace-builds/src-noconflict/ext-code_lens';
-import 'ace-builds/src-noconflict/ext-modelist';
-import 'ace-builds/src-noconflict/ext-prompt';
-import 'ace-builds/src-noconflict/ext-linking';
+import {aceRequire, ensureAceTheme, loadAceEditorLibs, AceNamespace} from '../../utils/ace-loader.util';
 
 @Component({
     selector: 'app-json-output-editor',
@@ -78,6 +69,8 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
     outputEditor: AceAjax.Editor | null = null;
     isFullScreen: boolean = false;
+    private aceLib: AceNamespace | null = null;
+    private outputEditorInitStarted = false;
     private jsonOutputSubscription: Subscription | null = null;
     private yamlOutputSubscription: Subscription | null = null;
 
@@ -92,7 +85,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     ngAfterViewInit(): void {
         // Initialize output editor after view has been initialized
         setTimeout(() => {
-            this.initializeOutputEditor();
+            void this.initializeOutputEditor();
         });
     }
 
@@ -134,7 +127,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
 
         // Update editor theme when isDarkTheme changes
         if (changes['isDarkTheme'] && this.outputEditor) {
-            this.updateOutputEditorTheme();
+            void this.updateOutputEditorTheme();
         }
 
         // Handle changes to selectedOutputFormat
@@ -143,7 +136,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
             if (this.selectedOutputFormat === 'json' && !this.showTreeView) {
                 // If editor isn't initialized yet, initialize it
                 if (!this.outputEditor) {
-                    setTimeout(() => this.initializeOutputEditor(), 0);
+                    setTimeout(() => void this.initializeOutputEditor(), 0);
                 } else {
                     // If already initialized, ensure it's properly sized and updated
                     if (this.outputEditor) {
@@ -179,7 +172,7 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 // Short delay to allow DOM to update before initializing/updating editor
                 setTimeout(() => {
                     if (!this.outputEditor) {
-                        this.initializeOutputEditor();
+                        void this.initializeOutputEditor();
                     } else {
                         this.outputEditor.setValue(this.jsonOutput.value || '', -1);
                         this.outputEditor.renderer.updateFull(true);
@@ -202,39 +195,36 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
     /**
      * Initializes the output editor with proper configuration
      */
-    initializeOutputEditor(): void {
-        // Check if the output editor element is available
+    /** Called by parent when output pane becomes visible before Ace has mounted. */
+    async initializeOutputEditor(): Promise<void> {
         if (!this.outputEditorElement || !this.outputEditorElement.nativeElement) {
-            // If not available and we're in JSON mode without tree view, try again after a delay
             if (!this.showTreeView && this.selectedOutputFormat === 'json') {
-                setTimeout(() => {
-                    this.initializeOutputEditor();
-                }, 100);
+                setTimeout(() => void this.initializeOutputEditor(), 100);
             }
             return;
         }
 
-        // If the output editor is already initialized, don't initialize it again
-        if (this.outputEditor) {
+        if (this.outputEditor || this.outputEditorInitStarted) {
             return;
         }
+        this.outputEditorInitStarted = true;
 
         // Constants for error messages
         const EDITOR_INIT_ERROR = 'Failed to initialize editor';
         const ACE_CONFIG_ERROR = 'Failed to configure Ace editor';
 
         try {
-            ace.config.set('basePath', '/assets/ace');
-            ace.config.setModuleUrl('ace/mode/json_worker', '/assets/ace/worker-json.js');
+            const ace = await loadAceEditorLibs();
+            this.aceLib = ace;
+            await ensureAceTheme(ace, this.isDarkTheme);
 
-            // Initialize the output editor
             this.outputEditor = ace.edit(this.outputEditorElement.nativeElement);
 
             if (!this.outputEditor) {
                 throw new Error(EDITOR_INIT_ERROR);
             }
 
-            this.updateOutputEditorTheme();
+            await this.updateOutputEditorTheme();
             this.outputEditor.session.setMode('ace/mode/json');
             this.outputEditor.setOptions({
                 readOnly: true,
@@ -289,19 +279,18 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
                 this.resizeEditorSafely();
             }
         } catch (error) {
+            this.outputEditorInitStarted = false;
             const errorMessage = error instanceof Error ? error.message : String(error);
             console.error(`${EDITOR_INIT_ERROR}: ${errorMessage}`);
         }
     }
 
-    /**
-     * Updates the editor theme based on the isDarkTheme setting
-     * Switches between dracula (dark) and github (light) themes
-     */
-    updateOutputEditorTheme(): void {
-        if (this.outputEditor) {
-            this.outputEditor.setTheme(this.isDarkTheme ? 'ace/theme/dracula' : 'ace/theme/github');
+    private async updateOutputEditorTheme(): Promise<void> {
+        if (!this.outputEditor || !this.aceLib) {
+            return;
         }
+        await ensureAceTheme(this.aceLib, this.isDarkTheme);
+        this.outputEditor.setTheme(this.isDarkTheme ? 'ace/theme/dracula' : 'ace/theme/github');
     }
 
     /**
@@ -400,23 +389,22 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      * Searches for text in the output editor
      * @param searchText The text to search for
      */
-    searchInJson(searchText: string): void {
+    async searchInJson(searchText: string): Promise<void> {
         if (!searchText) {
             this.clearSearch();
             return;
         }
 
         if (this.outputEditor) {
-            // Use Ace editor's search functionality
-            const search = ace.require('ace/search').Search;
-            const searchInstance = new search();
+            const searchModule = await aceRequire<{Search: new () => AceAjax.Search}>('ace/search');
+            const searchInstance = new searchModule.Search();
 
             searchInstance.set({
                 needle: searchText,
                 caseSensitive: false,
                 wholeWord: false,
                 regExp: false,
-                range: null,
+                range: undefined,
                 wrap: true,
                 preventScroll: false
             });

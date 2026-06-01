@@ -18,32 +18,21 @@ export interface IJsonValidationService {
      * @param json5String The JSON5 string to validate
      * @returns Object containing validation result and any errors
      */
-    validateJSON5(json5String: string): { isValid: boolean; error?: string; errorPosition?: number };
+    validateJSON5(json5String: string): Promise<{ isValid: boolean; error?: string; errorPosition?: number }>;
 
     /**
      * Performs linting on a JSON string
      * @param jsonString The JSON string to lint
      * @returns Object containing lint results
      */
-    lintJson(jsonString: string): {
+    lintJson(jsonString: string): Promise<{
         isValid: boolean;
         formattingIssues: string[];
         suggestions: string[];
         fixedJson?: string;
         repairAvailable?: boolean;
         fixesApplied?: JsonRepairFixKind[];
-    };
-
-    /**
-     * Validates a JSON string against a JSON schema
-     * @param jsonString The JSON string to validate
-     * @param schemaString The JSON schema string
-     * @returns Object containing validation result and any errors
-     */
-    validateJsonSchema(jsonString: string, schemaString: string): {
-        isValid: boolean;
-        errors?: any[];
-    };
+    }>;
 
     /**
      * Gets context around an error position in a JSON string

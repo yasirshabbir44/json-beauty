@@ -7,9 +7,7 @@ import {ConversionType, ConverterFactoryService} from './converter-factory.servi
  * Implements the Facade pattern to provide a simplified interface to the conversion subsystem
  * Uses Strategy pattern (via converters) and Factory pattern (via converterFactory)
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonConversionService implements IJsonConversionService {
     constructor(private converterFactory: ConverterFactoryService) {
     }

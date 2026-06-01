@@ -23,9 +23,9 @@ export interface IJsonFormattingService {
 
     fixInconsistentIndentation(jsonString: string): string;
 
-    repairLenientJson(jsonString: string): string;
+    repairLenientJson(jsonString: string): Promise<string>;
 
-    fixMyJson(jsonString: string): JsonRepairResult;
+    fixMyJson(jsonString: string): Promise<JsonRepairResult>;
 
     sortObjectKeys(obj: unknown): unknown;
 }

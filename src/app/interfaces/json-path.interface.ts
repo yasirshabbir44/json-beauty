@@ -25,10 +25,10 @@ export interface IJsonPathService {
      * @param jsonPath The JSON path expression
      * @returns The query result
      */
-    queryJsonPath(jsonString: string, jsonPath: string): {
+    queryJsonPath(jsonString: string, jsonPath: string): Promise<{
         result: any;
         error?: string;
-    };
+    }>;
 
     /**
      * Evaluates a JSON path against a JSON object
@@ -36,5 +36,5 @@ export interface IJsonPathService {
      * @param path The JSON path
      * @returns The evaluation result
      */
-    evaluateJsonPath(obj: any, path: string): any;
+    evaluateJsonPath(obj: any, path: string): Promise<any>;
 }

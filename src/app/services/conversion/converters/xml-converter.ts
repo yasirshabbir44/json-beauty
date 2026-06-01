@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
+import {loadXml2js} from '../../../utils/lazy-import.util';
 import {IFormatToJsonConverter, IJsonToFormatConverter} from '../../../interfaces/converters/converter.interface';
-import {Builder, parseString} from 'xml2js';
 
 /**
  * Base class for XML converters with common functionality
@@ -42,20 +42,15 @@ export class JsonToXmlConverter extends BaseXmlConverter implements IJsonToForma
      * @param jsonString The JSON string to convert
      * @returns The XML string
      */
-    convert(jsonString: string): string {
+    async convert(jsonString: string): Promise<string> {
         try {
             const jsonObj = JSON.parse(jsonString || this.DEFAULT_EMPTY_OBJECT);
-
-            // Create a root element to wrap the JSON
             const rootObj = {[this.XML_ROOT_ELEMENT]: jsonObj};
-
-            // Create a new XML builder with pretty formatting
+            const {Builder} = await loadXml2js();
             const builder = new Builder({
                 renderOpts: {pretty: true, indent: this.getIndentString(1)},
                 headless: true
             });
-
-            // Convert the object to XML
             return builder.buildObject(rootObj);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
@@ -75,7 +70,8 @@ export class XmlToJsonConverter extends BaseXmlConverter implements IFormatToJso
      * @param xmlString The XML string to convert
      * @returns Promise resolving to the JSON string
      */
-    convert(xmlString: string): Promise<string> {
+    async convert(xmlString: string): Promise<string> {
+        const {parseString} = await loadXml2js();
         return new Promise((resolve, reject) => {
             parseString(xmlString, {
                 explicitArray: false,

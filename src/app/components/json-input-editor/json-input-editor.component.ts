@@ -1,16 +1,6 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, OnInit, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, Renderer2, SimpleChanges, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import * as ace from 'ace-builds';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-dracula';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import 'ace-builds/src-noconflict/ext-searchbox';
-import 'ace-builds/src-noconflict/ext-code_lens';
-import 'ace-builds/src-noconflict/ext-modelist';
-import 'ace-builds/src-noconflict/ext-prompt';
-import 'ace-builds/src-noconflict/ext-linking';
-import {JsonService} from '../../services/json.service';
+import {aceRequire, ensureAceTheme, loadAceEditorLibs, AceNamespace} from '../../utils/ace-loader.util';
 import {InputSanitizationService} from '../../services/security/input-sanitization.service';
 import {SecurityUtilsService} from '../../services/security/security-utils.service';
 
@@ -20,7 +10,7 @@ import {SecurityUtilsService} from '../../services/security/security-utils.servi
     styleUrls: ['./json-input-editor.component.scss'],
     standalone: false,
 })
-export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
+export class JsonInputEditorComponent implements OnChanges, AfterViewInit, OnDestroy {
     @ViewChild('editor', {static: true}) editorElement!: ElementRef;
     @ViewChild('editorSection', {static: true}) editorSectionElement!: ElementRef;
     @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
@@ -39,28 +29,22 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
     jsonInput = new FormControl('');
     isFullScreen: boolean = false;
     private errorMarkerId: number | null = null;
+    private aceLib: AceNamespace | null = null;
+    private editorInitStarted = false;
 
     // Constants for error messages
     private readonly EDITOR_INIT_ERROR = 'Failed to initialize editor';
     private readonly EDITOR_NOT_INITIALIZED = 'Editor is not initialized';
 
     constructor(
-        private jsonService: JsonService,
         private sanitizationService: InputSanitizationService,
         private securityUtils: SecurityUtilsService,
         private renderer: Renderer2
     ) {
     }
 
-    ngOnInit(): void {
-        this.initializeEditor();
-    }
-
     ngAfterViewInit(): void {
-        // Force initial render
-        if (this.editor) {
-            this.editor.renderer.updateFull(true);
-        }
+        void this.initializeEditor();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -69,7 +53,7 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
         }
 
         if (changes['isDarkTheme']) {
-            this.updateEditorTheme();
+            void this.updateEditorTheme();
         }
     }
     
@@ -118,14 +102,19 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
         }, delay);
     }
 
-    initializeEditor(): void {
-        try {
-            ace.config.set('basePath', '/assets/ace');
-            ace.config.setModuleUrl('ace/mode/json_worker', '/assets/ace/worker-json.js');
+    private async initializeEditor(): Promise<void> {
+        if (this.editorInitStarted || this.editor) {
+            return;
+        }
+        this.editorInitStarted = true;
 
-            // Initialize input editor
+        try {
+            const ace = await loadAceEditorLibs();
+            this.aceLib = ace;
+            await ensureAceTheme(ace, this.isDarkTheme);
+
             this.editor = ace.edit(this.editorElement.nativeElement);
-            this.updateEditorTheme();
+            await this.updateEditorTheme();
 
             if (!this.editor) {
                 console.error(this.EDITOR_INIT_ERROR);
@@ -187,15 +176,19 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
             ed.selection.on('changeCursor', this.boundEmitCursor);
             this.emitCursorPosition();
             this.updateErrorHighlight();
+            this.editor.renderer.updateFull(true);
         } catch (error) {
+            this.editorInitStarted = false;
             console.error(`${this.EDITOR_INIT_ERROR}: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
-    updateEditorTheme(): void {
-        if (this.editor) {
-            this.editor.setTheme(this.isDarkTheme ? 'ace/theme/dracula' : 'ace/theme/github');
+    private async updateEditorTheme(): Promise<void> {
+        if (!this.editor || !this.aceLib) {
+            return;
         }
+        await ensureAceTheme(this.aceLib, this.isDarkTheme);
+        this.editor.setTheme(this.isDarkTheme ? 'ace/theme/dracula' : 'ace/theme/github');
     }
 
     /**
@@ -362,23 +355,22 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
      * Searches for text in the editor
      * @param searchText The text to search for
      */
-    searchInJson(searchText: string): void {
+    async searchInJson(searchText: string): Promise<void> {
         if (!searchText) {
             this.clearSearch();
             return;
         }
 
         if (this.editor) {
-            // Use Ace editor's search functionality
-            const search = ace.require('ace/search').Search;
-            const searchInstance = new search();
+            const searchModule = await aceRequire<{Search: new () => AceAjax.Search}>('ace/search');
+            const searchInstance = new searchModule.Search();
 
             searchInstance.set({
                 needle: searchText,
                 caseSensitive: false,
                 wholeWord: false,
                 regExp: false,
-                range: null,
+                range: undefined,
                 wrap: true,
                 preventScroll: false
             });
@@ -420,13 +412,14 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
     /**
      * Selects a range by UTF-16 string offsets and scrolls it into view (for search / replace panel).
      */
-    revealDocumentOffsets(startOffset: number, length: number): void {
+    async revealDocumentOffsets(startOffset: number, length: number): Promise<void> {
         if (!this.editor || startOffset < 0 || length < 0) {
             return;
         }
 
         const editor = this.editor as any;
-        const RangeCtor = ace.require('ace/range').Range;
+        const rangeModule = await aceRequire<{Range: new (sr: number, sc: number, er: number, ec: number) => unknown}>('ace/range');
+        const RangeCtor = rangeModule.Range;
         const doc = editor.session.getDocument();
         const textLen = doc.getValue().length;
         const safeStart = Math.min(startOffset, textLen);
@@ -442,6 +435,10 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
     }
 
     private updateErrorHighlight(): void {
+        void this.applyErrorHighlight();
+    }
+
+    private async applyErrorHighlight(): Promise<void> {
         if (!this.editor) {
             return;
         }
@@ -460,8 +457,8 @@ export class JsonInputEditorComponent implements OnInit, OnChanges, AfterViewIni
         };
         const maxRow = Math.max(0, session.getLength() - 1);
         const safeRow = Math.min(row, maxRow);
-        const RangeCtor = ace.require('ace/range').Range;
-        const markerRange = new RangeCtor(safeRow, 0, safeRow, 1);
+        const rangeModule = await aceRequire<{Range: new (sr: number, sc: number, er: number, ec: number) => unknown}>('ace/range');
+        const markerRange = new rangeModule.Range(safeRow, 0, safeRow, 1);
 
         this.errorMarkerId = session.addMarker(markerRange, 'json-error-line', 'fullLine');
         session.setAnnotations([

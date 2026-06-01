@@ -40,6 +40,17 @@ import { JsonDialogsComponent } from '../../components/json-dialogs/json-dialogs
 // Services
 import { JsonService } from '../../services/json.service';
 import { VersionHistoryService } from '../../services/history/version-history.service';
+import { JsonValidationService } from '../../services/validation/json-validation.service';
+import { JsonFormattingService } from '../../services/formatting/json-formatting.service';
+import { JsonConversionService } from '../../services/conversion/json-conversion.service';
+import { ConverterFactoryService } from '../../services/conversion/converter-factory.service';
+import { JsonSchemaService } from '../../services/schema/json-schema.service';
+import { JsonComparisonService } from '../../services/comparison/json-comparison.service';
+import { JsonPathService } from '../../services/path/json-path.service';
+import { JsonRepairService } from '../../services/formatting/json-repair.service';
+import { EditorLibPreloadService } from '../../services/editor/editor-lib-preload.service';
+import { ConvertersModule } from '../../services/conversion/converters/converters.module';
+import { WorkerModule } from '../../services/worker/worker.module';
 
 // Shared Module
 import { SharedModule } from '../shared/shared.module';
@@ -71,6 +82,8 @@ const routes: Routes = [
     ClipboardModule,
     RouterModule.forChild(routes),
     SharedModule,
+    ConvertersModule,
+    WorkerModule,
     // Angular Material
     MatButtonModule,
     MatIconModule,
@@ -91,7 +104,16 @@ const routes: Routes = [
     MatProgressSpinnerModule
   ],
   providers: [
+    EditorLibPreloadService,
     JsonService,
+    JsonValidationService,
+    JsonFormattingService,
+    JsonConversionService,
+    ConverterFactoryService,
+    JsonSchemaService,
+    JsonComparisonService,
+    JsonPathService,
+    JsonRepairService,
     VersionHistoryService
   ],
   exports: [

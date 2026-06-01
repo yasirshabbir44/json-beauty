@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {IJsonFormattingService} from '../../interfaces';
 import {DEFAULT_FORMATTING_OPTIONS, FormattingOptions} from '../../models/json-editor.models';
 import {JsonRepairResult} from '../../types/json-repair.types';
-import * as JSON5 from 'json5';
+import {getJson5Sync, loadJson5} from '../../utils/lazy-import.util';
 import {JsonRepairService} from './json-repair.service';
 
 const PREVIEW_SAMPLE = {
@@ -16,9 +16,7 @@ const PREVIEW_SAMPLE = {
 /**
  * Service for JSON formatting operations
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class JsonFormattingService implements IJsonFormattingService {
     private preferences: FormattingOptions = { ...DEFAULT_FORMATTING_OPTIONS };
 
@@ -49,6 +47,10 @@ export class JsonFormattingService implements IJsonFormattingService {
         try {
             jsonObj = JSON.parse(source);
         } catch {
+            const JSON5 = getJson5Sync();
+            if (!JSON5) {
+                throw new Error('Invalid JSON. Open the editor to load extended parsers, or fix syntax errors.');
+            }
             jsonObj = JSON5.parse(source);
         }
 
@@ -90,14 +92,14 @@ export class JsonFormattingService implements IJsonFormattingService {
         }
     }
 
-    repairLenientJson(jsonString: string): string {
-        return this.fixMyJson(jsonString).repairedJson;
+    async repairLenientJson(jsonString: string): Promise<string> {
+        return (await this.fixMyJson(jsonString)).repairedJson;
     }
 
     /**
      * Deterministic fault-tolerant recovery for invalid JSON (Fix My JSON).
      */
-    fixMyJson(jsonString: string): JsonRepairResult {
+    async fixMyJson(jsonString: string): Promise<JsonRepairResult> {
         const source = (jsonString || '').trim();
         if (!source) {
             return {
@@ -109,7 +111,7 @@ export class JsonFormattingService implements IJsonFormattingService {
         }
 
         const indentSize = this.preferences.indentSize;
-        const result = this.jsonRepairService.repair(source, indentSize);
+        const result = await this.jsonRepairService.repair(source, indentSize);
         if (!result.success) {
             return result;
         }
