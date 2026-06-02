@@ -141,16 +141,34 @@ a {
 .elevation-3 { box-shadow: var(--jb-shadow-lg); }
 .elevation-4 { box-shadow: var(--jb-shadow-xl); }
 
+@media (max-width: 991px) {
+  :root {
+    --jb-editor-pane-h: clamp(240px, calc(100dvh - 300px), 72dvh);
+    --jb-editor-pane-min-h: 200px;
+    --jb-workspace-min-h: auto;
+  }
+}
+
 @media (max-width: 768px) {
   .container { padding: 0 16px; }
   body { font-size: 15px; }
   h1 { font-size: 2rem; }
   h2 { font-size: 1.75rem; }
+
+  :root {
+    --jb-editor-pane-h: clamp(220px, calc(100dvh - 280px), 68dvh);
+    --jb-editor-pane-min-h: 180px;
+  }
 }
 
 @media (max-width: 576px) {
   .container { padding: 0 12px; }
   body { font-size: 14px; }
+
+  :root {
+    --jb-editor-pane-h: clamp(200px, calc(100dvh - 260px), 62dvh);
+    --jb-editor-pane-min-h: 160px;
+  }
 }
 
 :focus-visible {
