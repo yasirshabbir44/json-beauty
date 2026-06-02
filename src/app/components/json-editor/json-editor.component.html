@@ -280,7 +280,7 @@
                 <mat-icon>view_week</mat-icon>
                 Split
               </button>
-              @if (workspaceLayout === 'single') {
+              @if (workspaceLayout === 'single' && !isCompactViewport) {
                 <button type="button" mat-stroked-button
                   (click)="setSinglePaneFocus('input')" [class.active-action]="singlePaneFocus === 'input'"
                   matTooltip="Show input">
@@ -288,7 +288,7 @@
                   In
                 </button>
               }
-              @if (workspaceLayout === 'single') {
+              @if (workspaceLayout === 'single' && !isCompactViewport) {
                 <button type="button" mat-stroked-button
                   (click)="setSinglePaneFocus('output')" [class.active-action]="singlePaneFocus === 'output'"
                   matTooltip="Show output">
@@ -297,7 +297,7 @@
                 </button>
               }
               <button type="button" mat-stroked-button (click)="togglePanelPlacement()"
-                [disabled]="workspaceLayout !== 'dual'"
+                [disabled]="workspaceLayout !== 'dual' || isCompactViewport"
                 matTooltip="Swap panes">
                 <mat-icon>swap_horiz</mat-icon>
                 Swap
@@ -362,7 +362,7 @@
           </div>
         }
 
-        @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized) {
+        @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized && !isCompactViewport) {
           <div class="split-controls">
             <mat-slide-toggle [(ngModel)]="syncScrollEnabled" (ngModelChange)="onSyncScrollChange($event)">
               Sync scroll
@@ -372,7 +372,7 @@
           </div>
         }
 
-        @if (isCompactViewport && workspaceLayout === 'single') {
+        @if (isCompactViewport) {
           <div class="mobile-pane-switcher" role="tablist" aria-label="Editor pane">
             <button type="button" role="tab" mat-stroked-button
               [attr.aria-selected]="singlePaneFocus === 'input'"
@@ -423,13 +423,14 @@
           }
           <div [class.input-maximized]="isInputMaximized"
             [class.output-maximized]="isOutputMaximized"
-            [class.single-pane-mode]="workspaceLayout === 'single'"
-            [class.dual-pane-mode]="workspaceLayout === 'dual'"
+            [class.single-pane-mode]="workspaceLayout === 'single' || isCompactViewport"
+            [class.dual-pane-mode]="workspaceLayout === 'dual' && !isCompactViewport"
             [class.input-panel-last]="!isInputPanelFirst"
             [style.--input-panel-width.%]="inputPanelWidth"
             [class.jb-panel-resizing]="panelResizing"
+            [class.compact-single-pane]="isCompactViewport"
             class="editor-columns">
-            @if (workspaceLayout === 'dual' || singlePaneFocus === 'input') {
+            @if (showInputPane) {
               <app-json-input-editor
                 (cursorPositionChange)="onInputCursorPosition($event)"
                 (jsonInputChange)="onJsonInputChange($event)"
@@ -444,7 +445,7 @@
               </app-json-input-editor>
             }
 
-            @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized) {
+            @if (workspaceLayout === 'dual' && !isInputMaximized && !isOutputMaximized && !isCompactViewport) {
               <div (pointerdown)="startPanelResize($event)"
                 (dblclick)="inputPanelWidth = 50"
                 aria-label="Resize input and output panels"
@@ -458,7 +459,7 @@
               </div>
             }
 
-            @if (workspaceLayout === 'dual' || singlePaneFocus === 'output') {
+            @if (showOutputPane) {
               <app-json-output-editor
                 (convertToCsv)="convertToCsv()"
                 (convertToXml)="convertToXml()"

@@ -1,8 +1,10 @@
 .editor-container {
   width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   font-family: var(--jb-font-sans);
   box-sizing: border-box;
+  overflow-x: hidden;
 
   &--compact {
     .split-hint--stacked {
@@ -685,5 +687,177 @@
     app-json-output-editor {
       flex: 1 1 100%;
     }
+  }
+
+  &.compact-single-pane {
+    flex-direction: column;
+    min-height: 0;
+
+    app-json-input-editor,
+    app-json-output-editor {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+// Compact viewport — must live in component SCSS (encapsulation beats global overrides)
+.editor-container--compact {
+  .editor-card {
+    overflow: visible;
+  }
+
+  .editor-layout {
+    height: auto;
+    overflow: visible;
+  }
+
+  .editor-control-panel {
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .editor-menubar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px;
+    overflow: visible;
+    max-width: 100%;
+
+    .feature-nav-btn {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      margin: 0;
+      font-size: 0.75rem;
+      font-weight: 600;
+
+      mat-icon {
+        margin-right: 4px;
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    // File · Format · Search | Diff · Quick Diff (wide) | Tools (full row)
+    .feature-nav-btn.quick-diff-btn {
+      grid-column: span 2;
+      margin-left: 0;
+    }
+
+    .feature-nav-btn:last-of-type {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .editor-action-toolbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 10px;
+    overflow: visible;
+    max-width: 100%;
+    align-items: stretch;
+
+    .toolbar-divider,
+    .toolbar-spacer,
+    .toolbar-group-layout {
+      display: none;
+    }
+
+    .toolbar-group {
+      display: contents;
+    }
+
+    .toolbar-group-label {
+      grid-column: 1 / -1;
+      margin: 6px 0 2px;
+      padding-top: 6px;
+      border-top: 1px solid var(--jb-border);
+      font-size: 0.625rem;
+      letter-spacing: 0.1em;
+    }
+
+    .toolbar-group-primary .toolbar-group-label {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .toolbar-primary,
+    .toolbar-clear {
+      grid-column: 1 / -1;
+      width: 100%;
+      min-height: 42px;
+    }
+
+    button[mat-flat-button],
+    button[mat-stroked-button] {
+      width: 100%;
+      min-width: 0;
+      min-height: 40px;
+      margin: 0;
+      justify-content: center;
+      font-size: 0.8125rem;
+    }
+  }
+
+  .editor-workspace-panel {
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .editor-columns {
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+
+    app-json-input-editor,
+    app-json-output-editor {
+      flex: 1 1 100%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .editor-container--compact {
+    .editor-menubar .feature-nav-btn {
+      font-size: 0.6875rem;
+      padding: 0 4px;
+
+      mat-icon {
+        margin-right: 2px;
+      }
+    }
+
+    .editor-action-toolbar button[mat-flat-button],
+    .editor-action-toolbar button[mat-stroked-button] {
+      font-size: 0.75rem;
+      padding: 0 6px;
+    }
+  }
+}
+
+// Material buttons ignore width:100% on host — stretch the inner surface
+.editor-container--compact {
+  .editor-menubar .feature-nav-btn,
+  .editor-action-toolbar button[mat-flat-button],
+  .editor-action-toolbar button[mat-stroked-button] {
+    ::ng-deep .mat-mdc-button-touch-target,
+    ::ng-deep .mdc-button {
+      width: 100%;
+    }
+  }
+
+  .editor-menubar .feature-nav-btn ::ng-deep .mdc-button {
+    justify-content: center;
+    padding: 0 8px;
   }
 }
