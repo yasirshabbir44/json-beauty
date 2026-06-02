@@ -92,6 +92,10 @@ export class JsonInputEditorComponent implements OnChanges, AfterViewInit, OnDes
      * Utility method to safely resize the editor after a short delay
      * @param delay Time in milliseconds to wait before resizing
      */
+    refreshLayout(delay: number = 100): void {
+        this.resizeEditorSafely(delay);
+    }
+
     private resizeEditorSafely(delay: number = 100): void {
         if (!this.editor) return;
 

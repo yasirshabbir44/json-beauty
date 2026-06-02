@@ -765,8 +765,27 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         this.scheduleScrollSyncBind();
     }
 
+    /** Desktop dual: both panes. Compact or single layout: one pane via `singlePaneFocus`. */
+    get showInputPane(): boolean {
+        if (this.isCompactViewport) {
+            return this.singlePaneFocus === 'input';
+        }
+        return this.workspaceLayout === 'dual' || this.singlePaneFocus === 'input';
+    }
+
+    get showOutputPane(): boolean {
+        if (this.isCompactViewport) {
+            return this.singlePaneFocus === 'output';
+        }
+        return this.workspaceLayout === 'dual' || this.singlePaneFocus === 'output';
+    }
+
     setSinglePaneFocus(panel: 'input' | 'output'): void {
+        if (this.singlePaneFocus === panel) {
+            return;
+        }
         this.singlePaneFocus = panel;
+        this.scheduleVisiblePaneResize();
     }
 
     togglePanelPlacement(): void {
@@ -893,8 +912,11 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
+        this.syncViewportMode();
+
         // Initialize the input editor with the initial JSON value
         setTimeout(() => {
+            this.scheduleVisiblePaneResize();
             if (this.jsonInputEditor) {
                 this.jsonInputEditor.setValue(this.jsonInput.value || '');
             }
@@ -2260,6 +2282,16 @@ export class JsonEditorComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.viewportWasWide = wide;
         this.isCompactViewport = !wide;
+        if (this.isCompactViewport) {
+            this.scheduleVisiblePaneResize();
+        }
+    }
+
+    private scheduleVisiblePaneResize(): void {
+        setTimeout(() => {
+            this.jsonInputEditor?.refreshLayout(0);
+            this.jsonOutputEditor?.refreshLayout(0);
+        }, 120);
     }
 
     private updatePanelWidthFromClientX(clientX: number): void {

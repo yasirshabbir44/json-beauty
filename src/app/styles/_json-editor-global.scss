@@ -240,6 +240,10 @@ app-json-editor {
   }
 
   @media (max-width: 991px) {
+    --jb-editor-pane-h: clamp(240px, calc(100dvh - 300px), 72dvh);
+    --jb-editor-pane-min-h: 200px;
+    --jb-workspace-min-h: auto;
+
     .launch-description .launch-description-grid,
     .launch-description--open > .launch-description-body {
       grid-template-columns: 1fr;
@@ -253,12 +257,12 @@ app-json-editor {
     .editor-card {
       min-height: auto;
       height: auto;
+      overflow: visible;
       border-radius: var(--jb-radius-md);
 
       mat-card-content {
         padding: 10px;
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: visible;
         -webkit-overflow-scrolling: touch;
       }
     }
@@ -297,6 +301,15 @@ app-json-editor {
       .panel-divider {
         display: none;
       }
+
+      &.compact-single-pane {
+        min-height: 0;
+
+        app-json-input-editor,
+        app-json-output-editor {
+          flex: 1 1 100%;
+        }
+      }
     }
 
     .editor-menubar .feature-nav-btn.quick-diff-btn {
@@ -305,6 +318,9 @@ app-json-editor {
   }
 
   @media (max-width: 767px) {
+    --jb-editor-pane-h: clamp(220px, calc(100dvh - 280px), 68dvh);
+    --jb-editor-pane-min-h: 180px;
+
     .editor-control-head {
       flex-direction: column;
       align-items: stretch;
@@ -389,6 +405,9 @@ app-json-editor {
   }
 
   @media (max-width: 480px) {
+    --jb-editor-pane-h: clamp(200px, calc(100dvh - 260px), 62dvh);
+    --jb-editor-pane-min-h: 160px;
+
     .editor-card mat-card-content {
       padding: 8px;
     }

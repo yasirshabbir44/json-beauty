@@ -2,6 +2,11 @@
 // This approach reduces the file size to stay within budget limits
 
 :host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   --input-toolbar-h: 40px;
 }
 

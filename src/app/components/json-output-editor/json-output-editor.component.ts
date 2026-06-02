@@ -566,6 +566,10 @@ export class JsonOutputEditorComponent implements OnInit, AfterViewInit, OnChang
      * Utility method to safely resize the editor after a short delay
      * @param delay Time in milliseconds to wait before resizing
      */
+    refreshLayout(delay: number = 100): void {
+        this.resizeEditorSafely(delay);
+    }
+
     private resizeEditorSafely(delay: number = 100): void {
         if (!this.outputEditor) return;
 

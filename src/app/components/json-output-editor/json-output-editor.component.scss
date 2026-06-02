@@ -2,6 +2,11 @@
 // This approach reduces the file size to stay within budget limits
 
 :host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   // Match input panel toolbar metrics for aligned headers and fullscreen layout
   --output-toolbar-h: 40px;
 }
@@ -18,6 +23,8 @@
   background: linear-gradient(180deg, var(--jb-panel-output-bg) 0%, var(--jb-bg-surface) 48px);
   position: relative;
   border-top: 2px solid var(--jb-panel-output);
+  container-type: inline-size;
+  container-name: output-pane;
 
   &:hover {
     border-color: var(--jb-border-strong);
@@ -28,6 +35,7 @@
     margin: 0;
     padding: 8px 12px;
     min-height: var(--output-toolbar-h);
+    height: auto;
     background: transparent;
     border-bottom: 1px solid var(--jb-border);
     display: grid;
@@ -40,16 +48,8 @@
     font-weight: 600;
     color: var(--jb-text);
     font-family: var(--jb-font-sans);
-
-    @media (max-width: 640px) {
-      grid-template-columns: 1fr auto;
-      grid-template-areas:
-        'brand actions'
-        'toggles toggles';
-    }
   }
 
-  // Fullscreen mode
   &.fullscreen-mode {
     border-radius: 0;
     box-shadow: none;
@@ -57,11 +57,11 @@
     background-color: #ffffff;
 
     .editor-wrapper {
-      height: calc(100vh - var(--output-toolbar-h));
+      height: calc(100dvh - var(--output-toolbar-h) - 16px);
+      min-height: 200px;
     }
   }
-  
-  // For backward compatibility
+
   &.maximized {
     position: fixed;
     top: 0;
@@ -75,7 +75,86 @@
     box-shadow: none;
     overflow: auto;
   }
+}
 
+// Narrow output column (split pane ~50% width, or mobile) — panel width, not viewport
+@container output-pane (max-width: 680px) {
+  .editor-section.output-section h3.output-toolbar {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand actions'
+      'toggles toggles';
+    align-items: center;
+    row-gap: 8px;
+  }
+
+  .editor-section.output-section .output-toolbar-toggles {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    padding-bottom: 2px;
+  }
+}
+
+@container output-pane (max-width: 420px) {
+  .editor-section.output-section .output-toolbar-toggles {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    overflow-x: visible;
+
+    .output-format-selector,
+    .view-mode-selector {
+      width: 100%;
+    }
+  }
+
+  .editor-section.output-section .view-toggle-label {
+    display: none;
+  }
+}
+
+@container output-pane (max-width: 680px) {
+  .editor-section.output-section ::ng-deep .output-toolbar-toggles .mat-mdc-button-toggle-group {
+    flex-shrink: 0;
+  }
+}
+
+@container output-pane (max-width: 420px) {
+  .editor-section.output-section ::ng-deep .output-toolbar-toggles .mat-mdc-button-toggle-group {
+    width: 100%;
+  }
+
+  .editor-section.output-section ::ng-deep .output-toolbar-toggles .mat-mdc-button-toggle {
+    flex: 1 1 0;
+  }
+}
+
+// Fallback when container queries are unsupported (older browsers)
+@supports not (container-type: inline-size) {
+  :host-context(.dual-pane-mode) .editor-section.output-section h3.output-toolbar,
+  :host-context(.editor-container--compact) .editor-section.output-section h3.output-toolbar {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'brand actions'
+      'toggles toggles';
+  }
+
+  :host-context(.dual-pane-mode) .editor-section.output-section .output-toolbar-toggles,
+  :host-context(.editor-container--compact) .editor-section.output-section .output-toolbar-toggles {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 8px;
+    width: 100%;
+    overflow-x: auto;
+  }
 }
 
 .output-toolbar-brand {
@@ -127,7 +206,7 @@
   font-weight: 600;
 }
 
-@media (max-width: 900px) {
+@container output-pane (max-width: 520px) {
   .view-toggle-label {
     display: none;
   }
